@@ -1,0 +1,22 @@
+version: "1"
+name: base
+services:
+  host: 
+    build: ./base_host
+    image: ansible_base_host
+    privileged: true
+#    hostname: host01
+#    container_name: my_ansible_base_host
+#  'container_name' conflicts with replicas.
+    deploy:
+      replicas: 2
+    volumes:
+      - ~/.ssh/id_ed25519.pub:/root/.ssh/authorized_keys
+    command: chown root:root /root/.ssh/authorized_keys
+    networks: 
+      - ansible-net
+
+networks:
+  ansible-net:
+    driver: bridge
+    name: ansible-net 

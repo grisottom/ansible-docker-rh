@@ -1,0 +1,11 @@
+version: "1"
+name: base
+services:
+
+networks:
+  ansible-net:
+    driver: bridge
+    name: ansible-net 
+#  master:
+#    build: ./master
+#    image: ansible_base_master
