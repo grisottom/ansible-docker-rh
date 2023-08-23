@@ -1,11 +1,17 @@
 version: "1"
 name: base
 services:
-
+  #AVOID THIS COMPOSE, use docker-run-*.sh (inside base_master), it is better for use case: run, stop, remove
+  ansible-run:
+    image: ansible_base_master:latest
+    privileged: true
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./base_master/ansible-apache:/ansible
+    command: sh ansible-run.sh
+    networks: 
+      - ansible-net    
 networks:
   ansible-net:
     driver: bridge
-    name: ansible-net 
-#  master:
-#    build: ./master
-#    image: ansible_base_master
+    name: ansible-net

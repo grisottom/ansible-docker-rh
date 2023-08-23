@@ -1,0 +1,13 @@
+---
+- hosts: web_hosts
+  tasks:
+    - name: install apache
+      include_role: 
+        name: geerlingguy.apache
+    - name: create a custom index.html vars_files
+      copy:
+        dest: /var/www/html/index.html
+        content:
+          This is the content of index.html
+#  vars_files:
+#    - apache/vars/main.yml          

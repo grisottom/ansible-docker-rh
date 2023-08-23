@@ -2,8 +2,12 @@ docker run \
   -it \
   -h master_ansible \
   -v ~/.ssh:/root/.ssh \
+  -v ./ansible-apache:/ansible \
   --rm --privileged \
   --name=my_ansible_base_master \
   --network=ansible-net \
   ansible_base_master:latest \
-  ansible all  --user root -i 'base-host-1,' -m ping  
+  sh ansible-run.sh
+
+#ansible-galaxy install -r requirements.yml && sh
+#ansible-playbook -i inventory base.yml

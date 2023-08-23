@@ -1,0 +1,2 @@
+[hosts]
+base-web-host-[1:2] ansible_user=root

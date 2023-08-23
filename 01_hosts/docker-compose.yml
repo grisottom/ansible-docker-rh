@@ -1,9 +1,27 @@
 version: "1"
 name: base
 services:
-  host: 
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    # Enables the web UI and tells Traefik to listen to docker
+    command: --api.insecure=true --providers.docker
+    ports:
+      # The HTTP port
+      - "80:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8080:8080"
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks: 
+      - ansible-net
+
+  web-host: 
     build: ./base_host
     image: ansible_base_host
+    depends_on: 
+      - reverse-proxy
     privileged: true
 #    hostname: host01
 #    container_name: my_ansible_base_host
@@ -15,8 +33,20 @@ services:
     command: chown root:root /root/.ssh/authorized_keys
     networks: 
       - ansible-net
+    labels:
+      # This is enableing treafik to proxy this service
+      - "traefik.enable=true"
+      # Here we have to define the URL
+      - "traefik.http.routers.myproject.rule=Host(`myproject.localhost`)"
+      # Here we are defining wich entrypoint should be used by clients to access this service
+      #???- "traefik.http.routers.myproject.entrypoints=web"
+      # Here we define in wich network treafik can find this service
+      - "traefik.docker.network=ansible-net"
+      # This is the port that traefik should proxy
+      - "traefik.http.services.myproject.loadbalancer.server.port=80"      
 
 networks:
   ansible-net:
     driver: bridge
-    name: ansible-net 
+    name: ansible-net
+#    external: true
