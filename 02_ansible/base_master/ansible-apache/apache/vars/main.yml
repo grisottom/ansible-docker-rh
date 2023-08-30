@@ -1,3 +1,0 @@
-#apache_listen_port: 80
-apache_vhosts:
-  - {servername: "localhost", documentroot: "/var/www/html"}

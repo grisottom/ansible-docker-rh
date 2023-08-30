@@ -1,0 +1,6 @@
+- name: unarchive_from_url
+  vars:
+    params:
+      server1:
+        url: https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip
+        target: /var/www/web-host

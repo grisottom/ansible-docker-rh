@@ -2,12 +2,11 @@ docker run \
   -it \
   -h master_ansible \
   -v ~/.ssh:/root/.ssh \
-  -v ./ansible-apache:/ansible \
+  -v ./ansible-apache-deploy:/ansible \
   --rm --privileged \
   --name=my_ansible_base_master \
   --network=ansible-net \
   ansible_base_master:latest \
-  sh ansible-run.sh
+  sh ansible-apache-deploy.sh
+  # sh 
 
-#ansible-galaxy install -r requirements.yml && sh
-#ansible-playbook -i inventory base.yml

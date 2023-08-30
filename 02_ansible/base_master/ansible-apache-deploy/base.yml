@@ -1,0 +1,37 @@
+---
+- hosts: web_hosts
+  tasks:
+    - name: extractor presents
+      ansible.builtin.yum:
+        name:
+          - unzip
+          - tar
+        state: present
+      become: true
+    - name: delete previous extraction
+      file: 
+        path: ~/tmp/extract_dir/
+        state: absent
+    - name: recreates extraction directory
+      file: 
+        path: ~/tmp/extract_dir/
+        state: directory        
+    - name: extract archive
+      unarchive:
+        src: https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip
+        dest: ~/tmp/extract_dir/
+        remote_src: true
+        list_files: true
+        validate_certs: true
+      register: response_output
+    # - debug:
+    #     var: response_output
+    - name: recreates extraction directory
+      file: 
+        path: /var/www/web-host/
+        state: directory        
+    - name: sync 'extract_dir/top_dir' with 'vhost_dir/chess'
+      synchronize:
+        src: ~/tmp/extract_dir/{{response_output.files[0]}}
+        dest: /var/www/web-host/chess
+      delegate_to: "{{ inventory_hostname }}"

@@ -1,5 +1,9 @@
 ---
 - hosts: web_hosts
+  vars:
+    apache_vhosts:
+      - {servername: "web-host", documentroot: "/var/www/web-host/"}
+      - {servername: "localhost", documentroot: "/var/www/html/"}  
   tasks:
     - name: install apache
       include_role: 
@@ -9,5 +13,7 @@
         dest: /var/www/html/index.html
         content:
           This is the content of index.html
-#  vars_files:
-#    - apache/vars/main.yml          
+    - name: install the latest version of rsync
+      yum:
+        name: rsync
+        state: latest
