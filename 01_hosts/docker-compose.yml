@@ -29,17 +29,17 @@ services:
 
   # apache: 
   #   image: httpd:latest
+  #   depends_on: 
+  #     - reverse-proxy      
   #   deploy:
-  #     replicas: 1
-  #   ports: 
-  #     - 8180:80
+  #     replicas: 2
   #   networks: 
   #     - ansible-net
   #   labels:
   #     - "traefik.enable=true"
   #     - "traefik.http.routers.apache.rule=Host(`webserver.localhost`)"
   #     - "traefik.docker.network=ansible-net"
-  #     - "traefik.http.services.apache.loadbalancer.server.port=8180"
+  #     - "traefik.http.services.apache.loadbalancer.server.port=80"
 
   web-host: 
     build: ./base_host
@@ -56,9 +56,9 @@ services:
       - ansible-net
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web-host.rule=Host(`web-host`)"
+      - "traefik.http.routers.web_localhost.rule=Host(`web.localhost`,`chess.localhost`)"
       - "traefik.docker.network=ansible-net"
-      - "traefik.http.services.web-host.loadbalancer.server.port=80"      
+      - "traefik.http.services.web_localhost.loadbalancer.server.port=80"      
 
 networks:
   ansible-net:

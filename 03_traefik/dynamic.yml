@@ -2,7 +2,7 @@
 http:
   routers:
     route-to-local-ip:
-      rule: "Host(`web-host`)"
+      rule: "Host(`web.localhost`)"
       service: route-to-local-ip-service
       priority: 1000
       entryPoints:

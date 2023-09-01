@@ -1,18 +1,17 @@
 ---
 - hosts: web_hosts
+  
+  # vars_files:
+  #   - vars/main.yml
   vars:
     apache_vhosts:
-      - {servername: "web-host", documentroot: "/var/www/web-host/"}
-      - {servername: "localhost", documentroot: "/var/www/html/"}  
+      - {servername: "web.localhost", documentroot: "/var/www/html/"}  
+      - {servername: "chess.localhost", documentroot: "/var/www/root_chess_localhost/chess"}
+
   tasks:
     - name: install apache
       include_role: 
         name: geerlingguy.apache
-    - name: create a custom index.html vars_files
-      copy:
-        dest: /var/www/html/index.html
-        content:
-          This is the content of index.html
     - name: install the latest version of rsync
       yum:
         name: rsync
