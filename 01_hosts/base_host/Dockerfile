@@ -15,9 +15,6 @@ RUN ["mkdir","-p","/root/.ssh"]
 RUN ["chmod", "0700", "/root/.ssh"]
 RUN ["touch","/root/.ssh/authorized_keys"]
 
-#RUN ln -s /run/secrets/user_ssh_key /root/.ssh/id_ed25519
-#COPY ./public_ssh_key/master_id_ed25519.pub /root/.ssh/authorized_keys
-
 RUN echo -e "PasswordAuthentication no\nPermitRootLogin yes\nPubKeyAuthentication yes\nPubkeyAcceptedKeyTypes ssh-ed25519\nUsePAM yes" >> /etc/ssh/sshd_config
 
 ENTRYPOINT ["/sbin/init"]

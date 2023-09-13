@@ -1,16 +1,31 @@
 version: "1"
-name: base
+name: master
 services:
-  #AVOID THIS COMPOSE, use docker-run-*.sh (inside base_master), it is better for use case: run, stop, remove
-  ansible-apache-install:
+
+  apache-install:
+    build: ./base_master
     image: ansible_base_master:latest
     privileged: true
     volumes:
       - ~/.ssh:/root/.ssh
       - ./base_master/ansible-apache-install:/ansible
-    command: sh ansible-apache-install.sh
+    networks: 
+      - ansible-net       
+    command: ["/bin/sh","-c","./ansible-apache-install.sh"]
+
+  apache-deploy:
+    image: ansible_base_master:latest
+    depends_on: 
+      apache-install:
+        condition: service_completed_successfully
+    privileged: true
+    volumes:
+      - ~/.ssh:/root/.ssh
+      - ./base_master/ansible-apache-deploy:/ansible
+    command: sh ansible-apache-deploy.sh
     networks: 
       - ansible-net    
+
 networks:
   ansible-net:
     driver: bridge

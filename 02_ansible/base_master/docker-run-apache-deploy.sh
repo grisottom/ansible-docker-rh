@@ -8,5 +8,4 @@ docker run \
   --network=ansible-net \
   ansible_base_master:latest \
   sh ansible-apache-deploy.sh
-  # sh 
 

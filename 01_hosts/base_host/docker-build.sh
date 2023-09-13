@@ -1,1 +1,1 @@
-docker build -t ansible_base_host .
+docker build -t target_host .

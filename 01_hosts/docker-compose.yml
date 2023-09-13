@@ -43,7 +43,7 @@ services:
 
   web-host: 
     build: ./base_host
-    image: ansible_base_host
+    image: target_host
     depends_on: 
       - reverse-proxy
     privileged: true
@@ -64,4 +64,3 @@ networks:
   ansible-net:
     name: ansible-net
     driver: bridge
-    external: true
