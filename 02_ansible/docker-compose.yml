@@ -1,6 +1,7 @@
 version: "1"
 name: master
 services:
+  # The services are also available by 'docker-run' alternatives in the same folder, ex.: docker-run-apache-install.sh
 
   apache-install:
     build: ./base_master

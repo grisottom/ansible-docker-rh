@@ -1,6 +1,6 @@
 # ansible-docker-rh
 
-Ansible development sample using docker and targeting RedHat 8 compatible containers.
+Ansible development environment using docker and targeting RedHat 8 compatible containers.
 
 ## TL;DR
 
@@ -13,13 +13,20 @@ and
 
   the first creates the 'target hosts' containers,
 
-  the second creates 'master ansible' container and install software on the 'target hosts',
+  the second creates 'master ansible' container that installs some software on the 'target hosts',
 
-Ansible uses ssh for connection between 'master ansible' and 'target hosts'. 
+### Troubleshoot
 
-In order to easy that connection pubKey authentication is enabled and, using volumes, keys are shared between host machine and containers.
+If you get the following error, close you active VPN connection.
+
+```
+✘ Network ansible-net  Error                                                                                                             0.0s 
+failed to create network ansible-net: Error response from daemon: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
+```
 
 ### Key generation in host machine 
+
+Ansible uses ssh for connection between 'master ansible' and 'target hosts'. In order to easy that connection pubKey authentication is enabled and, using volumes, keys are shared between host machine and containers.
 
 How to generate "id_ed25519":
 
@@ -34,6 +41,8 @@ This will create two files in 'home/user/.ssh/' in your host machine
 ```
 
 ### Did it work out?
+
+The software installed are Apache web server and deploy of javascript chess application on that server.
 
 You can assert that apache is running by accessing "http://web.localhost". 
 
@@ -73,13 +82,13 @@ The idea in not to run services on containers, but to develop roles through expe
 
 It is the base host image, enabled to receive ansible commands. 
 
-The base image is UBI8, the (new de facto container base image for Red Hat Enterprise Linux 8)[https://developers.redhat.com/articles/ubi-faq].
+The base image is UBI8, the [new de facto container base image for Red Hat Enterprise Linux 8](https://developers.redhat.com/articles/ubi-faq).
 
 Added to the base image we have:
 - python3
 - openssh-server
 
-Added configuration of 'ssh-server' to '/etc/ssh/sshd_config'
+Added to configuration of 'ssh-server' in '/etc/ssh/sshd_config'
 
 ```
   PasswordAuthentication no
@@ -116,9 +125,9 @@ Here a sample of 'docker-compose.yml' where image 'target_host' is constructed f
 
 Notice that web-host runs **privileged** which means that it run as root, running ssh-server on port 80 also can only run by the root user. 
 
-Run as root user make life easy for now. Run as specific user is in TODO list.
+Run as root user makes life easier for now. To run as a specific user is in the TODO list.
 
-In 'labels' are configuration of traefik reverse-proxy. Later the two names 'web.localhost' and 'chess.localhost' will be configured in 'vhosts' of apache.
+In 'labels' are configuration of traefik reverse-proxy. Later, in configuration of Apache, the two names 'web.localhost' and 'chess.localhost' are configured as 'vhosts'.
 
 ## Master ansible image
 
@@ -128,24 +137,24 @@ The image is alpine based, with added
 - openssh-client
 - git
 
-Added to the configuration of 'ssh-client' to '/etc/ssh/ssh_config'
+Added to the configuration of 'ssh-client' in '/etc/ssh/ssh_config'
 
 ```
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
 ```
 
-Meaning that ssh client will accept any key from any ssh server, our known hosts
+Meaning that ssh client will accept any key from any ssh server, our known hosts.
 
-Finally the working directory 
+Finally the working directory is '/ansible':
 
 ```
 WORKDIR /ansible
 ```
 
-## docker-compose 'master ansible'
+### docker-compose 'master ansible'
 
-Excerpt of docker-compose.yml, notice that the volume './base_master/ansible-apache-install' is mapped to the working directory 'ansible', allowing ansible to access any resource.
+Excerpt from docker-compose.yml:
 
 ```
   apache-install:
@@ -159,4 +168,69 @@ Excerpt of docker-compose.yml, notice that the volume './base_master/ansible-apa
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-apache-install.sh"]
 ```
+
+ Notice that the volume './base_master/ansible-apache-install' is mapped to the working directory 'ansible', allowing ansible to access any resource.
+
+### docker run alternative
+
+The services are also available by 'docker-run' alternatives in the same folder, ex.: docker-run-apache-install.sh
+
+```
+docker run \
+  -it \
+  -h master_ansible \
+  -v ~/.ssh:/root/.ssh \
+  -v ./ansible-apache-install:/ansible \
+  --rm --privileged \
+  --name=my_ansible_base_master \
+  --network=ansible-net \
+  ansible_base_master:latest \
+  sh ansible-apache-install.sh
+```
+
+#### Ansible scripts
+
+The ansible scripts, the main objective of this work are available in two subfolders
+
+- ansible-apache-install and
+- ansible-apache-deploy
+
+Inside each folder there is a shell script with ansible commands, ex. 'ansible-apache-install.sh' 
+
+```
+ansible-galaxy install -r requirements.yml 
+ansible-playbook -i inventory base.yml
+```
+
+The 'inventory' file  contains the groups of hosts
+
+```
+[web_hosts]
+base-web-host-[1:2] ansible_user=root
+```
+
+The 'base.yml' command the Ansible tasks/roles, ex:
+
+```
+---
+- hosts: web_hosts
+  
+  # vars_files:
+  #   - vars/main.yml
+  vars:
+    apache_vhosts:
+      - {servername: "web.localhost", documentroot: "/var/www/html/"}  
+      - {servername: "chess.localhost", documentroot: "/var/www/root_chess_localhost/chess"}
+
+  tasks:
+    - name: install apache
+      include_role: 
+        name: geerlingguy.apache
+    - name: install the latest version of rsync
+      yum:
+        name: rsync
+        state: latest
+```
+
+Notice that we are including a 'community' role from Ansible Galaxy, see 'requirements.yml' 
 
