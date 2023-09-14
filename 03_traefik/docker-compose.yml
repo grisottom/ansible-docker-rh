@@ -1,5 +1,5 @@
 version: "1"
-# DO NOT USE, WORK IN PROGRESS, reference: https://github.com/DoTheEvo/Traefik-v2-examples#1-traefik-routing-to-various-docker-containers
+# reference: https://github.com/DoTheEvo/Traefik-v2-examples#1-traefik-routing-to-various-docker-containers
 name: base
 services:
   reverse-proxy:
@@ -18,30 +18,6 @@ services:
       - "./dynamic.yml:/dynamic.yml:ro"      
     networks: 
       - ansible-net
-
-  # whoami:
-  #   # A container that exposes an API to show its IP address
-  #   image: traefik/whoami
-  #   networks: 
-  #     - ansible-net    
-  #   labels:
-  #     - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
-  #     - "traefik.docker.network=ansible-net"
-  #     - "traefik.http.services.whatservice.loadbalancer.server.port=80"            
-
-  # apache: 
-  #   image: httpd:latest
-  #   deploy:
-  #     replicas: 1
-  #   ports: 
-  #     - 8180:80
-  #   networks: 
-  #     - ansible-net
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.http.routers.apache.rule=Host(`webserver.localhost`)"
-  #     - "traefik.docker.network=ansible-net"
-  #     - "traefik.http.services.apache.loadbalancer.server.port=8180" 
 
 networks:
   ansible-net:
