@@ -6,9 +6,9 @@ api:
   insecure: true
   dashboard: true
 
-entrypoints:
-  web:
-    address: ":80"
+# entrypoints:
+#   web:
+#     address: ":80"
     
 providers:
   docker:
@@ -16,3 +16,7 @@ providers:
     exposedByDefault: false
   file:
     filename: "dynamic.yml"
+
+docker:
+  networks:
+    ansible-net

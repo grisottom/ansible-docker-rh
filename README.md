@@ -10,14 +10,17 @@ and
 
 - run 'docker-compose up' on 01_hosts/ 
 - run 'docker-compose up' on 02_ansible/ 
+- run 'docker-compose up' on 03_traefik/ 
 
   the first creates the 'target hosts' containers,
 
   the second creates 'master ansible' container that installs some software on the 'target hosts',
 
+  the third creates reverse proxy/load balancer with names 'web.localhost' and 'chess.localhost'.
+
 ### Troubleshoot
 
-If you get the following error, close you active VPN connection.
+If you get the following error, close your active VPN connection.
 
 ```
 ✘ Network ansible-net  Error                                                                                                             0.0s 
@@ -106,8 +109,6 @@ Here a sample of 'docker-compose.yml' where image 'target_host' is constructed f
   web-host: 
     build: ./base_host
     image: target_host
-    depends_on: 
-      - reverse-proxy
     privileged: true
     deploy:
       replicas: 2
@@ -116,18 +117,11 @@ Here a sample of 'docker-compose.yml' where image 'target_host' is constructed f
     command: chown root:root /root/.ssh/authorized_keys
     networks: 
       - ansible-net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.web_localhost.rule=Host(`web.localhost`,`chess.localhost`)"
-      - "traefik.docker.network=ansible-net"
-      - "traefik.http.services.web_localhost.loadbalancer.server.port=80" 
 ```
 
 Notice that web-host runs **privileged** which means that it run as root, running ssh-server on port 80 also can only run by the root user. 
 
 Run as root user makes life easier for now. To run as a specific user is in the TODO list.
-
-In 'labels' are configuration of traefik reverse-proxy. Later, in configuration of Apache, the two names 'web.localhost' and 'chess.localhost' are configured as 'vhosts'.
 
 ## Master ansible image
 
@@ -190,7 +184,7 @@ docker run \
 
 #### Ansible scripts
 
-The ansible scripts, the main objective of this work are available in two subfolders
+The ansible scripts, the main objective of this work, are available in two subfolders:
 
 - ansible-apache-install and
 - ansible-apache-deploy
@@ -209,7 +203,7 @@ The 'inventory' file  contains the groups of hosts
 base-web-host-[1:2] ansible_user=root
 ```
 
-The 'base.yml' command the Ansible tasks/roles, ex:
+The 'base.yml' file contain the Ansible tasks/roles, ex:
 
 ```
 ---
@@ -232,5 +226,29 @@ The 'base.yml' command the Ansible tasks/roles, ex:
         state: latest
 ```
 
-Notice that we are including a 'community' role from Ansible Galaxy, see 'requirements.yml' 
+Notice that we are including a community role from Ansible Galaxy called 'geerlingguy.apache' (see 'requirements.yml' file). This role does the job of installing Apache.
+
+
+### docker-compose 'traefik'
+
+You can access the web server through the IP attributed to the host, ex: 172.21.0.3, or access through a reverse proxy.
+
+The load balancer traefik maps a two names to the web hosts, 'web.localhost' and 'chess.localhost', matching those configured on 'apache_vhosts' (above)
+
+```
+## DYNAMIC CONFIGURATION
+
+http:
+  routers:
+    route-to-local-ip:
+      rule: "Host(`web.localhost`,`chess.localhost`)"
+      service: route-to-web-host
+
+  services:
+    route-to-web-host:
+      loadBalancer:
+        servers:
+          - url: "http://base-web-host-1:80"
+          - url: "http://base-web-host-2:80"
+```          
 

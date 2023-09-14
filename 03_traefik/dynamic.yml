@@ -1,16 +1,14 @@
 ## DYNAMIC CONFIGURATION
+
 http:
   routers:
     route-to-local-ip:
-      rule: "Host(`web.localhost`)"
-      service: route-to-local-ip-service
-      priority: 1000
-      entryPoints:
-        - web
+      rule: "Host(`web.localhost`,`chess.localhost`)"
+      service: route-to-web-host
 
   services:
-    route-to-local-ip-service:
+    route-to-web-host:
       loadBalancer:
         servers:
-          - url: "http://172.26.0.2:80"
-          - url: "http://172.26.0.3:80"
+          - url: "http://base-web-host-1:80"
+          - url: "http://base-web-host-2:80"
