@@ -1,6 +1,6 @@
 ---
 - hosts: web_hosts
-  
+
   # vars_files:
   #   - vars/main.yml
   vars:
@@ -9,6 +9,7 @@
       - {servername: "chess.localhost", documentroot: "/var/www/root_chess_localhost/chess"}
 
   tasks:
+
     - name: install apache
       include_role: 
         name: geerlingguy.apache

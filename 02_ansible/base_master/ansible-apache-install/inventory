@@ -1,2 +1,2 @@
 [web_hosts]
-base-web-host-[1:2] ansible_user=root
+base-web-host-[1:2] ansible_user=apache ansible_become=yes
