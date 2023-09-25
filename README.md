@@ -157,13 +157,13 @@ Excerpt from docker-compose.yml:
     privileged: true
     volumes:
       - ~/.ssh:/root/.ssh
-      - ./base_master/ansible-apache-install:/ansible
+      - ./base_master/ansible-2-apache-install:/ansible
     networks: 
       - ansible-net       
-    command: ["/bin/sh","-c","./ansible-apache-install.sh"]
+    command: ["/bin/sh","-c","./ansible-2-apache-install.sh"]
 ```
 
- Notice that the volume './base_master/ansible-apache-install' is mapped to the working directory 'ansible', allowing ansible to access any resource.
+ Notice that the volume './base_master/ansible-2-apache-install' is mapped to the working directory 'ansible', allowing ansible to access any resource.
 
 ### docker run alternative
 
@@ -174,22 +174,22 @@ docker run \
   -it \
   -h master_ansible \
   -v ~/.ssh:/root/.ssh \
-  -v ./ansible-apache-install:/ansible \
+  -v ./ansible-2-apache-install:/ansible \
   --rm --privileged \
   --name=my_ansible_base_master \
   --network=ansible-net \
   ansible_base_master:latest \
-  sh ansible-apache-install.sh
+  sh ansible-2-apache-install.sh
 ```
 
 #### Ansible scripts
 
 The ansible scripts, the main objective of this work, are available in two subfolders:
 
-- ansible-apache-install and
-- ansible-apache-deploy
+- ansible-2-apache-install and
+- ansible-3-apache-deploy
 
-Inside each folder there is a shell script with ansible commands, ex. 'ansible-apache-install.sh' 
+Inside each folder there is a shell script with ansible commands, ex. 'ansible-2-apache-install.sh' 
 
 ```
 ansible-galaxy install -r requirements.yml 
@@ -214,7 +214,7 @@ The 'base.yml' file contain the Ansible tasks/roles, ex:
   vars:
     apache_vhosts:
       - {servername: "web.localhost", documentroot: "/var/www/html/"}  
-      - {servername: "chess.localhost", documentroot: "/var/www/root_chess_localhost/chess"}
+      - {servername: "chess.localhost", documentroot: "/home/apache/root_chess_localhost/chess"}
 
   tasks:
     - name: install apache

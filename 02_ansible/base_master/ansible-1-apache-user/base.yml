@@ -1,0 +1,76 @@
+---
+- name: create user and group
+  hosts: web_hosts
+  gather_facts: false
+  become: yes
+
+  vars:
+    s_user: 'apache'
+    s_group: 'apache'
+    user_password: 'apache123'
+
+  tasks:
+    #The “getent” is a short form of “get entries from the administrative database”
+    - name: Get user info
+      ansible.builtin.getent:
+        database: passwd
+        key: "{{ s_user }}"
+        fail_key: no    
+
+    - name: Debug User 
+      ansible.builtin.debug:
+        var: "ansible_facts.getent_passwd['{{s_user}}']"
+
+    - name: Debug User - "ansible_facts.getent_passwd['{{s_user}}'] | type_debug"
+      ansible.builtin.debug:
+        var: "ansible_facts.getent_passwd['{{s_user}}'] | type_debug"
+
+    - name: Get group info
+      ansible.builtin.getent:
+        database: group
+        key: "{{ s_group }}"
+        fail_key: no
+
+    - name: Debug Group - "ansible_facts.getent_group['{{s_group}}']"
+      ansible.builtin.debug:
+        var: "ansible_facts.getent_group['{{s_group}}']"
+
+    - name: Debug Group "ansible_facts.getent_group['{{s_group}}'] | type_debug"
+      ansible.builtin.debug:
+        var: "ansible_facts.getent_group['{{s_group}}'] | type_debug"
+
+    - name: Create group s_group
+      ansible.builtin.group:
+        name: "{{ s_group }}"
+        state: present
+      #ref: https://www.redhat.com/sysadmin/ansible-automation-steps
+      #The user task now updates the user only when the getent_group variable for the group is NoneType (sem valor)
+      when: (ansible_facts.getent_group[s_group] | type_debug) == "NoneType"
+
+    - name: Create user s_user
+      ansible.builtin.user:
+        name: "{{ s_user }}"
+        group: "{{ s_group }}"
+        state: present
+        password: "{{ user_password | password_hash('sha512') }}"
+      #ref: https://www.redhat.com/sysadmin/ansible-automation-steps
+      #The user task now updates the user only when the getent_passwd variable for the user is NoneType (sem valor).
+      when: (ansible_facts.getent_passwd[s_user] | type_debug) == "NoneType"
+
+      # COPIAR O AUTHORIZED_KEYS do usuário root para o 'specific user'
+    - name: Copy authorized_keys from root to 'specific user'
+      ansible.builtin.copy:
+        remote_src: true
+        src: /root/.ssh/authorized_keys
+        dest: /home/{{ s_user }}/.ssh/
+        owner: "{{ s_user }}"
+        group: "{{ s_group }}"
+        mode: '0644'
+      
+    # - name: Allow the {{ user }} to run any commands as root 
+    #   community.general.sudoers:
+    #     name: s_user-as-root
+    #     state: present
+    #     user: "{{ s_user }}"
+    #     runas: root
+    #     commands: ALL

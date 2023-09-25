@@ -6,14 +6,11 @@
   vars:
     apache_vhosts:
       - {servername: "web.localhost", documentroot: "/var/www/html/"}  
-      - {servername: "chess.localhost", documentroot: "/var/www/root_chess_localhost/chess"}
+      - {servername: "chess.localhost", documentroot: "/home/apache/root_chess_localhost/chess"}
 
   tasks:
-
     - name: install apache
       include_role: 
         name: geerlingguy.apache
-    - name: install the latest version of rsync
-      yum:
-        name: rsync
-        state: latest
+        apply: 
+          become: true

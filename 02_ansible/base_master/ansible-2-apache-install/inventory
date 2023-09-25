@@ -1,0 +1,3 @@
+[web_hosts]
+base-web-host-[1:2] 
+#ansible_user=apache

@@ -1,0 +1,49 @@
+---
+# tasks file for create-user
+
+#The “getent” is a short form of “get entries from the administrative database”
+- name: Get user info
+  ansible.builtin.getent:
+    database: passwd
+    key: "{{ item.user_name }}"
+    fail_key: no
+
+- name: Debug user 
+  ansible.builtin.debug:
+    var: "ansible_facts.getent_passwd['{{item.user_name}}']"
+
+- name: Debug user - "ansible_facts.getent_passwd['{{item.user_name}}'] | type_debug"
+  ansible.builtin.debug:
+    var: "ansible_facts.getent_passwd['{{item.user_name}}'] | type_debug"
+
+- name: Get group info
+  ansible.builtin.getent:
+    database: group
+    key: "{{ item.group_name }}"
+    fail_key: no
+
+- name: Debug Group - "ansible_facts.getent_group['{{item.group_name}}']"
+  ansible.builtin.debug:
+    var: "ansible_facts.getent_group['{{item.group_name}}']"
+
+- name: Debug Group "ansible_facts.getent_group['{{item.group_name}}'] | type_debug"
+  ansible.builtin.debug:
+    var: "ansible_facts.getent_group['{{item.group_name}}'] | type_debug"
+
+- name: Create group item.group_name
+  ansible.builtin.group:
+    name: "{{ item.group_name }}"
+    state: present
+  #ref: https://www.redhat.com/sysadmin/ansible-automation-steps
+  #The user task now updates the user only when the getent_group variable for the group is NoneType (sem valor)
+  when: (ansible_facts.getent_group[item.group_name] | type_debug) == "NoneType"
+
+- name: Create user item.user_name
+  ansible.builtin.user:
+    name: "{{ item.user_name }}"
+    group: "{{ item.group_name }}"
+    state: present
+    password: "{{ item.user_password | password_hash('sha512') }}"
+  #ref: https://www.redhat.com/sysadmin/ansible-automation-steps
+  #The user task now updates the user only when the getent_passwd variable for the user is NoneType (sem valor).
+  when: (ansible_facts.getent_passwd[item.user_name] | type_debug) == "NoneType"
