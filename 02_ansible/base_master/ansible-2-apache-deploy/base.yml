@@ -1,0 +1,36 @@
+---
+- hosts: web_hosts
+
+  vars:
+    ansible_shell_allow_world_readable_temp: true 
+    apache_user_name: apache
+
+    user_home_dir: "/home/{{ apache_user_name }}"
+    extract_dir: "{{ user_home_dir }}/tmp/extract_dir"
+    app_dir: "{{ user_home_dir }}/root_chess_localhost/chess"
+
+    # src_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
+    src_archive: "chess-game-using-javascript.zip"
+
+  tasks:
+    # extractor will be used to extract files, role deploy-app-apache
+    - name: extractor presents
+      ansible.builtin.yum:
+        name:
+          - tar
+          - unzip
+        state: present
+      become: true
+
+    # rsync will be used to copy files, role deploy-app-apache
+    - name: install the latest version of rsync
+      yum:
+        name: rsync
+        state: latest
+      become: true    
+
+    - name: Deploy app to apache role
+      import_role:
+        name: deploy-app-apache
+      become: true
+      become_user: "{{ apache_user_name }}"
