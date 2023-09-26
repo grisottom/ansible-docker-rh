@@ -1,3 +1,0 @@
-[web_hosts]
-base-web-host-1
-#ansible_user=apache ansible_become=yes

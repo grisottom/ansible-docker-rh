@@ -1,5 +1,0 @@
-#apache_listen_port: 8099
-# apache_vhosts:
-#   - {servername: "web.localhost", documentroot: "/var/www/root_web_localhost"}
-#   - {servername: "localhost", documentroot: "/var/www/html"}
-# INACTIVE FOR NOW

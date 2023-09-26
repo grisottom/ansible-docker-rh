@@ -1,0 +1,18 @@
+---
+
+#apache user
+ansible_shell_allow_world_readable_temp: true 
+apache_user_name: apache
+apache_group_name: apache
+apache_user_password: apache123
+
+users:
+  - {user_name: "{{ apache_user_name }}", 
+      group_name: "{{ apache_group_name }}", 
+      user_password: "{{ apache_user_password }}"
+    }
+
+#geerlingguy.apache
+apache_vhosts:
+  - {servername: "web.localhost", documentroot: "/var/www/html/"}  
+  - {servername: "chess.localhost", documentroot: "/home/apache/root_chess_localhost/chess"}

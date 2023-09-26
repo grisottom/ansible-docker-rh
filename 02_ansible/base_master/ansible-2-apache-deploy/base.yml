@@ -9,8 +9,8 @@
     extract_dir: "{{ user_home_dir }}/tmp/extract_dir"
     app_dir: "{{ user_home_dir }}/root_chess_localhost/chess"
 
-    # src_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
-    src_archive: "chess-game-using-javascript.zip"
+    # app_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
+    app_archive: "chess-game-using-javascript.zip"
 
   tasks:
     # extractor will be used to extract files, role deploy-app-apache

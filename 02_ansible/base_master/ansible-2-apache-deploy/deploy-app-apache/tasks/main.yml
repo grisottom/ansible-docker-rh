@@ -1,0 +1,6 @@
+# tasks file for deploy-app-apache
+---
+- name: "Call deploy-app-apache tasks"
+  ansible.builtin.include_tasks: deploy-app-apache.yml
+  # loop: "{{ users }}"
+  # when: users is defined

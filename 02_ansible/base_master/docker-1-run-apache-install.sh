@@ -2,7 +2,7 @@ docker run \
   -it \
   -h master_ansible \
   -v ~/.ssh:/root/.ssh \
-  -v ./ansible-2-apache-install:/ansible \
+  -v ./ansible-1-apache-install:/ansible \
   --rm --privileged \
   --name=my_ansible_base_master \
   --network=ansible-net \

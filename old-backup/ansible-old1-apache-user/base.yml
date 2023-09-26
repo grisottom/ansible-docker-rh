@@ -66,11 +66,3 @@
         owner: "{{ s_user }}"
         group: "{{ s_group }}"
         mode: '0644'
-      
-    # - name: Allow the {{ user }} to run any commands as root 
-    #   community.general.sudoers:
-    #     name: s_user-as-root
-    #     state: present
-    #     user: "{{ s_user }}"
-    #     runas: root
-    #     commands: ALL
