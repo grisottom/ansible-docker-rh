@@ -5,7 +5,7 @@
     - vars/main.yml
 
   tasks:
-    - name: Create user "{{ apache_user_name }}"
+    - name: Create user "{{ user_name }}"
       import_role:
         name: create-users
       become: true
