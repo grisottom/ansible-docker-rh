@@ -4,9 +4,7 @@ Ansible development environment using docker and targeting RedHat 8 compatible c
 
 The main objective develop and test ansible scripts in a easier way. 
 
-The sample scripts developed are available in subfolders of ```/02_ansible/base_master```.
-
-The 
+The ansible scripts developed are available in subfolders of ```/02_ansible/base_master```.
 
 ## TL;DR
 
@@ -45,7 +43,7 @@ Ansible uses ssh for connection between ```master ansible``` and ```target hosts
 
 In order to allow that connection in a easy way, the pubKey authentication is enabled.  
 
-A key pair is generated manually on host machine, and, later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with ```target hosts``` containers.
+A key pair is generated manually on host machine, and, later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with the ```target hosts``` containers.
 
 How to generate ```id_ed25519``` key pair run:
 
@@ -63,7 +61,7 @@ This will create two files in host machine ```home/your_user/.ssh/```:
 
 ### Did it work out?
 
-The software installed are Apache web server and deploy of javascript chess application on that server.
+The software installed by Ansible are Apache web server and a javascript chess application on that web server.
 
 You can assert that Apache is running by accessing [```"http://web.localhost"```](http://web.localhost). 
 
@@ -75,7 +73,7 @@ The chess application can be accessed on  [```"http://chess.localhost"```](http:
 
 no modifications were made. 
 
-The zipped file [was scanned for virus at VirusTotal](https://www.virustotal.com/gui/file/d17c8358e644709f73098992f52f52a54ea4b671dcc3cba877b78a58c02f8c08), nothing was detected.
+The zipped file [was scanned for virus at VirusTotal](https://www.virustotal.com/gui/file/d17c8358e644709f73098992f52f52a54ea4b671dcc3cba877b78a58c02f8c08), nothing malicious was detected.
 
 ## Details
 ---
@@ -97,13 +95,13 @@ The idea is to use containers with the aim of
 - facilitate the development of Ansible roles for late use in a VM environments,
 - share the work developed between DEVs and OPS in a reproducible way.
 
-To achieve this objective, we will need to
+To achieve this objective, we needed to
 - standardize the base image of target hosts, compatible with the VM OS,
 - standardize the ansible base image, master node,
 - compose environment images (docker-compose), according to the project at aim,
 - run the roles in the image inventory, according to the project.
 
-The idea in not to run services on containers, but to develop roles through experimentation in a flexible container based environment.
+The idea is not to run services on containers, but to develop roles through experimentation in a flexible container based environment.
 
 ## ```base_host``` Dockerfile
 
@@ -222,12 +220,12 @@ Before running then, build the image using ```docker-0-build-image.sh```
 
 #### Ansible scripts
 
-The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in the instance of Apache, the subfolders:
+The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in the case of Apache, subfolders:
 
 - ```ansible-1-apache-install``` and
 - ```ansible-2-apache-deploy```
 
-Inside each folder there is a shell script with ansible commands, ex. ```ansible-1-apache-install.sh```:
+Inside each folder there is a shell script with ansible commands, as in ```ansible-1-apache-install.sh```:
 
 ```
 ansible-galaxy install -r requirements.yml 
@@ -238,7 +236,7 @@ The ```inventory``` file  contains the groups of hosts
 
 ```
 [web_hosts]
-base-web-host-[1:2] ansible_user=root
+base-web-host-[1:2]
 ```
 
 The ```base.yml``` file contain the Ansible tasks/roles, ex:
@@ -289,7 +287,10 @@ http:
           - url: "http://base-web-host-2:80"
 ```          
 
-TODO: protect Apache Password: https://www.redhat.com/sysadmin/ansible-playbooks-secrets
+TODO: protect Apache Password: 
+ - https://www.redhat.com/sysadmin/ansible-playbooks-secrets
+
 TODO: issue TLS Certificate for Apache: 
  - https://docs.ansible.com/ansible/latest/collections/community/crypto/acme_certificate_module.html
  - https://letsencrypt.org/docs/certificates-for-localhost/
+ - https://smallstep.com/blog/private-acme-server/
