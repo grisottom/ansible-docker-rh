@@ -1,0 +1,17 @@
+---
+- hosts: web_hosts
+
+  vars_files:
+    - vars/main.yml
+
+  tasks:
+    - name: Create user "{{ user_name }}"
+      import_role:
+        name: create-users
+      become: true
+
+    - name: install apache
+      include_role: 
+        name: geerlingguy.apache
+        apply: 
+          become: true

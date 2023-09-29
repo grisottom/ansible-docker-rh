@@ -9,10 +9,10 @@ services:
     privileged: true
     volumes:
       - ~/.ssh:/root/.ssh
-      - ./base_master/ansible-apache-install:/ansible
+      - ./base_master/ansible-1-apache-install:/ansible
     networks: 
       - ansible-net       
-    command: ["/bin/sh","-c","./ansible-apache-install.sh"]
+    command: ["/bin/sh","-c","./ansible-playbook.sh"]
 
   apache-deploy:
     image: ansible_base_master:latest
@@ -22,8 +22,8 @@ services:
     privileged: true
     volumes:
       - ~/.ssh:/root/.ssh
-      - ./base_master/ansible-apache-deploy:/ansible
-    command: sh ansible-apache-deploy.sh
+      - ./base_master/ansible-2-apache-deploy:/ansible
+    command: sh ansible-playbook.sh
     networks: 
       - ansible-net    
 

@@ -7,6 +7,9 @@ RUN ["apk","add","--no-cache","ansible"]
 RUN ["apk","add","--no-cache","openssh-client"]
 RUN ["apk","add","--no-cache","git"]
 
+RUN ["apk","add","--no-cache","py3-pip"]
+RUN ["pip3","install","passlib"]
+
 #and create required directories
 RUN ["mkdir","-p","/var/run/ssh"]
 RUN ["mkdir","-p","/root/.ssh"]
