@@ -2,26 +2,33 @@
 
 Ansible development environment using docker and targeting RedHat 8 compatible containers.
 
+The main objective develop and test ansible scripts in a easier way. 
+
+The sample scripts developed are available in subfolders of ```/02_ansible/base_master```.
+
+The 
+
 ## TL;DR
 
 - key generation in host machine (bellow)
 
 and
 
-- run ```'docker-compose up'``` on 01_hosts/ 
-- run ```'docker-compose up'``` on 02_ansible/ 
-- run ```'docker-compose up'``` on 03_traefik/ 
+- run ```docker-compose up``` on ```01_hosts/```
+- run ```docker-compose up``` on ```02_ansible/```
+- run ```docker-compose up``` on ```03_traefik/```
 
-The first command he first creates the ```'target hosts'``` containers,
+The first command he first creates the ```target hosts``` containers,
 
 The second command:
-  - creates ```'master ansible'``` container,
-  - installs and configure Apache on ```'target hosts'```,
-  - deploy Javascript Chess App on ```'target hosts'```.
+  - creates ```master ansible``` container,
+  - installs and configure Apache on ```target hosts``` (ansible script),
+  - deploy Javascript Chess App on ```target hosts``` (ansible script).
 
 The third command creates reverse proxy/load balancer with names :
   - 'web.localhost' for Apache root and 
   - 'chess.localhost' for Chess App.
+
 
 ### Troubleshoot
 
@@ -34,11 +41,11 @@ failed to create network ansible-net: Error response from daemon: could not find
 
 ### Key generation in host machine 
 
-Ansible uses ssh for connection between ```'master ansible'``` and ```'target hosts'```. 
+Ansible uses ssh for connection between ```master ansible``` and ```target hosts```. 
 
 In order to allow that connection in a easy way, the pubKey authentication is enabled.  
 
-A key pair is generated manually on host machine, and, later on, using volumes, the ```private key``` is shared with ```'master ansible'``` and the ```public key``` with ```'target hosts'``` containers.
+A key pair is generated manually on host machine, and, later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with ```target hosts``` containers.
 
 How to generate ```id_ed25519``` key pair run:
 
@@ -46,7 +53,7 @@ How to generate ```id_ed25519``` key pair run:
 > ssh-keygen -t ed25519  -C 'my host computer key'
 ```
 
-This will create two files in host machine ```'home/your_user/.ssh/'```:
+This will create two files in host machine ```home/your_user/.ssh/```:
 
 ```
     .ssh
@@ -98,19 +105,17 @@ To achieve this objective, we will need to
 
 The idea in not to run services on containers, but to develop roles through experimentation in a flexible container based environment.
 
-## ```'base_host'``` Dockerfile
+## ```base_host``` Dockerfile
 
-It is the base host image, enabled to receive ansible commands. 
-
-The ```'Dockerfile'``` can be found in ```'/01_hosts/base_host'```.
+The ```Dockerfile``` can be found in ```/01_hosts/base_host```.
 
 The base image is UBI8, the [new de facto container base image for Red Hat Enterprise Linux 8](https://developers.redhat.com/articles/ubi-faq).
 
-Added to the base image we have:
+In order to receive ansible commands to be base image is added:
 - python3
 - openssh-server
 
-Added to configuration of ```'ssh-server'``` in ```'/etc/ssh/sshd_config'```
+The configuration of ```ssh-server``` in ```/etc/ssh/sshd_config``` is tweaked to allow ```PubKey Authentication```
 
 ```
   PasswordAuthentication no
@@ -120,9 +125,9 @@ Added to configuration of ```'ssh-server'``` in ```'/etc/ssh/sshd_config'```
   UsePAM yes
 ```
 
-### ```'target_host'``` image and containers
+### ```target_host``` image and containers
 
-From dir ```'/01_hosts'``` a sample of ```'/docker-compose.yml'```:
+From dir ```/01_hosts``` a sample of ```/docker-compose.yml```:
 
 ```
 version: "1"
@@ -142,22 +147,22 @@ services:
       - ansible-net
 ```
 
-Notice that web-host runs **privileged** which means that it run as root, because running ssh-server on port 80 can only be done by privileged user. 
+Notice that web-host runs **privileged**, because running ssh-server on port 80 can only be done by a privileged user. 
 
-When we run this with ```'docker-compose up'```, 
-- the image ```'target_host'``` is build from ```'Dockerfile'``` in ```'/base_host'``` subfolder,
-- the ```'replicas: 2' allows us to create two identical containers,
+When we run this with ```docker-compose up```, 
+- the image ```target_host``` is build from ```Dockerfile``` in ```/base_host``` subfolder,
+- the ```replicas: 2``` allows us to create two identical containers,
   - each container receive a name compose of
-    - 'name' of Dockerfile, ex. base, 
-    - 'name' of service, ex. web-host,
-    - 'number of replica', ex 1, 2 
+    - ```name``` of Dockerfile, which, in the case, is ```base```, 
+    - ```name``` of service, ```web-host```,
+    - ```replica number```, ```1, 2``` 
   - resulting in two containers:
     - ```base-web-host-1``` and
     - ```base-web-host-2```
 
-[!target_hosts](./target_hosts.png)
+![target_hosts](./images/target_hosts.png)
 
-## ```'base_master``` Dockerfile
+## ```base_master``` Dockerfile
 
 The image is alpine based, with added 
 
@@ -165,24 +170,24 @@ The image is alpine based, with added
 - openssh-client
 - git
 
-The ```'Dockerfile'``` can be found in ```'/02_ansible/base_master'```.
+The ```Dockerfile``` can be found in ```/02_ansible/base_master```.
 
-Added to the configuration of ```'ssh-client'``` in ```'/etc/ssh/ssh_config'``` 
+Added to the configuration of ```ssh-client``` in ```/etc/ssh/ssh_config``` 
 
 ```
   StrictHostKeyChecking no
   UserKnownHostsFile=/dev/null
 ```
 
-Meaning that ssh client will accept any key from any ssh server, our known hosts.
+Meaning that ssh client will accept any ServerKey from hosts reached.
 
-Finally the **working directory** is ```'/ansible'```:
+Finally the **working directory** is ```/ansible```:
 
 ```
 WORKDIR /ansible
 ```
 
-### ```'ansible_base_master'``` image and containers
+### ```ansible_base_master``` image and containers
 
 Excerpt from docker-compose.yml:
 
@@ -199,53 +204,44 @@ Excerpt from docker-compose.yml:
     command: ["/bin/sh","-c","./ansible-1-apache-install.sh"]
 ```
 
- Notice that the volume ```'./base_master/ansible-1-apache-install'``` is mapped to the **working directory** ```'ansible'```, allowing ansible to access any resource on the volume.
+ Notice that the volume ```./base_master/ansible-1-apache-install``` is mapped to the **working directory** ```ansible```, allowing it to access any resource on the volume.
 
 ### docker run alternatives
 
-Under ```'/02_ansible/base_master'``` the services are also available by ```'docker-run'``` alternatives in the same folder, ex.: ```docker-1-run-apache-install.sh```
+Running ```docker-compose-up``` on ```/02_ansible/base_master``` executes two services
 
-```
-docker run \
-  -it \
-  -h master_ansible \
-  -v ~/.ssh:/root/.ssh \
-  -v ./ansible-1-apache-install:/ansible \
-  --rm --privileged \
-  --name=my_ansible_base_master \
-  --network=ansible-net \
-  ansible_base_master:latest \
-  sh ansible-1-apache-install.sh
-```
+- ```apache-install``` and
+- ```apache-deploy```
 
-Before running that build the image using ```docker-0-build-image.sh```
+As alternative the services are also available by ```docker-run``` in the same folder: 
 
-```
-docker build -t ansible_base_master .
-```
+- ```./docker-1-run-apache-install.sh``` and
+- ```./docker-2-run-apache-deploy.sh```
+
+Before running then, build the image using ```docker-0-build-image.sh```
 
 #### Ansible scripts
 
-The ansible scripts are the main objective of this work, they are available in two subfolders:
+The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in the instance of Apache, the subfolders:
 
-- ansible-1-apache-install and
-- ansible-2-apache-deploy
+- ```ansible-1-apache-install``` and
+- ```ansible-2-apache-deploy```
 
-Inside each folder there is a shell script with ansible commands, ex. ```'ansible-1-apache-install.sh'``` 
+Inside each folder there is a shell script with ansible commands, ex. ```ansible-1-apache-install.sh```:
 
 ```
 ansible-galaxy install -r requirements.yml 
 ansible-playbook -i inventory base.yml
 ```
 
-The ```'inventory'``` file  contains the groups of hosts
+The ```inventory``` file  contains the groups of hosts
 
 ```
 [web_hosts]
 base-web-host-[1:2] ansible_user=root
 ```
 
-The ```'base.yml'``` file contain the Ansible tasks/roles, ex:
+The ```base.yml``` file contain the Ansible tasks/roles, ex:
 
 ```
 ---
@@ -267,14 +263,14 @@ The ```'base.yml'``` file contain the Ansible tasks/roles, ex:
           become: true
 ```
 
-Notice that we are including a community role from Ansible Galaxy called ```'geerlingguy.apache```' (see ```'requirements.yml'``` file). This role does the job of installing Apache.
+Notice that we are including a community role from Ansible Galaxy called ```geerlingguy.apache``` (see ```requirements.yml``` file). This role does the job of installing Apache.
 
 
-### docker-compose ```'traefik'```
+### docker-compose ```traefik```
 
 You can access the web server through the IP attributed to the host, ex: 172.21.0.3, or access through a reverse proxy.
 
-The load balancer traefik maps a two names to the web hosts, ```'web.localhost'``` and ```'chess.localhost'```:
+The load balancer traefik maps a two names to the web hosts, ```web.localhost``` and ```chess.localhost```:
 
 ```
 ## DYNAMIC CONFIGURATION
@@ -293,3 +289,7 @@ http:
           - url: "http://base-web-host-2:80"
 ```          
 
+TODO: protect Apache Password: https://www.redhat.com/sysadmin/ansible-playbooks-secrets
+TODO: issue TLS Certificate for Apache: 
+ - https://docs.ansible.com/ansible/latest/collections/community/crypto/acme_certificate_module.html
+ - https://letsencrypt.org/docs/certificates-for-localhost/
