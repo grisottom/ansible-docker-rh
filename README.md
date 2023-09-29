@@ -61,7 +61,7 @@ This will create two files in host machine ```home/your_user/.ssh/```:
 
 ### Did it work out?
 
-The software installed by Ansible are Apache web server and a javascript chess application on that web server.
+The software installed by Ansible are Apache web server and a javascript chess application on that server.
 
 You can assert that Apache is running by accessing [```"http://web.localhost"```](http://web.localhost). 
 
@@ -85,7 +85,7 @@ This work is inspired mainly by two others:
 
 Classically the development of Ansible roles is done in VMs on the developer's own machine, optionally with the help of Vagrant to provide standardization.
   
-There are a series of difficulties in developing using VMs such as problems with host machine virtualization, host machine overload, network configurations, mount points.
+There are a series of difficulties in developing using VMs such as problems with host machine virtualization, host machine overload, faulty network configurations, mount points problems.
   
 As an alternative to using VMs, we propose the use of containers as a basis for developing Ansible roles.
   
@@ -145,7 +145,7 @@ services:
       - ansible-net
 ```
 
-Notice that web-host runs **privileged**, because running ssh-server on port 80 can only be done by a privileged user. 
+Notice that web-host runs **privileged**, because running ssh-server on default port (22) can only be done by a privileged user. 
 
 When we run this with ```docker-compose up```, 
 - the image ```target_host``` is build from ```Dockerfile``` in ```/base_host``` subfolder,
@@ -211,16 +211,16 @@ Running ```docker-compose-up``` on ```/02_ansible/base_master``` executes two se
 - ```apache-install``` and
 - ```apache-deploy```
 
-As alternative the services are also available by ```docker-run``` in the same folder: 
+As alternative, the services are also available by ```docker-run``` scripts in the same folder: 
 
 - ```./docker-1-run-apache-install.sh``` and
 - ```./docker-2-run-apache-deploy.sh```
 
-Before running then, build the image using ```docker-0-build-image.sh```
+Before running then, build the image with ```./docker-0-build-image.sh```
 
 #### Ansible scripts
 
-The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in the case of Apache, subfolders:
+The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in this case of apache, in subfolders:
 
 - ```ansible-1-apache-install``` and
 - ```ansible-2-apache-deploy```
@@ -268,7 +268,7 @@ Notice that we are including a community role from Ansible Galaxy called ```geer
 
 You can access the web server through the IP attributed to the host, ex: 172.21.0.3, or access through a reverse proxy.
 
-The load balancer traefik maps a two names to the web hosts, ```web.localhost``` and ```chess.localhost```:
+The load balancer traefik configuration maps two names to the web hosts, ```web.localhost``` and ```chess.localhost```:
 
 ```
 ## DYNAMIC CONFIGURATION
