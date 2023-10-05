@@ -4,7 +4,7 @@ Ansible development environment using docker and targeting RedHat 8 compatible c
 
 The main objective develop and test ansible scripts in a easier way. 
 
-The ansible scripts developed are available in subfolders of ```/02_ansible/base_master```.
+The ansible scripts in development are available in subfolders of ```/02_ansible/base_master```.
 
 ## TL;DR
 
@@ -26,7 +26,6 @@ The second command:
 The third command creates reverse proxy/load balancer with names :
   - 'web.localhost' for Apache root and 
   - 'chess.localhost' for Chess App.
-
 
 ### Troubleshoot
 
@@ -139,7 +138,7 @@ services:
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/id_ed25519.pub:/root/.ssh/authorized_keys
+      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     command: chown root:root /root/.ssh/authorized_keys
     networks: 
       - ansible-net
@@ -206,7 +205,7 @@ Excerpt from docker-compose.yml:
 
 ### docker run alternatives
 
-Running ```docker-compose-up``` on ```/02_ansible/base_master``` executes two services
+Running ```docker-compose up``` on ```/02_ansible/base_master``` executes two services
 
 - ```apache-install``` and
 - ```apache-deploy```
@@ -217,6 +216,10 @@ As alternative, the services are also available by ```docker-run``` scripts in t
 - ```./docker-2-run-apache-deploy.sh```
 
 Before running then, build the image with ```./docker-0-build-image.sh```
+
+```docker-run``` scripts are 
+
+Those scripts are more development oriented, you can run one each time and check the results, another advantage is that you don't ever need to run ```docker-compose down``` before a new run.
 
 #### Ansible scripts
 

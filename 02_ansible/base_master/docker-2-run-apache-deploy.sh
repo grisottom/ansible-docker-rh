@@ -1,7 +1,7 @@
 docker run \
   -it \
   -h master_ansible \
-  -v ~/.ssh:/root/.ssh \
+  -v ~/.ssh/master_ssh_key_pair/:/root/.ssh/ \
   -v ./ansible-2-apache-deploy:/ansible \
   --rm --privileged \
   --name=my_ansible_base_master \
