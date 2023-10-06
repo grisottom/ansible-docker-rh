@@ -2,15 +2,25 @@ version: "1"
 name: base
 services:
 
+  keypair: 
+    build: ./base_keypair
+    image: shared_key_pair
+    volumes:
+      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
+    networks: 
+      - ansible-net
+
   web-host: 
     build: ./base_host
     image: target_host
+    depends_on: 
+      keypair:
+        condition: service_completed_successfully    
     privileged: true
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/id_ed25519.pub:/root/.ssh/authorized_keys
-    command: chown root:root /root/.ssh/authorized_keys
+      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 

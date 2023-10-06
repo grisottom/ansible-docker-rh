@@ -2,15 +2,11 @@
 
 Ansible development environment using docker and targeting RedHat 8 compatible containers.
 
-The main objective develop and test ansible scripts in a easier way. 
+The main goal is to have a foundation to easily develop and test Ansible scripts.
 
-The ansible scripts developed are available in subfolders of ```/02_ansible/base_master```.
+The ansible scripts in development are available in subfolders of ```/02_ansible/base_master```.
 
 ## TL;DR
-
-- key generation in host machine (bellow)
-
-and
 
 - run ```docker-compose up``` on ```01_hosts/```
 - run ```docker-compose up``` on ```02_ansible/```
@@ -27,37 +23,35 @@ The third command creates reverse proxy/load balancer with names :
   - 'web.localhost' for Apache root and 
   - 'chess.localhost' for Chess App.
 
-
 ### Troubleshoot
 
-If you get the following error, **close your active VPN connection**.
+If you get the following error:
 
 ```
 ✘ Network ansible-net  Error                                                                                                             0.0s 
-failed to create network ansible-net: Error response from daemon: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
+failed to create network ansible-net: Error response from daemon: 
+could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network
 ```
+
+**close your active VPN connection**
 
 ### Key generation in host machine 
 
-Ansible uses ssh for connection between ```master ansible``` and ```target hosts```. 
+Ansible uses ssh for connection between ```master ansible``` and the ```target hosts```. 
 
 In order to allow that connection in a easy way, the pubKey authentication is enabled.  
 
-A key pair is generated manually on host machine, and, later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with the ```target hosts``` containers.
+A ssh key pair is generated automatically by a keypair image/container in ```/01_hosts/base_keypair```.
 
-How to generate ```id_ed25519``` key pair run:
-
-```
-> ssh-keygen -t ed25519  -C 'my host computer key'
-```
-
-This will create two files in host machine ```home/your_user/.ssh/```:
+The keypair is placed by a volume in ```home/your_user/.ssh/master_ssh_key_pair/```
 
 ```
-    .ssh
+    .ssh/master_ssh_key_pair
     ├── id_ed25519
     ├── id_ed25519.pub
 ```
+
+Later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with the ```target hosts``` containers.
 
 ### Did it work out?
 
@@ -135,12 +129,14 @@ services:
   web-host: 
     build: ./base_host
     image: target_host
+    depends_on: 
+      keypair:
+        condition: service_completed_successfully      
     privileged: true
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/id_ed25519.pub:/root/.ssh/authorized_keys
-    command: chown root:root /root/.ssh/authorized_keys
+      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 ```
@@ -195,7 +191,7 @@ Excerpt from docker-compose.yml:
     image: ansible_base_master:latest
     privileged: true
     volumes:
-      - ~/.ssh:/root/.ssh
+      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
       - ./base_master/ansible-1-apache-install:/ansible
     networks: 
       - ansible-net       
@@ -206,7 +202,7 @@ Excerpt from docker-compose.yml:
 
 ### docker run alternatives
 
-Running ```docker-compose-up``` on ```/02_ansible/base_master``` executes two services
+Running ```docker-compose up``` on ```/02_ansible/base_master``` executes two services
 
 - ```apache-install``` and
 - ```apache-deploy```
@@ -217,6 +213,10 @@ As alternative, the services are also available by ```docker-run``` scripts in t
 - ```./docker-2-run-apache-deploy.sh```
 
 Before running then, build the image with ```./docker-0-build-image.sh```
+
+```docker-run``` scripts are 
+
+Those scripts are more development oriented, you can run one each time and check the results, another advantage is that you don't ever need to run ```docker-compose down``` before a new run.
 
 #### Ansible scripts
 
