@@ -1,0 +1,60 @@
+---
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+    #ansible_remote_tmp: /tmp
+
+    user_name: jboss
+
+    user_home_dir: "/home/{{ user_name }}"
+    extract_dir: "{{ user_home_dir }}/tmp/extract_dir"
+    app_dir: "{{ user_home_dir }}/jboss_eap"
+    force_install: false # override 
+
+    # app_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
+    app_archive: "http://serve.localhost:8000/jboss-eap-7.4.tar.gz"
+    is_remote_archive: true
+    add_rsync_opts: 
+      - "--update"
+      - "--delay-updates"
+      
+  tasks:
+    - name: Create user "{{ user_name }}"
+      import_role:
+        name: create-users
+      become: true
+
+    # rsync will be used to copy files, role deploy-app-extracted
+    # dependency for next step
+    - name: install the latest version of rsync
+      yum:
+        name: rsync
+        state: latest
+      become: true    
+
+    # check if installation {{app_dir}} already exists
+    # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
+    - name: check if {{app_dir}} already exists
+      stat: 
+        path={{ app_dir }}
+      become: true
+      become_user: "{{ user_name }}"
+      register: jboss_target_dir
+         
+    # run as user (sudo -u user command)
+    # only when jboss_target_dir DOS NOT EXISTS
+    - name: Install Jboss 
+      import_role:
+        name: deploy-app-extracted
+      become: true
+      become_user: "{{ user_name }}"
+      when: not jboss_target_dir.stat.exists or {{ force_install }}
+
+    - name: Update /etc/environment for newly loaded apps
+      lineinfile:
+        dest: /etc/environment
+        line: "PATH={{ app_dir }}/bin:$PATH"
+      become: true      

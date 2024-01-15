@@ -18,4 +18,6 @@ RUN ["chmod", "0700", "/root/.ssh"]
 
 RUN echo -e "StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 
+ENV ANSIBLE_REMOTE_TMP=/tmp
+
 WORKDIR /ansible

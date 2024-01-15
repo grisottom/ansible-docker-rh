@@ -1,0 +1,4 @@
+[jboss_host]
+base-jboss-host-1
+#[slave_hosts]
+#base-slave-host-[1:2]

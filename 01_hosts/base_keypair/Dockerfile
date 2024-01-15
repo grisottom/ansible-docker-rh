@@ -23,4 +23,4 @@ ENTRYPOINT ["/bin/sh","/work_dir/run.sh"]
 #      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
 
 #this indirection of copying the key to a shared folder after the container is started exists
-#bacause, with volumes, the host content overrides the container container when container starts (left -> right)
+#because, with volumes, the host content overrides the container container when container starts (left -> right)

@@ -1,0 +1,41 @@
+---
+- hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+
+    user_name: jboss
+
+    user_home_dir: "/home/{{ user_name }}"
+    extract_dir: "{{ user_home_dir }}/tmp/extract_dir/"
+    app_dir: "{{ user_home_dir }}/jboss_eap/"
+
+    # app_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
+    app_archive: "http://serve.localhost:8000/jboss-eap-7.4.tar.gz"
+    is_remote_archive: true
+    add_rsync_opts: 
+      - "--update"
+      - "--delay-updates"
+      
+  tasks:
+    - name: Create user "{{ user_name }}"
+      import_role:
+        name: create-users
+      become: true
+
+    # rsync will be used to copy files, role deploy-app-extracted
+    # dependency for next step
+    - name: install the latest version of rsync
+      yum:
+        name: rsync
+        state: latest
+      become: true    
+
+    # run as user (sudo -u user command)
+    - name: Install Jboss 
+      import_role:
+        name: deploy-app-extracted
+      become: true
+      become_user: "{{ user_name }}"
