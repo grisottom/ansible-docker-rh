@@ -1,22 +1,7 @@
 version: "3"
 name: base
-
 services:
 
-  http-serve:
-    build: ./base_http_serve
-    image: http_serve
-    container_name: serve.localhost
-    volumes:
-      - ~/Downloads/jboss/:/serve/
-    ports:
-      - 8088:8000
-    networks: 
-      - ansible-net
-      # :
-      #   aliases: 
-      #     - serve.localhost
-          
   keypair: 
     build: ./base_keypair
     image: shared_key_pair
@@ -25,35 +10,19 @@ services:
     networks: 
       - ansible-net
 
-  jboss-host: 
+  web-host: 
     build: ./base_host
     image: target_host
-
     depends_on: 
-      # http-serve:
-      #   condition: service_started    
       keypair:
         condition: service_completed_successfully    
     privileged: true
+    deploy:
+      replicas: 2
     volumes:
       - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
-      # - ~/Downloads/jboss/:/nfs
     networks: 
       - ansible-net
-
-  # slave-host:
-  #   image: target_host
-  #   depends_on: 
-  #     master-host:
-  #       condition: service_started    
-  #   privileged: true
-  #   deploy:
-  #     replicas: 2
-  #   volumes:
-  #     - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
-  #     # - ~/Downloads/jboss/:/nfs
-  #   networks: 
-  #     - ansible-net
 
 #ipam - IP Address Management Driver
 #configuration to avoid conflict with VPN, when it is on
