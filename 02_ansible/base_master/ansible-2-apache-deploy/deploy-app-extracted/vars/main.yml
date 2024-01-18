@@ -1,2 +1,9 @@
 ---
 # vars file for deploy-app-extracted
+
+# create a variable named "proxy_env" that is a dictionary
+proxy_env:
+  http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"
+  https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
+
+#"{{lookup('ansible.builtin.env','HTTP_PROXY')}}"  resolvs to http://172.17.0.1:5865 

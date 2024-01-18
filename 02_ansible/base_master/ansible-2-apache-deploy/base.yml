@@ -23,13 +23,15 @@
           - unzip
         state: present
       become: true
+      environment: "{{ proxy_env }}"
 
     # rsync will be used to copy files, role deploy-app-extracted
     - name: install the latest version of rsync
       yum:
         name: rsync
         state: latest
-      become: true    
+      become: true
+      environment: "{{ proxy_env }}"
 
     # run as apache user (sudo -u user command)
     - name: Deploy app to apache role
