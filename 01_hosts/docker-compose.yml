@@ -26,7 +26,7 @@ services:
 
 #ipam - IP Address Management Driver
 #configuration to avoid conflict with VPN, when it is on
-#to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
+#in order to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
 networks:
   ansible-net:
     ipam:
