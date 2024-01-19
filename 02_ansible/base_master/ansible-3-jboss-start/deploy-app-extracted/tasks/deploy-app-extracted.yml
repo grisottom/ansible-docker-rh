@@ -5,6 +5,7 @@
   file: 
     path: "{{ app_dir }}"
     state:  directory
+    mode: u=rwX,g=rw,o=r
     recurse: yes
 
 # extract to temporary dir
@@ -21,9 +22,10 @@
     recurse: yes           
 
 - name: extract archive to 'extract_dir'
-  unarchive:
+  ansible.builtin.unarchive:
     # remote_src: true
     # src: https://wwwsourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip
+    #remote_src true to indicate the archived file is already on the remote system and not local to the Ansible controller
     remote_src: "{{ is_remote_archive }}"
     src: "{{ app_archive }}"
     dest: "{{ extract_dir }}"
@@ -37,9 +39,10 @@
 # using rsync to copy from extract to app dir
 # synchronize: Expect that dest=~/x will be ~<remote_user>/x even if using sudo, So, don´t use ~ (home dir)
 - name: sync (copy) 'extract_dir/top_dir' to 'app_dir'
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ extract_dir }}/{{response_output.files[0]}}"
     dest: "{{ app_dir }}"
+    rsync_opts: "{{ add_rsync_opts | default([]) }}"
   delegate_to: "{{ inventory_hostname }}"
   register: response_output
 - debug:

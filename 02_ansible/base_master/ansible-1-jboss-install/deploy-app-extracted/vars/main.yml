@@ -1,2 +1,3 @@
 ---
 # vars file for deploy-app-extracted
+allow_world_readable_tmpfiles: true
