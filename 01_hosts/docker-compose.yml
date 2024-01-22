@@ -2,20 +2,27 @@ version: "1"
 name: base
 services:
 
-  http-serve:
+  http-serve_jboss:
     build: ./base_http_serve
     image: http_serve
-    container_name: serve.localhost
+    container_name: serve.jboss.localhost
     volumes:
       - ~/Downloads/jboss/:/serve/
     ports:
       - 8088:8000
     networks: 
       - ansible-net
-      # :
-      #   aliases: 
-      #     - serve.localhost
-          
+
+  http-serve_postgres:
+    image: http_serve
+    container_name: serve.postgres.localhost
+    volumes:
+      - ~/Downloads/postgres/:/serve/
+    ports:
+      - 8089:8001
+    networks: 
+      - ansible-net
+
   keypair: 
     build: ./base_keypair
     image: shared_key_pair
@@ -44,8 +51,9 @@ services:
 #to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
 networks:
   ansible-net:
+    name: ansible-net
+    driver: bridge
     ipam:
       driver: default
-      config: 
-        - subnet: 172.25.25.0/24
-    name: ansible-net
+      config:
+        - subnet: '172.25.25.0/24'
