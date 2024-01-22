@@ -1,0 +1,47 @@
+---
+# tasks file for install-app-extracted
+- name: creates target root directory, "{{ app_dir }}"
+  file: 
+    path: "{{ app_dir }}"
+    state:  directory
+    mode: u=rwX,g=rw,o=r
+    recurse: yes
+
+# extract to temporary dir
+- name: remove previous 'extract_dir'
+  file: 
+    path: "{{ extract_dir }}"
+    state: absent
+
+- name: recreates 'extract_dir'
+  file: 
+    path: "{{ extract_dir }}"
+    state: directory
+    mode: u=rwX,g=rwX,o=rX
+    recurse: yes           
+
+- name: extract archive to 'extract_dir'
+  ansible.builtin.unarchive:
+    # remote_src: true
+    #remote_src true to indicate the archived file is already on the remote system and not local to the Ansible controller
+    remote_src: "{{ is_remote_archive }}"
+    src: "{{ app_archive }}"
+    dest: "{{ extract_dir }}"
+    mode: u=rwx,g=rw,o=
+    list_files: true
+    validate_certs: true        
+  register: response_output
+- debug:
+    var: response_output
+
+# using rsync to copy from extract to app dir
+# synchronize: Expect that dest=~/x will be ~<remote_user>/x even if using sudo, So, don´t use ~ (home dir)
+- name: sync (copy) 'extract_dir/top_dir' to 'app_dir'
+  ansible.posix.synchronize:
+    src: "{{ extract_dir }}/{{response_output.files[0]}}"
+    dest: "{{ app_dir }}"
+    rsync_opts: "{{ add_rsync_opts | default([]) }}"
+  delegate_to: "{{ inventory_hostname }}"
+  register: response_output
+- debug:
+    var: response_output

@@ -1,0 +1,35 @@
+---
+- hosts: jboss_host
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+    - my_custom_path_var: TESTE_TESTANDO
+  tasks:
+    # - name: Update /etc/environment for newly loaded apps
+    #   lineinfile:
+    #     dest: /etc/environment
+    #     line: "PATH=TESTE_TESTE/bin:$PATH"
+    #   become: true
+
+    # - name: Adding the path in the bashrc files
+    #   lineinfile: 
+    #     dest: /root/.bashrc 
+    #     line: 'export PATH=$PATH:path-to-mysql/bin' insertafter='EOF' regexp='export PATH=\$PATH:path-to-mysql/bin' state=present
+
+    - name: Add another bin dir to system-wide $PATH.
+      copy:
+        dest: /etc/profile.d/custom-path.sh
+        content: 'PATH=$PATH:{{ my_custom_path_var }}'
+      become: true
+
+    - name: put shell var into ansible var
+      set_fact:
+        env_path: "{{ lookup('env','PATH') }}"
+      become: true
+
+    - name: print $PATH
+      debug: 
+        msg: PATH={{ env_path }}
+      become: true

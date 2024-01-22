@@ -1,0 +1,4 @@
+---
+
+# OpenJDK release. role 'alvistack.openjdk'
+openjdk_release: "11"

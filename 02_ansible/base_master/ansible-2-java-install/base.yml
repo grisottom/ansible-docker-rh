@@ -1,9 +1,0 @@
----
-- hosts: all
-
-  tasks:
-    - name: install openjdk
-      include_role:
-        name: alvistack.openjdk
-        apply:
-          become: true

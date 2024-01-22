@@ -1,0 +1,3 @@
+---
+# vars file for install-app-extracted
+allow_world_readable_tmpfiles: true
