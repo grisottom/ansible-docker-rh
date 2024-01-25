@@ -1,6 +1,11 @@
 ---
 - hosts: jboss_host
 
+  vars_files:
+    - vars/main.yml
+
+  environment: "{{ proxy_env }}"
+
   tasks:
     - name: install openjdk
       include_role:

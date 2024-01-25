@@ -5,4 +5,4 @@ docker run \
  --rm --privileged \
  --name=my_target_host \
  --network=ansible-net \
- ansible_base_host:latest
+ ansible_target_host:latest

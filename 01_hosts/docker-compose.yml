@@ -54,6 +54,5 @@ networks:
     name: ansible-net
     driver: bridge
     ipam:
-      driver: default
       config:
         - subnet: '172.25.25.0/24'
