@@ -2,6 +2,9 @@ version: "1"
 name: base
 services:
 
+  # serve jboss download folder, with zipfile
+  # aquired from
+  # https://developers.redhat.com/products/eap/download
   http-serve_jboss:
     build: ./base_http_serve
     image: http_serve
@@ -13,13 +16,26 @@ services:
     networks: 
       - ansible-net
 
-  http-serve_postgres:
+  #download postgres driver, inside jboss module
+  postgres-module:
+    build: ./postgres_module
+    image: get_postgres_module
+    volumes: 
+      - ~/tmp/Downloads/jboss-eap:/tmp/Downloads/jboss-eap
+      - ./postgres_module/scripts:/scripts
+    command: sh module-config.sh
+      
+  # serve jboss postgres module
+  http-serve-postgres:
     image: http_serve
+    depends_on:
+      postgres-module:
+        condition: service_completed_successfully    
     container_name: serve.postgres.localhost
     volumes:
-      - ~/Downloads/postgres/:/serve/
+      - ~/tmp/Downloads/jboss-eap/:/serve/
     ports:
-      - 8089:8001
+      - 8089:8000
     networks: 
       - ansible-net
 
@@ -34,7 +50,6 @@ services:
   jboss-host: 
     build: ./base_host
     image: target_host
-
     depends_on: 
       # http-serve:
       #   condition: service_started    
