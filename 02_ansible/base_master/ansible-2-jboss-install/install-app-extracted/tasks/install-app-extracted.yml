@@ -1,26 +1,35 @@
 ---
+
+# check if installation {{app_dir}} already exists
+# https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
+- name: check if {{app_dir}} already exists
+  stat: 
+    path={{ app_dir }}
+  register: target_app_dir
+
 # tasks file for install-app-extracted
-- name: creates target root directory, "{{ app_dir }}"
+- name: creates target directory "{{ app_dir }}"
   file: 
     path: "{{ app_dir }}"
     state:  directory
     mode: u=rwX,g=rw,o=r
     recurse: yes
+  when: not target_app_dir.stat.exists
 
 # extract to temporary dir
-- name: remove previous 'extract_dir'
+- name: remove previous 'extract_dir' "{{ extract_dir }}"
   file: 
     path: "{{ extract_dir }}"
     state: absent
 
-- name: recreates 'extract_dir'
+- name: recreates 'extract_dir' "{{ extract_dir }}"
   file: 
     path: "{{ extract_dir }}"
     state: directory
     mode: u=rwX,g=rwX,o=rX
     recurse: yes           
 
-- name: extract archive to 'extract_dir'
+- name: extract archive to 'extract_dir' "{{ extract_dir }}"
   ansible.builtin.unarchive:
     # remote_src: true
     #remote_src true to indicate the archived file is already on the remote system and not local to the Ansible controller

@@ -1,11 +1,11 @@
-version: "1"
+version: "3"
 name: base
 services:
 
   # serve jboss download folder, with zipfile
   # aquired from
   # https://developers.redhat.com/products/eap/download
-  http-serve_jboss:
+  http-serve-jboss:
     build: ./base_http_serve
     image: http_serve
     container_name: serve.jboss.localhost
@@ -22,16 +22,18 @@ services:
     image: get_postgres_module
     volumes: 
       - ~/tmp/Downloads/jboss-eap:/tmp/Downloads/jboss-eap
-      - ./postgres_module/scripts:/scripts
+      - ./postgres_module/scripts/:/scripts
     command: sh module-config.sh
+    networks: 
+      - ansible-net    
       
   # serve jboss postgres module
-  http-serve-postgres:
+  http-serve-pg-driver:
     image: http_serve
     depends_on:
       postgres-module:
         condition: service_completed_successfully    
-    container_name: serve.postgres.localhost
+    container_name: serve.pg-driver.localhost
     volumes:
       - ~/tmp/Downloads/jboss-eap/:/serve/
     ports:
@@ -66,8 +68,8 @@ services:
 #to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
 networks:
   ansible-net:
-    name: ansible-net
     driver: bridge
     ipam:
       config:
-        - subnet: '172.25.25.0/24'
+        - subnet: 172.25.25.0/24
+    name: ansible-net

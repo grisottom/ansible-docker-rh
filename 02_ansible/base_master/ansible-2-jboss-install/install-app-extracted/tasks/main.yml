@@ -2,5 +2,3 @@
 ---
 - name: "Call install-app-extracted tasks"
   ansible.builtin.include_tasks: install-app-extracted.yml
-  # loop: "{{ users }}"
-  # when: users is defined

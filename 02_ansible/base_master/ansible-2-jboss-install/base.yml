@@ -7,15 +7,19 @@
   vars: 
     #ansible_remote_tmp: /tmp
 
-    user_name: jboss  #System username to be created
+    user_name_jboss: jboss  #System username to be created
 
-    user_home_dir: "/home/{{ user_name }}"
-    extract_dir: "{{ user_home_dir }}/tmp/extract_dir"
-    app_dir: "{{ user_home_dir }}/jboss_eap"
-    force_install: false # override 
+    user_home_dir_jboss: "/home/{{ user_name_jboss }}"
+    force_install: true # override 
 
-    # app_archive: "https://www.sourcecodester.com/sites/default/files/download/razormist/chess-game-using-javascript.zip"
-    app_archive: "http://serve.localhost:8000/jboss-eap-7.4.tar.gz"
+    app_dir_jboss: "{{ user_home_dir_jboss }}/jboss_eap"
+    extract_dir_jboss: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
+    app_archive_jboss: "http://serve.jboss.localhost:8000/jboss-eap-7.4.tar.gz"
+
+    app_dir_modules: "{{ user_home_dir_jboss }}/jboss_eap/modules"
+    extract_dir_modules: "{{ user_home_dir_jboss }}/tmp/extract_dir_modules"
+    app_archive_modules: "http://serve.pg-driver.localhost:8001/modules.tar.gz"
+
     is_remote_archive: true
     add_rsync_opts: 
       - "--update"
@@ -25,7 +29,8 @@
     jboss_admin_pwd: jboss00
       
   tasks:
-    - name: Create user "{{ user_name }}"
+    # list of users in ./vars/main.yml
+    - name: Create user "{{ user_name_jboss }}"
       import_role:
         name: create-users
       become: true
@@ -40,31 +45,47 @@
 
     # check if installation {{app_dir}} already exists
     # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
-    - name: check if {{app_dir}} already exists
+    - name: check if {{app_dir_jboss}} already exists
       stat: 
-        path={{ app_dir }}
+        path={{ app_dir_jboss }}
       become: true
-      become_user: "{{ user_name }}"
+      become_user: "{{ user_name_jboss }}"
       register: jboss_target_dir
          
     # run as user (sudo -u user command)
     # only when jboss_target_dir DOS NOT EXISTS
-    - name: Install Jboss 
+    - name: install Jboss
       import_role:
         name: install-app-extracted
+      vars:
+        app_dir: "{{ app_dir_jboss }}"
+        extract_dir: "{{ extract_dir_jboss }}"
+        app_archive: "{{ app_archive_jboss }}"
       become: true
-      become_user: "{{ user_name }}"
+      become_user: "{{ user_name_jboss }}"
+      when: not jboss_target_dir.stat.exists or force_install|bool
+
+    #
+    - name: install modules
+      include_role:
+        name: install-app-extracted
+      vars:
+        app_dir: "{{ app_dir_modules }}"
+        extract_dir: "{{ extract_dir_modules }}"
+        app_archive: "{{ app_archive_modules }}"
+      #become: true
+      #become_user: "{{ user_name_jboss }}"
       when: not jboss_target_dir.stat.exists or force_install|bool
 
     # add 'app_dir/bin' PATH
     - name: Add { app_dir }}/bin system-wide $PATH.
       copy:
         dest: /etc/profile.d/jboss-bin-path.sh
-        content: 'PATH=$PATH:{{ app_dir }}/bin'
+        content: 'PATH=$PATH:{{ app_dir_jboss }}/bin'
       become: true
 
-    - name: create jboss admin user {{jboss_admin_user}}
-      ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}
+    # - name: create jboss admin user {{jboss_admin_user}}
+    #   ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}
 
-    - name: install apache module to jboss
-      ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}
+    # - name: install apache module to jboss
+    #   ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}

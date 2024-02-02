@@ -1,1 +1,1 @@
-ansible-playbook -vvv -i inventory base.yml
+ansible-playbook -i inventory base.yml

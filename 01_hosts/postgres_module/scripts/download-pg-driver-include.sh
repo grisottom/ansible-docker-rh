@@ -25,7 +25,7 @@ if [ -d $DOWNLOAD_TO_DIR ]; then
     echo wget -O $DOWNLOAD_TO_DIR/postgresql.jar --no-check-certificate $URL_POSTGRES_JAR
     wget -O $DOWNLOAD_TO_DIR/postgresql.jar --no-check-certificate $URL_POSTGRES_JAR
 
-    if [ -f $DOWNLOAD_TO_DIR/postgresql.jar ]; then
+    if [ ! -f $DOWNLOAD_TO_DIR/postgresql.jar ]; then
       echo_message "ERROR, failed to download postgres jdbc driver"
       exit
     fi
