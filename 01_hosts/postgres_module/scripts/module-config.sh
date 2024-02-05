@@ -20,5 +20,5 @@ source download-pg-driver-include.sh
 if [ -f $DOWNLOAD_TO_DIR/postgresql.jar ]; then
     #make moduleS avalilable as Zip file, best option for download
     cd $JBOSS_DIR
-    zip -rczvf modules modules
+    tar -czvf modules.tar.gz modules
 fi

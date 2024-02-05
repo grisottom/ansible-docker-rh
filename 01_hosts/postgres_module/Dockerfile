@@ -4,6 +4,6 @@ FROM alpine:latest
 #install common required packages
 RUN ["apk","update"]
 RUN ["apk","add","--no-cache","wget"]
-RUN ["apk","add","--no-cache","zip"]
+#RUN ["apk","add","--no-cache","zip"]
 
 WORKDIR /scripts
