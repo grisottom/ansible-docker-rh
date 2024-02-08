@@ -1,9 +1,7 @@
 ---
 
-# OpenJDK release. role 'alvistack.openjdk'
-openjdk_release: "11"
-
 # create a variable named "proxy_env" that is a dictionary
 proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
+  no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"

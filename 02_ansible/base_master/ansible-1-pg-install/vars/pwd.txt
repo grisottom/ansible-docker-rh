@@ -1,0 +1,8 @@
+vault password, for testing: admin
+
+To view passwords
+
+> ansible-vault view vault.yml 
+Vault password: 
+vault_postgresql_user0_password: user0
+vault_postgresql_user1_password: user1

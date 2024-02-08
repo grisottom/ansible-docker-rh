@@ -2,6 +2,28 @@ version: "3"
 name: base
 services:
 
+  keypair: 
+    build: ./base_keypair
+    image: shared_key_pair
+    volumes:
+      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
+    networks: 
+      - ansible-net
+
+  pg-host: 
+    build: ./base_host
+    image: target_host
+    depends_on: 
+      # http-serve:
+      #   condition: service_started    
+      keypair:
+        condition: service_completed_successfully    
+    privileged: true
+    volumes:
+      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+    networks: 
+      - ansible-net
+
   # serve jboss download folder, with zipfile
   # aquired from
   # https://developers.redhat.com/products/eap/download
@@ -25,7 +47,9 @@ services:
       - ./postgres_module/scripts/:/scripts
     command: sh module-config.sh
     networks: 
-      - ansible-net    
+      - ansible-net 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
       
   # serve jboss postgres module
   http-serve-pg-driver:
@@ -40,17 +64,14 @@ services:
       - 8089:8000
     networks: 
       - ansible-net
-
-  keypair: 
-    build: ./base_keypair
-    image: shared_key_pair
-    volumes:
-      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
-    networks: 
-      - ansible-net
+    # labels:
+    #   - "traefik.enable=true"
+    #   - "traefik.http.routers.xxxt.rule=Host(`serve.pg-driver.localhost`)"
+    #   - "traefik.docker.network=ansible-net"
+    #   - "traefik.http.services.xxx.loadbalancer.server.port=8089"
 
   jboss-host: 
-    build: ./base_host
+    # build: ./base_host
     image: target_host
     depends_on: 
       # http-serve:

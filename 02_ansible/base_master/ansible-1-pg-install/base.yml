@@ -1,0 +1,37 @@
+#refs: 
+# https://rischmann.fr/blog/setting-up-postgresql-with-ansible
+# https://www.postgresql.org/download/linux/redhat/
+---
+- hosts: pg_host
+
+  vars_files:
+    - vars/vault.yml
+    - vars/main.yml
+
+  environment: "{{ proxy_env }}"  #proxy for download openjdk
+
+  handlers:
+    - name: Restart postgresql
+      ansible.builtin.systemd:
+        name: postgresql
+        state: restarted
+
+  tasks:
+    - name: Install PostgreSQL and psycopg2
+      ansible.builtin.dnf:
+        name:
+          - postgresql13-server
+          - python3-psycopg2
+        state: present
+        update_cache: true
+
+    - name: Create the cluster
+      ansible.builtin.command:
+        cmd: postgresql-13-setup initdb
+        creates: /var/lib/pgsql/13/data/PG_VERSION
+
+    - name: Start and enable the service
+      ansible.builtin.systemd:
+        name: postgresql-13
+        state: started
+        enabled: true

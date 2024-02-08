@@ -12,7 +12,7 @@
     user_name_JBOSS: jboss  #System username to be created
 
     user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
-    force_install: false # override 
+    force_install: false #override
 
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
     extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
@@ -44,10 +44,10 @@
 
     # check if installation {{app_dir}} already exists
     # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
-    - name: check if {{app_dir_JBOSS}} already exists
+    - name: check if 'app_dir_JBOSS':'{{app_dir_JBOSS}}' already exists
       stat: 
         path={{ app_dir_JBOSS }}
-      #Systembecome: true
+      become: true
       become_user: "{{ user_name_JBOSS }}"
       register: jboss_target_dir
          
@@ -60,20 +60,11 @@
         app_dir: "{{ app_dir_JBOSS }}"
         extract_dir: "{{ extract_dir_JBOSS }}"
         app_archive: "{{ app_archive_JBOSS }}"
-      #become: true
       become_user: "{{ user_name_JBOSS }}"
       when: not jboss_target_dir.stat.exists or force_install|bool
 
-    # check if installation {{app_dir}} already exists
-    - name: check if {{app_dir_MODULES}} already exists
-      stat: 
-        path={{ app_dir_MODULES }}
-      #Systembecome: true
-      become_user: "{{ user_name_JBOSS }}"
-      register: jboss_target_module
-
-    # install jboss modules, packaged as tar.gz
-    - name: install modules
+    # install jboss modules
+    - name: install modules, from 'app_dir_MODULES':'{{ app_dir_MODULES }}'
       import_role:
         name: install-app-extracted
       vars:
@@ -82,7 +73,6 @@
         app_archive: "{{ app_archive_MODULES }}"
       #become: true
       become_user: "{{ user_name_JBOSS }}"
-      when: not jboss_target_module.stat.exists
 
     # openjdk, needed to run jboss and scripts
     - name: install openjdk
@@ -98,12 +88,13 @@
         content: 'PATH=$PATH:{{ app_dir_JBOSS }}/bin'
       become: true
 
-    # print $PATH
     - name: put shell var into ansible var
       set_fact:
         env_path: "{{ lookup('env','PATH') }}"
-      become: true
+      become_user: "{{ user_name_JBOSS }}"
+
+    # print environment PATH
     - name: print $PATH
       debug: 
         msg: PATH={{ env_path }}
-      become: true
+      become_user: "{{ user_name_JBOSS }}"

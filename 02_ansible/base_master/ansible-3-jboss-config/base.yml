@@ -9,7 +9,7 @@
     jboss_admin_pwd: jboss00
 
     jboss_app_user: user
-    jboss_app_pwd : user 00
+    jboss_app_pwd : user00
   tasks:
 
     #Cria usuários do sistema
@@ -18,9 +18,3 @@
 
     - name: install apache module to jboss
       ansible.builtin.shell: add-user.sh -a {{jboss_app_user}} {{jboss_app_pwd}}
-
-    - name: put shell var into ansible var
-      set_fact:
-        env_path: "{{ lookup('env','PATH') }}"
-      become: true
-
