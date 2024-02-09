@@ -18,3 +18,5 @@
 
     - name: install apache module to jboss
       ansible.builtin.shell: add-user.sh -a {{jboss_app_user}} {{jboss_app_pwd}}
+
+    - name: configure datasource, postgres, 
