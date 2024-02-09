@@ -1,0 +1,52 @@
+
+#TO DO
+
+echo ~>3.0, full, ativar driver postgres 
+/profile=full/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+echo ~>3.1, centralservice, ativar driver postgres 
+/profile=centralservice/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+echo ~>3.2, diferidas, ativar driver postgres
+/profile=diferidas/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+echo ~>1 data-source, add 'cacheConsultasDS'
+data-source add \
+    --profile=centralservice \
+    --name=cacheConsultasDS \
+    --jndi-name=java:/cacheConsultasDS \
+    --driver-name=postgres \
+    --driver-class=org.postgresql.Driver \
+    --connection-url=jdbc:postgresql://cache-consultas-db:5432/dcache_consultas \
+    --user-name=cache_service_intranet \
+    --password=cache_service_intranet00 \
+    --initial-pool-size=1 \
+    --max-pool-size=10 \
+    --use-ccm=true \
+    --blocking-timeout-wait-millis=5000 \
+    --new-connection-sql="set datestyle = ISO, European;"
+
+
+
+
+/profile=full/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+#------------------------------------------------------------------------------------------------------
+# Configura o datasource 'cache-service', non XA, não participa da transação
+
+#data-source remove --name=cacheConsultasDS
+
+data-source add \
+    --profile=full \
+    --name=cacheConsultasDS \
+    --jndi-name=java:/cacheConsultasDS \
+    --driver-name=postgres \
+    --driver-class=org.postgresql.Driver \
+    --connection-url=jdbc:postgresql://v111d016.prevnet:5433/dcache_consultas \
+    --user-name=cache_service_intranet \
+    --password=c3thlbrl \
+    --initial-pool-size=1 \
+    --max-pool-size=10 \
+    --use-ccm=true \
+    --blocking-timeout-wait-millis=5000 \
+    --new-connection-sql="set datestyle = ISO, European;"

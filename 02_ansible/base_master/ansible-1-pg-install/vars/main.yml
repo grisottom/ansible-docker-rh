@@ -5,3 +5,26 @@ proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
+
+postgresql_options:
+  - { name: listen_addresses,  value: "*" }
+  - { name: logging_collector, value: "off" }
+
+postgresql_databases: [db1, db2]
+
+postgresql_users:
+  - { db: db1, name: user0, password: "{{ vault_postgresql_user0_password }}" }
+  - { db: db2, name: user1, password: "{{ vault_postgresql_user1_password }}"  }
+
+postgresql_schemas:
+  - { db: db1, name: user0, owner: user0 }
+  - { db: db2, name: user0, owner: user1 }
+
+postgresql_privs:
+  - { db: db1, roles: user0, privs: ALL, type: database }
+  - { db: db2, roles: user1, privs: ALL, type: database }
+
+postgresql_hba_entries:
+  - { contype: local, databases: all, users: all,                      method: peer          }
+  - { contype: host,  databases: db1, users: user0,  address: samenet, method: scram-sha-256 }
+  - { contype: host,  databases: db2, users: user1,  address: samenet, method: scram-sha-256 }
