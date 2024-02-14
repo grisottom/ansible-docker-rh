@@ -10,13 +10,23 @@
 
     jboss_app_user: user
     jboss_app_pwd : user00
+
   tasks:
 
     #Cria usuários do sistema
-    - name: create jboss admin user {{jboss_admin_user}}
-      ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}
+    # - name: create jboss admin user {{jboss_admin_user}}
+    #   ansible.builtin.shell: add-user.sh {{jboss_admin_user}} {{jboss_admin_pwd}}
 
-    - name: install apache module to jboss
-      ansible.builtin.shell: add-user.sh -a {{jboss_app_user}} {{jboss_app_pwd}}
+    # - name: install jboss app user
+    #   ansible.builtin.shell: add-user.sh -a {{jboss_app_user}} {{jboss_app_pwd}}
 
-    - name: configure datasource, postgres, 
+    # - name: configure data source
+    #   ansible.builtin.script: jboss-cli.sh -c --file=./config-db/db-cli
+
+    # - name: Run a script using an executable in a non-system path
+    #   ansible.builtin.script: ./config-db/db-cli
+    #   args:
+    #     executable: jboss-cli.sh -c --file=./config-db/db-cli   
+
+    - name: Run a script using an executable in a non-system path
+      ansible.builtin.script: ./config-db/run-jboss-cli.sh

@@ -27,6 +27,12 @@
       - "--update"
       - "--delay-updates"
       
+  roles:
+    - role: geerlingguy.java
+      when: "ansible_os_family == 'RedHat'"
+      java_packages:
+        - java-11-openjdk
+
   tasks:
     # list of users in ./vars/main.yml
     - name: Create user "{{ user_name_JBOSS }}"
@@ -74,12 +80,12 @@
       #become: true
       become_user: "{{ user_name_JBOSS }}"
 
-    # openjdk, needed to run jboss and scripts
-    - name: install openjdk
-      include_role:
-        name: alvistack.openjdk
-        apply:
-          become: true
+    # # openjdk, needed to run jboss and scripts
+    # - name: install openjdk
+    #   include_role:
+    #     name: alvistack.openjdk
+    #     apply:
+    #       become: true
 
     # add 'app_dir/bin' PATH to scripts dir
     - name: Add { app_dir }}/bin system-wide $PATH.

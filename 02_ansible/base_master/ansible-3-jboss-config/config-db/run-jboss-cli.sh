@@ -1,3 +1,5 @@
+#!/bin/bash
+jboss-cli.sh -c 
 
 echo ~>1, full, ativar driver postgres 
 /profile=full/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
@@ -17,3 +19,5 @@ data-source add \
     --use-ccm=true \
     --blocking-timeout-wait-millis=5000 \
     --new-connection-sql="set datestyle = ISO, European;"
+
+jboss-cli.sh -d
