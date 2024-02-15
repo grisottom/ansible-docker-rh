@@ -87,20 +87,37 @@
     #     apply:
     #       become: true
 
-    # add 'app_dir/bin' PATH to scripts dir
-    - name: Add { app_dir }}/bin system-wide $PATH.
+    # add 'app_dir/bin' to PATH
+    - name: Add { app_dir }}/bin to system-wide $PATH.
       copy:
         dest: /etc/profile.d/jboss-bin-path.sh
         content: 'PATH=$PATH:{{ app_dir_JBOSS }}/bin'
       become: true
 
-    - name: put shell var into ansible var
-      set_fact:
-        env_path: "{{ lookup('env','PATH') }}"
-      become_user: "{{ user_name_JBOSS }}"
+    # - name: put shell var into ansible var
+    #   set_fact:
+    #     env_path: "{{ lookup('env','PATH') }}"
+    #   become_user: "{{ user_name_JBOSS }}"
 
-    # print environment PATH
-    - name: print $PATH
-      debug: 
-        msg: PATH={{ env_path }}
-      become_user: "{{ user_name_JBOSS }}"
+    # # print environment PATH
+    # - name: print $PATH
+    #   debug: 
+    #     msg: PATH={{ env_path }}
+    #   become_user: "{{ user_name_JBOSS }}"
+
+    # -------------------------------------
+    - name: Add { app_dir }} as JBOSS_HOME environment variable
+      copy:
+        dest: /etc/profile.d/jboss-home.sh
+        content: 'JBOSS_HOME={{ app_dir_JBOSS }}'
+      become: true
+
+    # - name: put shell var into ansible var
+    #   set_fact:
+    #     env_jboss_home: "{{ lookup('env','JBOSS_HOME') }}"
+    #   become_user: "{{ user_name_JBOSS }}"
+
+    # - name: print $JBOSS_HOME
+    #   debug: 
+    #     msg: JBOSS_HOME={{ env_jboss_home }}
+    #   become_user: "{{ user_name_JBOSS }}"      

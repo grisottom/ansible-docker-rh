@@ -11,6 +11,8 @@
     jboss_app_user: user
     jboss_app_pwd : user00
 
+    user_name_JBOSS: jboss  #System username 
+
   tasks:
 
     #Cria usuários do sistema
@@ -28,5 +30,43 @@
     #   args:
     #     executable: jboss-cli.sh -c --file=./config-db/db-cli   
 
-    - name: Run a script using an executable in a non-system path
-      ansible.builtin.script: ./config-db/run-jboss-cli.sh
+    - name: put shell var into ansible var
+      set_fact:
+        env_path: "{{ lookup('env','PATH') }}"
+      #become_user: "{{ user_name_JBOSS }}"
+
+    # print environment PATH
+    - name: print $PATH
+      debug: 
+        msg: PATH={{ env_path }}
+      #become_user: "{{ user_name_JBOSS }}"
+
+    - name: put shell var into ansible var
+      set_fact:
+        env_jboss_home: "{{ lookup('env','JBOSS_HOME') }}"
+      #become_user: "{{ user_name_JBOSS }}"
+
+    - name: print $JBOSS_HOME
+      debug: 
+        msg: JBOSS_HOME={{ env_jboss_home }}
+      #become_user: "{{ user_name_JBOSS }}"
+
+    #---------------------------------------------
+
+    - name: Transfer the scripts
+      ansible.builtin.copy: 
+        src: ./config/       
+        dest: /home/jboss/config-jboss/
+        mode: 775
+      become_user: "{{ user_name_JBOSS }}"        
+
+    - name: execute 'jboss-config.sh' script
+      ansible.builtin.shell:
+      args:
+        chdir: /home/jboss/config-jboss/
+        cmd: ./jboss-config.sh
+      become: true
+      become_user: "{{ user_name_JBOSS }}"        
+         
+    # - name: Run a script using an executable in a non-system path
+    #   ansible.builtin.script: ./config/jboss-config.sh

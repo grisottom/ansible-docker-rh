@@ -1,2 +1,2 @@
 ansible-galaxy collection install -r requirements.yml
-ansible-playbook -vvv -i inventory base.yml --ask-vault-pass
+ansible-playbook -i inventory base.yml --ask-vault-pass

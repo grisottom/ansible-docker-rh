@@ -15,7 +15,7 @@
 
   handlers:
     - name: Restart postgresql
-      ansible.builtin.systemd:
+      ansible.builtin.service:
         name: postgresql-13
         state: restarted
 
@@ -34,10 +34,10 @@
         creates: /var/lib/pgsql/13/data/PG_VERSION
 
     - name: Start and enable the service
-      ansible.builtin.systemd:
+      ansible.builtin.service:
         name: postgresql-13
         state: started
-        enabled: true
+        enabled: yes
     #------------------------------------------
     - name: Set options
       community.postgresql.postgresql_set:
