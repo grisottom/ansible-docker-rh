@@ -66,6 +66,7 @@
         app_dir: "{{ app_dir_JBOSS }}"
         extract_dir: "{{ extract_dir_JBOSS }}"
         app_archive: "{{ app_archive_JBOSS }}"
+      become: true  
       become_user: "{{ user_name_JBOSS }}"
       when: not jboss_target_dir.stat.exists or force_install|bool
 
@@ -77,7 +78,7 @@
         app_dir: "{{ app_dir_MODULES }}"
         extract_dir: "{{ extract_dir_MODULES }}"
         app_archive: "{{ app_archive_MODULES }}"
-      #become: true
+      become: true
       become_user: "{{ user_name_JBOSS }}"
 
     # # openjdk, needed to run jboss and scripts
@@ -91,33 +92,12 @@
     - name: Add { app_dir }}/bin to system-wide $PATH.
       copy:
         dest: /etc/profile.d/jboss-bin-path.sh
-        content: 'PATH=$PATH:{{ app_dir_JBOSS }}/bin'
+        content: 'export PATH=$PATH:{{ app_dir_JBOSS }}/bin'
       become: true
-
-    # - name: put shell var into ansible var
-    #   set_fact:
-    #     env_path: "{{ lookup('env','PATH') }}"
-    #   become_user: "{{ user_name_JBOSS }}"
-
-    # # print environment PATH
-    # - name: print $PATH
-    #   debug: 
-    #     msg: PATH={{ env_path }}
-    #   become_user: "{{ user_name_JBOSS }}"
 
     # -------------------------------------
     - name: Add { app_dir }} as JBOSS_HOME environment variable
       copy:
         dest: /etc/profile.d/jboss-home.sh
-        content: 'JBOSS_HOME={{ app_dir_JBOSS }}'
+        content: 'export JBOSS_HOME={{ app_dir_JBOSS }}'
       become: true
-
-    # - name: put shell var into ansible var
-    #   set_fact:
-    #     env_jboss_home: "{{ lookup('env','JBOSS_HOME') }}"
-    #   become_user: "{{ user_name_JBOSS }}"
-
-    # - name: print $JBOSS_HOME
-    #   debug: 
-    #     msg: JBOSS_HOME={{ env_jboss_home }}
-    #   become_user: "{{ user_name_JBOSS }}"      

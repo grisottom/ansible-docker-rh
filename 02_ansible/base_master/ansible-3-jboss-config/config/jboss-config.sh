@@ -3,7 +3,7 @@
 
 # ---------------- AUXILIAR TEMPORARY FOLDER for Jboss configuration ----------------
 
-TMP_DIR="/tmp/jboss_cs";
+TMP_DIR="$JBOSS_HOME/tmp/jboss_cs";
 TMP_DIR_DOMAIN="$TMP_DIR/domain";
 
 #**************************************************************************************************
@@ -24,7 +24,7 @@ fi
 
 # ---------------- START JBOSS --------------
 
-source jboss-start-include.sh
+source ./jboss-start-include.sh
 
 # ---------------- START JBOSS --------------------
 start_jboss;
@@ -47,6 +47,6 @@ if [ "$JBOSS_STARTED" == 0 ] ; then
     #---------------------- COPY THE CONFIGURATION TO SHARED dir --------------------
     echo_message "COPY OF CONFIGURATION from $JBOSS_DOMAIN_DIR to dir $TMP_DIR_DOMAIN";
     #
-    sudo cp -r $JBOSS_DOMAIN_DIR/* $TMP_DIR_DOMAIN/;
+    cp -r $JBOSS_DOMAIN_DIR/* $TMP_DIR_DOMAIN/;
   fi
 fi

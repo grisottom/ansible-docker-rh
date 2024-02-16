@@ -1,5 +1,6 @@
 #refs: 
 # https://rischmann.fr/blog/setting-up-postgresql-with-ansible
+# https://stribny.name/blog/ansible-postgresql/
 # https://www.postgresql.org/download/linux/redhat/
 
 #pg version choosed: 13
@@ -19,16 +20,15 @@
         name: postgresql-13
         state: restarted
 
-  tasks:
-    - name: Install PostgreSQL and psycopg2
-      ansible.builtin.yum:
-        name:
-          - postgresql13-server
-          - python3-psycopg2          
-        state: present
-        update_cache: true
+  pre_tasks:
+    - name: "Install packages"
+      ansible.builtin.dnf: "name={{ item }} state=present"
+      with_items:
+        - postgresql13-server
+        - python3-psycopg2
 
-    - name: Create the cluster
+  tasks:
+    - name: Intialize PostgreSQL
       ansible.builtin.command:
         cmd: postgresql-13-setup initdb
         creates: /var/lib/pgsql/13/data/PG_VERSION

@@ -13,6 +13,15 @@
 
     user_name_JBOSS: jboss  #System username 
 
+    user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
+
+    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
+
+    # create a variable named "shell_env" that is a dictionary
+    shell_env:
+      PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
+      JBOSS_HOME: "{{ app_dir_JBOSS }}"
+
   tasks:
 
     #Cria usuários do sistema
@@ -33,23 +42,35 @@
     - name: put shell var into ansible var
       set_fact:
         env_path: "{{ lookup('env','PATH') }}"
+      become: yes       
       #become_user: "{{ user_name_JBOSS }}"
+      #environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           
 
     # print environment PATH
     - name: print $PATH
       debug: 
         msg: PATH={{ env_path }}
-      #become_user: "{{ user_name_JBOSS }}"
+      become: true
+      #become_user: "{{ user_name_JBOSS }}"        
 
     - name: put shell var into ansible var
       set_fact:
         env_jboss_home: "{{ lookup('env','JBOSS_HOME') }}"
+      become: true        
       #become_user: "{{ user_name_JBOSS }}"
+      #environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           
 
     - name: print $JBOSS_HOME
       debug: 
         msg: JBOSS_HOME={{ env_jboss_home }}
-      #become_user: "{{ user_name_JBOSS }}"
+      become: true        
+      #become_user: "{{ user_name_JBOSS }}"        
+
+    - name: print shell_env
+      debug: 
+        msg: shell_env={{ shell_env }}
+      become: true        
+      #become_user: "{{ user_name_JBOSS }}"      
 
     #---------------------------------------------
 
@@ -57,7 +78,8 @@
       ansible.builtin.copy: 
         src: ./config/       
         dest: /home/jboss/config-jboss/
-        mode: 775
+        mode: 0775
+      become: true        
       become_user: "{{ user_name_JBOSS }}"        
 
     - name: execute 'jboss-config.sh' script
@@ -65,8 +87,7 @@
       args:
         chdir: /home/jboss/config-jboss/
         cmd: ./jboss-config.sh
+        #executable: /usr/bin/bash
       become: true
-      become_user: "{{ user_name_JBOSS }}"        
-         
-    # - name: Run a script using an executable in a non-system path
-    #   ansible.builtin.script: ./config/jboss-config.sh
+      become_user: "{{ user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           

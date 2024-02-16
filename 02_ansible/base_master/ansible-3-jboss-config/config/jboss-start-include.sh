@@ -10,7 +10,7 @@ function echo_message() {
 
 
 JBOSS_DOMAIN_DIR=$JBOSS_HOME/domain;
-sudo chown -R jboss:jboss $JBOSS_DOMAIN_DIR #bind mount from host, owned by root
+#sudo chown -R jboss:jboss $JBOSS_DOMAIN_DIR #bind mount from host, owned by root
 
 JBOSS_DOMAIN_TMP_DIR=$JBOSS_DOMAIN_DIR/tmp; #inner jboss dir
 JBOSS_MARKERFILE="${JBOSS_DOMAIN_TMP_DIR}/startup-marker";
