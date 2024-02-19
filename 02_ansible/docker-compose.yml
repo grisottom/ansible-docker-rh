@@ -3,13 +3,44 @@ name: master
 services:
   # The services are also available by 'docker-run' alternatives in the same folder, ex.: docker-run-apache-install.sh
 
-  jboss-install:
-    build: ./base_master
+  # pg-install:
+  #   build: ./base_master
+  #   image: ansible_base_master:latest
+  #   privileged: true
+  #   volumes:
+  #     - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
+  #     - ./base_master/ansible-1-pg-install:/ansible
+  #     - type: bind
+  #       # variável definida no arquivo .env
+  #       source: $ANSIBLE_LOCAL_DIR
+  #       target: /root/.ansible/
+  #   networks: 
+  #     - ansible-net       
+  #   command: ["/bin/sh","-c","./ansible-playbook.sh"]  
+
+  # jboss-install:
+  #   image: ansible_base_master:latest
+  #   privileged: true
+  #   volumes:
+  #     - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
+  #     - ./base_master/ansible-2-jboss-install:/ansible
+  #     - type: bind
+  #       # variável definida no arquivo .env
+  #       source: $ANSIBLE_LOCAL_DIR
+  #       target: /root/.ansible/
+  #   networks: 
+  #     - ansible-net       
+  #   command: ["/bin/sh","-c","./ansible-playbook.sh"]  
+
+  jboss-config:
     image: ansible_base_master:latest
+    # depends_on:
+    #   jboss-install:
+    #     condition: service_completed_successfully    
     privileged: true
     volumes:
       - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-1-jboss-install:/ansible
+      - ./base_master/ansible-3-jboss-config:/ansible
       - type: bind
         # variável definida no arquivo .env
         source: $ANSIBLE_LOCAL_DIR
@@ -17,6 +48,23 @@ services:
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  
+
+  # jboss-start:
+  #   image: ansible_base_master:latest
+  #   depends_on:
+  #     jboss-config:
+  #       condition: service_completed_successfully    
+  #   privileged: true
+  #   volumes:
+  #     - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
+  #     - ./base_master/ansible-4-jboss-start:/ansible
+  #     - type: bind
+  #       # variável definida no arquivo .env
+  #       source: $ANSIBLE_LOCAL_DIR
+  #       target: /root/.ansible/
+  #   networks: 
+  #     - ansible-net       
+  #   command: ["/bin/sh","-c","./ansible-playbook.sh"]  
 
 #external, created by 01_hosts/docker-compose.yml
 networks:

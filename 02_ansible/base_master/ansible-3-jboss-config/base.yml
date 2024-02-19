@@ -74,20 +74,19 @@
 
     #---------------------------------------------
 
-    - name: Transfer the scripts
+    - name: Copy/Transfer the scripts to hosts
       ansible.builtin.copy: 
         src: ./config/       
         dest: /home/jboss/config-jboss/
         mode: 0775
-      become: true        
+      become: true
       become_user: "{{ user_name_JBOSS }}"        
 
-    - name: execute 'jboss-config.sh' script
+    - name: execute 'jboss-config.sh' script on hosts
       ansible.builtin.shell:
       args:
         chdir: /home/jboss/config-jboss/
-        cmd: ./jboss-config.sh
-        #executable: /usr/bin/bash
+        cmd: ./jboss-config.sh 
       become: true
       become_user: "{{ user_name_JBOSS }}"
       environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           

@@ -32,12 +32,14 @@
       ansible.builtin.command:
         cmd: postgresql-13-setup initdb
         creates: /var/lib/pgsql/13/data/PG_VERSION
+      become: true
 
     - name: Start and enable the service
       ansible.builtin.service:
         name: postgresql-13
         state: started
         enabled: yes
+      become: true
     #------------------------------------------
     - name: Set options
       community.postgresql.postgresql_set:
