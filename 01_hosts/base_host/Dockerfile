@@ -1,4 +1,5 @@
 FROM registry.access.redhat.com/ubi8/ubi-init
+# 2024-02, ubu-init:8.2 a 8.9 bug 'https://issues.redhat.com/browse/RHEL-5863', 'systemd-239-31 prevents some units from stopping'
 
 #install common required packages
 RUN ["dnf","update", "-y"]

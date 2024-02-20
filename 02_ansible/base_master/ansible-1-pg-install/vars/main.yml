@@ -1,5 +1,7 @@
 ---
 
+allow_world_readable_tmpfiles: true
+
 # create a variable named "proxy_env" that is a dictionary
 proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"

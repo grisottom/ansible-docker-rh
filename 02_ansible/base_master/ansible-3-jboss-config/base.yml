@@ -89,4 +89,9 @@
         cmd: ./jboss-config.sh 
       become: true
       become_user: "{{ user_name_JBOSS }}"
-      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           
+      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME
+    #   register: result
+
+    # - name: Show result
+    #   ansible.builtin.debug:
+    #     msg: "{{ result.stdout_lines }}"      

@@ -1,8 +1,25 @@
 
-echo ~>1, full, ativar driver postgres 
+
+echo ~>1.1
+    /server-group=main-server-group:stop-servers(blocking=true)
+echo ~>1.2
+    /host=master/server-config=server-one:remove
+echo ~>1.3
+    /host=master/server-config=server-two:remove
+echo ~>1.4
+    /server-group=main-server-group:remove
+
+echo ~>1.5
+    /server-group=other-server-group:stop-servers(blocking=true)    
+echo ~>1.6
+    /host=master/server-config=server-three:remove
+echo ~>1.7
+    /server-group=other-server-group:remove 
+
+echo ~>2, full, ativar driver postgres 
 /profile=full/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
 
-echo ~>2 data-source, add 'db1DS'
+echo ~>3 data-source, add 'db1DS'
 data-source add \
     --profile=full \
     --name=db1DS \
