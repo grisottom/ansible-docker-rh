@@ -7,6 +7,6 @@ docker run \
   --name=my_ansible_base_master \
   --network=ansible-net \
   ansible_base_master:latest \
-  sh 
+  sh
   #ansible-playbook.sh
   

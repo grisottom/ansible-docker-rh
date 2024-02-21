@@ -16,17 +16,26 @@ echo ~>1.6
 echo ~>1.7
     /server-group=other-server-group:remove 
 
-echo ~>2, full, ativar driver postgres 
-/profile=full/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
+
+#-------------------------- CHANGE_ME PROFILE -------------------------
+echo ~>1.8
+    /profile=default:clone(to-profile=change_me)
+echo ~>1.9
+    /server-group=server-group-change_me:add(profile=change_me,socket-binding-group=standard-sockets)
+echo ~>1.10
+    /host=master/server-config=change_me:add(group=server-group-change_me, auto-start=true)
+
+echo ~>2, change_me, ativar driver postgres 
+/profile=change_me/subsystem=datasources/jdbc-driver=postgres:add(driver-name="postgres",driver-module-name="org.postgres",driver-class-name=org.postgresql.Driver)
 
 echo ~>3 data-source, add 'db1DS'
 data-source add \
-    --profile=full \
+    --profile=change_me \
     --name=db1DS \
     --jndi-name=java:/db1DS \
     --driver-name=postgres \
     --driver-class=org.postgresql.Driver \
-    --connection-url=jdbc:postgresql://pg_host:5433/db1 \
+    --connection-url=jdbc:postgresql://pg-host:5433/db1 \
     --user-name=user0 \
     --password=user0 \
     --initial-pool-size=1 \

@@ -23,9 +23,11 @@
     app_archive_MODULES: "http://serve.pg-driver.localhost:8000/modules.tar.gz"
 
     is_remote_archive: true
-    add_rsync_opts: 
-      - "--update"
-      - "--delay-updates"
+
+    # Option to avoid overwriting 
+    # add_rsync_opts: 
+    #   - "--update"
+    #   - "--delay-updates"
       
   roles:
     - role: geerlingguy.java

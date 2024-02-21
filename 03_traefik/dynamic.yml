@@ -2,13 +2,19 @@
 
 http:
   routers:
-    route-to-local-ip:
-      rule: "Host(`web.localhost`,`chess.localhost`)"
-      service: route-to-web-host
+    route-to-jboss-console:
+      rule: "Host(`console.localhost`)"
+      service: service-jboss-console
+    route-to-jboss-web:
+      rule: "Host(`web.localhost`)"
+      service: service-jboss-web
 
   services:
-    route-to-web-host:
+    service-jboss-console:
       loadBalancer:
         servers:
-          - url: "http://base-web-host-1:80"
-          - url: "http://base-web-host-2:80"
+          - url: "http://base-jboss-host-1:9990"
+    service-jboss-web:
+      loadBalancer:
+        servers:
+          - url: "http://base-jboss-host-1:8080"          
