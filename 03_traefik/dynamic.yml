@@ -5,16 +5,16 @@ http:
     route-to-jboss-console:
       rule: "Host(`console.localhost`)"
       service: service-jboss-console
-    route-to-jboss-web:
-      rule: "Host(`web.localhost`)"
-      service: service-jboss-web
+    # route-to-jboss-web:
+    #   rule: "Host(`web.localhost`)"
+    #   service: service-jboss-web
 
   services:
     service-jboss-console:
       loadBalancer:
         servers:
           - url: "http://base-jboss-host-1:9990"
-    service-jboss-web:
-      loadBalancer:
-        servers:
-          - url: "http://base-jboss-host-1:8080"          
+    # service-jboss-web:
+    #   loadBalancer:
+    #     servers:
+    #       - url: "http://base-jboss-host-1:8080"          

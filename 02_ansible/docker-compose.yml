@@ -14,11 +14,9 @@ services:
         # variável definida no arquivo .env
         source: $ANSIBLE_LOCAL_DIR
         target: /root/.ansible/
-    secrets:
-      - vault_secret
     networks: 
       - ansible-net       
-    command: ["/bin/sh","-c","./ansible-playbook.sh"]  
+    command: ["/bin/sh","-c","./quick-fix/vault-id-pwd-file.sh && ./ansible-playbook.sh"]  
 
   jboss-install:
     image: ansible_base_master:latest
@@ -74,7 +72,3 @@ networks:
     driver: bridge
     name: ansible-net
     external: true
-
-# secrets:
-#   in-secret:
-#     file: .secret

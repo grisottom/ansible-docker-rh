@@ -33,4 +33,16 @@
         cmd: nohup ./jboss-start.sh 
       become: true
       become_user: "{{ user_name_JBOSS }}"
-      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME           
+      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
+      register: results
+      ignore_errors: true  
+      no_log: true
+
+    - name: Show result with line breaks
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      ansible.builtin.fail:
+        msg: 'Script failure'
+      when: results is failed            
