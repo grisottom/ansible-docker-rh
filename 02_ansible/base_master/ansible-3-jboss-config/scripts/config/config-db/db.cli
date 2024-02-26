@@ -1,6 +1,6 @@
 
 
-#----- remove
+#----- remove 'main-server-group'
 echo ~>1.1 to 1.4
 if (outcome == success) of /profile=main-server-group:query
     echo ~>1.1
@@ -13,7 +13,7 @@ if (outcome == success) of /profile=main-server-group:query
         /server-group=main-server-group:remove
 end-if
 
-#----- remove
+#----- remove 'other-server-group' and 'server-three'
 echo ~>1.5 to 1.7
 if (outcome == success) of /profile=other-server-group:query
     echo ~>1.5
@@ -31,8 +31,8 @@ if (outcome == failure) of /profile=change_me:query
         /profile=default:clone(to-profile=change_me)
     echo ~>1.9
         /server-group=server-group-change_me:add(profile=change_me,socket-binding-group=standard-sockets)
-    echo ~>1.10
-        /host=master/server-config=change_me:add(group=server-group-change_me, auto-start=true)
+#    echo ~>1.10
+#        /host=master/server-config=change_me:add(group=server-group-change_me, auto-start=true)
 end-if        
 
 #-------- activate pg driver

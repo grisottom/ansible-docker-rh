@@ -1,5 +1,5 @@
 ---
-- hosts: jboss_host
+- hosts: master, slaves
 
   vars_files:
     - vars/main.yml
@@ -7,8 +7,6 @@
   environment: "{{ proxy_env }}"  #proxy for download openjdk    
 
   vars: 
-    #ansible_remote_tmp: /tmp
-
     user_name_JBOSS: jboss  #System username to be created
 
     user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
@@ -82,13 +80,6 @@
         app_archive: "{{ app_archive_MODULES }}"
       become: true
       become_user: "{{ user_name_JBOSS }}"
-
-    # # openjdk, needed to run jboss and scripts
-    # - name: install openjdk
-    #   include_role:
-    #     name: alvistack.openjdk
-    #     apply:
-    #       become: true
 
     # add 'app_dir/bin' to PATH
     - name: Add { app_dir }}/bin to system-wide $PATH.

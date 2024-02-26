@@ -26,7 +26,7 @@ fi
 
 # ---------------- START JBOSS --------------
 
-source ./jboss-start-include.sh
+source ../start/jboss-start-include.sh
 
 # ---------------- START JBOSS --------------------
 start_jboss;
@@ -40,7 +40,7 @@ echo "JBOSS_STARTED: $JBOSS_STARTED_";
 if [ "$JBOSS_STARTED" == 0 ] ; then
 
   if [ -f $TMP_DIR_DOMAIN/configuration/domain.xml ] ; then
-    echo_message "jboss already configured, to reconfigure remove ~$TMP_DIR_DOMAIN from host and 'docker-run' again, exiting";
+    echo_message "jboss already configured, to reconfigure remove ~$TMP_DIR_DOMAIN from host and run again, exiting";
     exit 0
   else
 

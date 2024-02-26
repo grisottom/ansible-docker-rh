@@ -1,0 +1,72 @@
+---
+- hosts: master, slaves
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+    jboss_admin_user: jboss
+    jboss_admin_pwd: jboss00
+
+    jboss_app_user: user
+    jboss_app_pwd : user00
+
+    user_name_JBOSS: jboss  #System username 
+
+    user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
+
+    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
+
+    # create a variable named "shell_env" that is a dictionary
+    shell_env:
+      PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
+      JBOSS_HOME: "{{ app_dir_JBOSS }}"
+      HOST_CONFIG: "{{ host_config }}"  #from group_vars
+      JBOSS_OPTION: "{{ jboss_option }}"
+      #MASTER_HOSTNAME: "{{ inventory_hostname.0 }}"
+      #MASTER_HOSTNAMES: "{{ inventory_hostnames.0 }}"      
+
+  tasks:
+
+    - name: show all the hosts matching the pattern
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_inventory_hostnames:
+        - master
+
+    - name: 01 - print shell_env
+      debug: 
+        msg: shell_env={{ shell_env }}
+      become: true        
+      become_user: "{{ user_name_JBOSS }}"      
+
+    #---------------------------------------------
+
+    - name: Copy/Transfer the scripts to hosts
+      ansible.builtin.copy: 
+        src: ./scripts/       
+        dest: /home/jboss/scripts/
+        mode: 0775
+      become: true
+      become_user: "{{ user_name_JBOSS }}"        
+
+    - name: execute 'jboss-config.sh' script on hosts
+      ansible.builtin.shell:
+      args:
+        chdir: /home/jboss/scripts/config/
+        cmd: ./jboss-config.sh 
+      become: true
+      become_user: "{{ user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+      register: results
+      ignore_errors: true  # in order to continue processing
+      #no_log: true         # log in next tasks
+
+    - name: Show result with line breaks
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      ansible.builtin.fail:
+        msg: 'Script failure'
+      when: results is failed

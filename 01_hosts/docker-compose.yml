@@ -79,6 +79,8 @@ services:
       keypair:
         condition: service_completed_successfully    
     privileged: true
+    deploy:
+      replicas: 2    
     volumes:
       - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 

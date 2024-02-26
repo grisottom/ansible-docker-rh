@@ -18,19 +18,20 @@
 
   tasks:
 
-    - name: Copy/Transfer the scripts to hosts
-      ansible.builtin.copy: 
-        src: ./start/       
-        dest: /home/jboss/start-jboss/
-        mode: 0775
-      become: true        
-      become_user: "{{ user_name_JBOSS }}"        
+    # - name: Copy/Transfer the scripts to hosts
+    #   ansible.builtin.copy: 
+    #     src: ./start/       
+    #     dest: /home/jboss/start-jboss/
+    #     mode: 0775
+    #   become: true        
+    #   become_user: "{{ user_name_JBOSS }}"        
 
     - name: execute 'jboss-start.sh' script on hosts
       ansible.builtin.shell:
       args:
-        chdir: /home/jboss/start-jboss/
-        cmd: nohup ./jboss-start.sh #
+        chdir: /home/jboss/scripts/start-jboss/
+        cmd: nohup ./jboss-start.sh 
+        #nohup - 'no hung up', Keep shel running after end of task
       become: true
       become_user: "{{ user_name_JBOSS }}"
       environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     

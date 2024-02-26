@@ -1,3 +1,4 @@
-#ansible-galaxy collection install -r requirements.yml
-ansible-playbook -i inventory base.yml
-#ansible-playbook -i inventory test.yml
+#ansible-playbook -i inventory.yml base-config.yml --limit 'master'
+#ansible-playbook -i inventory.yml base-start.yml --limit 'master'
+ansible-playbook -i inventory.yml base-config.yml --limit 'slaves'
+# ansible-playbook -i inventory.yml base-start.yml --limit 'slaves'

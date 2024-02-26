@@ -80,14 +80,9 @@ function start_jboss() {
   if [ "$JBOSS_STARTED" == 1 ] ; then  #not started
 
     # ---------------- START JBOSS --------------------
-    echo_message "starting jboss, domain mode";
+    echo_message "starting jboss, domain mode, --host-config=$host_config, --host-config=$HOST_CONFIG";
 
-    #export DEBUG_OPTS=" -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8787"
-    #echo_message "DEBUG_OPTS $DEBUG_OPTS"
-    #export JAVA_OPTS=$JAVA_OPTS$DEBUG_OPTS
-    #echo_message "JAVA_OPTS $JAVA_OPTS";
-
-    domain.sh -b 0.0.0.0 -bmanagement 0.0.0.0 &
+    domain.sh -b 0.0.0.0 -bmanagement 0.0.0.0 --host-config=$HOST_CONFIG $JBOSS_OPTION &
 
     currenttime=$(date +%s);
     echo "currenttime: $currenttime";

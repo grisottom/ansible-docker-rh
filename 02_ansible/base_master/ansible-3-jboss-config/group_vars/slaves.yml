@@ -1,0 +1,2 @@
+host_config: host-slave.xml
+jboss_option: "-Djboss.domain.master.address=base-jboss-host-1"
