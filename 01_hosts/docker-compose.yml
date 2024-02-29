@@ -66,11 +66,11 @@ services:
       - ansible-net
     # labels:
     #   - "traefik.enable=true"
-    #   - "traefik.http.routers.xxxt.rule=Host(`serve.pg-driver.localhost`)"
+    #   - "traefik.http.routers.xxx.rule=Host(`serve.pg-driver.localhost`)"
     #   - "traefik.docker.network=ansible-net"
     #   - "traefik.http.services.xxx.loadbalancer.server.port=8089"
 
-  jboss-host: 
+  jboss-host:
     # build: ./base_host
     image: target_host
     depends_on: 

@@ -80,7 +80,7 @@ function start_jboss() {
   if [ "$JBOSS_STARTED" == 1 ] ; then  #not started
 
     # ---------------- START JBOSS --------------------
-    echo_message "starting jboss, domain mode, --host-config=$host_config, --host-config=$HOST_CONFIG";
+    echo_message "starting jboss, domain mode, --host-config=$HOST_CONFIG $JBOSS_OPTION &"
 
     domain.sh -b 0.0.0.0 -bmanagement 0.0.0.0 --host-config=$HOST_CONFIG $JBOSS_OPTION &
 

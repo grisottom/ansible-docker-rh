@@ -1,6 +1,9 @@
 {
     "ansible.python.interpreterPath": "/usr/bin/python3.11",
     "cSpell.words": [
-        "chdir"
+        "chdir",
+        "Djboss",
+        "mgmt",
+        "nohup"
     ]
 }

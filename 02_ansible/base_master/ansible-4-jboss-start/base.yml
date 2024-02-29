@@ -5,9 +5,9 @@
     - vars/main.yml
 
   vars: 
-    user_name_JBOSS: jboss  #System username 
+    OS_user_name_JBOSS: jboss  #System username 
 
-    user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
+    user_home_dir_jboss: "/home/{{ OS_user_name_JBOSS }}"
 
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
 
@@ -24,7 +24,7 @@
         dest: /home/jboss/start-jboss/
         mode: 0775
       become: true        
-      become_user: "{{ user_name_JBOSS }}"        
+      become_user: "{{ OS_user_name_JBOSS }}"        
 
     - name: execute 'jboss-start.sh' script on hosts
       ansible.builtin.shell:
@@ -32,7 +32,7 @@
         chdir: /home/jboss/start-jboss/
         cmd: nohup ./jboss-start.sh #
       become: true
-      become_user: "{{ user_name_JBOSS }}"
+      become_user: "{{ OS_user_name_JBOSS }}"
       environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
       register: results
       ignore_errors: true  

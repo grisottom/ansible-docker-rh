@@ -7,9 +7,9 @@
   environment: "{{ proxy_env }}"  #proxy for download openjdk    
 
   vars: 
-    user_name_JBOSS: jboss  #System username to be created
+    OS_user_name_JBOSS: jboss  #System username to be created
 
-    user_home_dir_jboss: "/home/{{ user_name_JBOSS }}"
+    user_home_dir_jboss: "/home/{{ OS_user_name_JBOSS }}"
     force_install: false #override
 
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
@@ -35,7 +35,7 @@
 
   tasks:
     # list of users in ./vars/main.yml
-    - name: Create user "{{ user_name_JBOSS }}"
+    - name: Create user "{{ OS_user_name_JBOSS }}"
       import_role:
         name: create-users
       become: true
@@ -54,7 +54,7 @@
       stat: 
         path={{ app_dir_JBOSS }}
       become: true
-      become_user: "{{ user_name_JBOSS }}"
+      become_user: "{{ OS_user_name_JBOSS }}"
       register: jboss_target_dir
          
     # run as user (sudo -u user command)
@@ -67,7 +67,7 @@
         extract_dir: "{{ extract_dir_JBOSS }}"
         app_archive: "{{ app_archive_JBOSS }}"
       become: true  
-      become_user: "{{ user_name_JBOSS }}"
+      become_user: "{{ OS_user_name_JBOSS }}"
       when: not jboss_target_dir.stat.exists or force_install|bool
 
     # install jboss modules
@@ -79,7 +79,7 @@
         extract_dir: "{{ extract_dir_MODULES }}"
         app_archive: "{{ app_archive_MODULES }}"
       become: true
-      become_user: "{{ user_name_JBOSS }}"
+      become_user: "{{ OS_user_name_JBOSS }}"
 
     # add 'app_dir/bin' to PATH
     - name: Add { app_dir }}/bin to system-wide $PATH.
