@@ -1,0 +1,118 @@
+---
+- hosts: master, slaves
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+    jboss_mgmt_user: jboss
+    jboss_mgmt_pwd: jboss00
+    jboss_mgmt_secret: "{{ jboss_mgmt_pwd | b64encode}}" #
+
+    jboss_app_user: user
+    jboss_app_pwd : user00
+
+    OS_user_name_JBOSS: jboss  #Operating System username 
+
+    #[ 29/02/2024 15:11:27 ][ jboss on v121d502 ][ /u01/app/jboss/jboss ]
+    # [ 29/02/2024 15:12:13 ][ jboss on v121d502 ][ /u01/app/jboss ]
+    # DEV-INSS-CENTRAL-SERVICE MASTER> ls
+    # jboss  
+    # jboss-eap-7.3
+
+    user_home_dir_jboss: "/home/{{ OS_user_name_JBOSS }}"
+    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
+    config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
+
+    # create a variable named "shell_env" that is a dictionary
+    shell_env:
+      PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
+      JBOSS_HOME: "{{ app_dir_JBOSS }}"
+      HOST_CONFIG: "{{ host_config }}"  #from group_vars
+      JBOSS_OPTION: "{{ jboss_option }}"   
+
+  tasks:
+
+    - name: get 'master' hostname from inventory, put in variable
+      ansible.builtin.set_fact:
+        master-hostname
+
+    - name: show all the hosts matching the pattern
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_inventory_hostnames:
+        - master
+    #--------------------------------------------
+
+    - name: 01 - print shell_env
+      debug: 
+        msg: shell_env={{ shell_env }}
+      become: true        
+      become_user: "{{ OS_user_name_JBOSS }}"      
+
+    #--------------------------------------------
+    - name: template 'host-config.xml', 
+      ansible.builtin.template:
+        src: ./template/{{ item.src }}
+        dest: "{{ config_domain_dir_JBOSS }}/{{ item.dest }}"
+        mode: 0775
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      with_items:
+        - {src: 'host-CONFIG-master-j2.xml', dest: 'host-CONFIG-master.xml'}
+        - {src: 'host-CONFIG-slave-j2.xml', dest: 'host-CONFIG-slave.xml'}
+
+    #---------------------------------------------
+
+    - name: Copy/Transfer CONFIG and START scripts, to hosts
+      ansible.builtin.copy: 
+        src: ./scripts/       
+        dest: /home/jboss/scripts/
+        mode: 0775
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+
+    #---------------------------------------------
+    - name: execute CONFIG script on hosts, 'jboss-config.sh'
+      ansible.builtin.shell:
+      args:
+        chdir: /home/jboss/scripts/config/
+        cmd: ./jboss-config.sh 
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+      register: results
+      ignore_errors: true  # in order to continue processing
+      no_log: true         # log in next tasks
+
+    - name: Show result with line breaks
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      ansible.builtin.fail:
+        msg: 'Script failure'
+      when: results is failed
+
+    #---------------------------------------------
+    - name: execute START script on hosts, 'jboss-start.sh'
+      ansible.builtin.shell:
+      args:
+        chdir: /home/jboss/scripts/start/
+        cmd: nohup ./jboss-start.sh 
+        #nohup = 'no hung up', Keep shell running after end of task
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
+      register: results
+      ignore_errors: true  
+      no_log: true
+
+    - name: Show result with line breaks
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      ansible.builtin.fail:
+        msg: 'Script failure'
+      when: results is failed                  
