@@ -1,0 +1,33 @@
+ https://docs.ansible.com/ansible/latest/vault_guide/vault_managing_passwords.html#storing-vault-passwords
+
+TODO:
+
+-----------------------------------------
+ ------------------------------------------
+ start + config (add-user 'mgmt' & host-master & config.001.cli), master
+ start + config (add-user 'app'  & host-slave  & config.001.cli), slaves  
+ 
+ nohup start 
+ 
+ start + config (profile)  - config 1, 2, 3  or redo-config 2, 3, master
+ 
+ for x in config
+   apply
+ 
+ 	- config.001.cli  (profile xyz, configurable)
+-----------------------------------------
+-----------------------------------------
+- server-group, configurable, with profile cloned from, configurable,
+- server, configurable, to add to server-group, 
+- SO service, start on reboot
+- vault
+- install java for jboss OS user, link 'java' to 'jdk-specific'
+- jboss, link to 'jboss-specific'
+- jboss, apply EAP patch
+- jboss, use  wildfly
+- collection, with 'create user', 'install-extracted' ...
+- playbook, copy of, to git
+- master, add 'mgmt-user' ?
+- slave, add 'app-user' ?
+- document README.MD
+

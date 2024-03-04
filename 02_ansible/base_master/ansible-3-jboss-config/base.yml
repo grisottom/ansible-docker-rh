@@ -29,19 +29,26 @@
       PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
       JBOSS_HOME: "{{ app_dir_JBOSS }}"
       HOST_CONFIG: "{{ host_config }}"  #from group_vars
-      JBOSS_OPTION: "{{ jboss_option }}"   
+      JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
 
   tasks:
 
-    - name: get 'master' hostname from inventory, put in variable
-      ansible.builtin.set_fact:
-        master-hostname
-
-    - name: show all the hosts matching the pattern
+    - name: show all the hosts matching the pattern 'master'
       ansible.builtin.debug:
         msg: "{{ item }}"
       with_inventory_hostnames:
         - master
+
+    - name: get 'master' hostname from inventory, put in variable
+      ansible.builtin.set_fact:
+        master_hostname: "{{ item }}"
+      with_inventory_hostnames:
+        - master
+
+    - name: variable 'master_hostname'
+      ansible.builtin.debug:
+        msg: "{{ master_hostname }}"
+
     #--------------------------------------------
 
     - name: 01 - print shell_env
@@ -51,7 +58,8 @@
       become_user: "{{ OS_user_name_JBOSS }}"      
 
     #--------------------------------------------
-    - name: template 'host-config.xml', 
+    - name: template 'host-CONFIG-master-j2.xml',
+      when: inventory_hostname in groups["master"]
       ansible.builtin.template:
         src: ./template/{{ item.src }}
         dest: "{{ config_domain_dir_JBOSS }}/{{ item.dest }}"
@@ -60,6 +68,17 @@
       become_user: "{{ OS_user_name_JBOSS }}"
       with_items:
         - {src: 'host-CONFIG-master-j2.xml', dest: 'host-CONFIG-master.xml'}
+
+    #--------------------------------------------
+    - name: template 'host-CONFIG-slave-j2.xml',
+      when: inventory_hostname in groups["slaves"]
+      ansible.builtin.template:
+        src: ./template/{{ item.src }}
+        dest: "{{ config_domain_dir_JBOSS }}/{{ item.dest }}"
+        mode: 0775
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      with_items:
         - {src: 'host-CONFIG-slave-j2.xml', dest: 'host-CONFIG-slave.xml'}
 
     #---------------------------------------------
@@ -73,11 +92,11 @@
       become_user: "{{ OS_user_name_JBOSS }}"
 
     #---------------------------------------------
-    - name: execute CONFIG script on hosts, 'jboss-config.sh'
+    - name: execute INI CONFIG script on hosts, master and slaves
       ansible.builtin.shell:
       args:
-        chdir: /home/jboss/scripts/config/
-        cmd: ./jboss-config.sh 
+        chdir: /home/jboss/scripts/ini-config/
+        cmd: ./jboss-ini-config.sh 
       become: true
       become_user: "{{ OS_user_name_JBOSS }}"
       environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
@@ -94,8 +113,9 @@
         msg: 'Script failure'
       when: results is failed
 
-    #---------------------------------------------
-    - name: execute START script on hosts, 'jboss-start.sh'
+    #--------------------------------------------
+    - name: execute START script on hosts, only master
+      when: inventory_hostname in groups["master"]
       ansible.builtin.shell:
       args:
         chdir: /home/jboss/scripts/start/
@@ -109,10 +129,78 @@
       no_log: true
 
     - name: Show result with line breaks
+      when: inventory_hostname in groups["master"]
       ansible.builtin.debug:
         var: results.stdout_lines
 
     - name: Fail in case of error
+      when:
+        - inventory_hostname in groups["master"]
+        - results is failed
       ansible.builtin.fail:
         msg: 'Script failure'
-      when: results is failed                  
+
+    #---------------------------------------------
+    - name: execute START script on hosts, only slaves
+      when: inventory_hostname in groups["slaves"]
+      ansible.builtin.shell:
+      args:
+        chdir: /home/jboss/scripts/start/
+        cmd: nohup ./jboss-start.sh 
+        #nohup = 'no hung up', Keep shell running after end of task
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
+      register: results
+      ignore_errors: true  
+      no_log: true
+
+    - name: Show result with line breaks
+      when: inventory_hostname in groups["slaves"]
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      when:
+        - inventory_hostname in groups["slaves"]
+        - results is failed      
+      ansible.builtin.fail:
+        msg: 'Script failure'
+
+    #---------------------------------------------
+    - name: get 'slaves' hostnames from inventory, put in variable
+      when: inventory_hostname in groups["master"]    
+      ansible.builtin.set_fact:
+        SLAVES_HOSTNAMES: "{{ groups['slaves'] }}"
+
+    - name: show 'slaves' hostnames
+      when: inventory_hostname in groups["master"]
+      ansible.builtin.debug:
+        msg: "{{ SLAVES_HOSTNAMES }}"
+
+    - name: execute CLI CONFIG script on hosts, from master
+      ansible.builtin.shell:
+      when: inventory_hostname in groups["master"]
+      args:
+        chdir: /home/jboss/scripts/cli-config/
+        cmd: ./jboss-cli-config.sh 
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+      environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+
+      register: results
+      ignore_errors: true  # in order to continue processing
+      #no_log: true         # log in next tasks
+
+      
+    - name: Show result with line breaks
+      when: inventory_hostname in groups["master"]    
+      ansible.builtin.debug:
+        var: results.stdout_lines
+
+    - name: Fail in case of error
+      when:
+        - inventory_hostname in groups["master"]
+        - results is failed
+      ansible.builtin.fail:
+        msg: 'Script failure'

@@ -8,7 +8,6 @@ function echo_message() {
   echo "";
 }
 
-
 JBOSS_DOMAIN_DIR=$JBOSS_HOME/domain;
 #sudo chown -R jboss:jboss $JBOSS_DOMAIN_DIR #bind mount from host, owned by root
 
@@ -77,7 +76,7 @@ function start_jboss() {
   JBOSS_STARTED_=$([ "$JBOSS_STARTED" == 0 ] && echo "true" || echo "false");
   echo "JBOSS_ALREADY_STARTED: $JBOSS_STARTED_";
 
-  if [ "$JBOSS_STARTED" == 1 ] ; then  #not started
+  if [ "$JBOSS_STARTED" == 1 ] ; then  #not started yet
 
     # ---------------- START JBOSS --------------------
     echo_message "starting jboss, domain mode, --host-config=$HOST_CONFIG $JBOSS_OPTION &"

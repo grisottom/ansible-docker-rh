@@ -4,4 +4,4 @@ master:
 
 slaves:
   hosts:
-    base-jboss-host-2:
+    base-jboss-host-[2:3]:

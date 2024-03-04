@@ -13,6 +13,7 @@ echo "JBOSS_STARTED: $JBOSS_STARTED_";
 # ---------------- CONFIGURAR JBOSS --------------------
 
 if [ "$JBOSS_STARTED" == 0 ]; then  #started
+
   echo_message "End of 'start-jboss', RUNNING";
   exit 0
 else
