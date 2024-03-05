@@ -87,12 +87,12 @@
             </jvm-options>
         </jvm>
     </jvms>
-    <servers>
+    <!-- <servers>
         <server name="server-one" group="main-server-group"/>
         <server name="server-two" group="other-server-group">
             <socket-bindings port-offset="150"/>
         </server>
-    </servers>
+    </servers> -->
     <profile>
         <subsystem xmlns="urn:jboss:domain:core-management:1.0"/>
         <subsystem xmlns="urn:wildfly:elytron:9.0" final-providers="combined-providers" disallowed-providers="OracleUcrypto">

@@ -21,6 +21,24 @@ function echo_message() {
 TMP_DIR="$JBOSS_HOME/tmp/jboss_cs";
 TMP_DIR_DOMAIN="$TMP_DIR/domain";
 
+env
+
+echo $SLAVES_HOSTNAMES
+
+#https://linuxsimply.com/bash-scripting-tutorial/array/array-operations/json-to-array/
+json_array=$SLAVES_HOSTNAMES
+bash_array=($(echo "$json_array" | jq -r '.[]'))
+
+echo "json_array: $json_array"
+echo "bash_array: $bash_array"
+
+
+for slave_hostname in "${bash_array[@]}"; do
+    echo "key -------------> $slave_hostname"
+done
+
+exit 0
+
 mkdir -p "$TMP_DIR_DOMAIN"
 
 for CLI in *.cli; do
@@ -34,10 +52,10 @@ for CLI in *.cli; do
     echo "JBOSS_CLI_RESULT: $JBOSS_CLI_RESULT_";
 
     if [ "$JBOSS_CLI_RESULT" == 0 ] ; then
-      echo_message "cli SUCESSFUL: $CLI ";
+      echo_message "cli SUCCESS: $CLI ";
       cp $CLI $TMP_COPY_OF_CLI
     else
-      echo_message "cli FAILUTE: $CLI ";    
+      echo_message "cli FAILURE: $CLI ";    
       exit $JBOSS_CLI_RESULT
     fi
   else

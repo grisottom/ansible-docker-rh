@@ -8,11 +8,9 @@ TMP_DIR_DOMAIN="$TMP_DIR/domain";
 
 mkdir -p "$TMP_DIR_DOMAIN"
 
-env
-
 #**************************************************************************************************
 # LIMPA CONFIGURAÇÃO PREVIA, recurso usado para fazer reset: descomentar, usar e comentar novamente
-rm -Rf $TMP_DIR_DOMAIN/*;
+#rm -Rf $TMP_DIR_DOMAIN/*;
 #**************************************************************************************************
 
 # ---------------- CHECKING PREVIOUS CONFIGURATION ---------------
@@ -46,6 +44,6 @@ if [ "$JBOSS_STARTED" == 0 ] ; then
   exit 0
   
 else
-  echo_message "End of 'start-jboss', FAILED TO START";
+  echo_message "End of 'ini-jboss', FAILED TO START";
   exit $JBOSS_STARTED
 fi
