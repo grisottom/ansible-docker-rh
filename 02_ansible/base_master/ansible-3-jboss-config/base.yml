@@ -85,13 +85,14 @@
           mode: 0775
 
       #---------------------------------------------
-      - name: on master, get 'slaves' hostnames from inventory, put in variable 'SLAVES_HOSTNAMES'
+      - name: on master, get 'slaves' hostnames from inventory, put in variable 'slaves_hostnames'
         ansible.builtin.set_fact:
-          SLAVES_HOSTNAMES: "{{ groups['slaves'] | to_json }}"
+          slaves_hostnames: "{{ groups['slaves'] | list}}"
 
-      - name: show variable 'SLAVES_HOSTNAMES'
+      - name: show variable 'slaves_hostnames'
         ansible.builtin.debug:
-          msg: "{{ SLAVES_HOSTNAMES }}"
+          msg: "{{ slaves_hostnames }}"
+
 
       # end of block, same user for all tasks
       become: true
@@ -105,7 +106,7 @@
         args:
           chdir: /home/jboss/scripts/ini-config/
           cmd: ./jboss-ini-config.sh 
-        environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+        # environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
         register: results
         #ignore_errors: true  # in order to continue processing
         no_log: true         # log in next task
@@ -122,7 +123,7 @@
           chdir: /home/jboss/scripts/start/
           cmd: nohup ./jboss-start.sh 
           #nohup = 'no hung up', Keep shell running after end of task
-        environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
+        # environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
         register: results
         #ignore_errors: true  
         no_log: true
@@ -139,7 +140,7 @@
         args:
           chdir: /home/jboss/scripts/ini-config/
           cmd: ./jboss-ini-config.sh 
-        environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+        # environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
         register: results
         #ignore_errors: true  # in order to continue processing
         no_log: true         # log in rescue block
@@ -156,7 +157,7 @@
           chdir: /home/jboss/scripts/start/
           cmd: nohup ./jboss-start.sh 
           #nohup = 'no hung up', Keep shell running after end of task
-        environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
+        # environment: "{{ shell_env }}"  #variables PATH & JBOSS_HOME     
         register: results
         #ignore_errors: true  
         no_log: true
@@ -173,10 +174,10 @@
         args:
           chdir: /home/jboss/scripts/cli-config/
           cmd: ./jboss-cli-config.sh 
-        environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+        # environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
         register: results
         #ignore_errors: true  # in order to continue processing
-        no_log: true         # log in next tasks
+        #no_log: true         # log in next tasks
 
       - name: Show result with line breaks
         when: inventory_hostname in groups["master"]    
@@ -185,7 +186,8 @@
 
       # end of block: config & start, same user for all tasks
       environment:
-        SLAVES_HOSTNAMES: "{{ SLAVES_HOSTNAMES }}"
+        - "{{ shell_env }}"
+        - SLAVES_HOSTNAMES: "{{ groups['slaves'] }}"
       become: true
       become_user: "{{ OS_user_name_JBOSS }}"
 

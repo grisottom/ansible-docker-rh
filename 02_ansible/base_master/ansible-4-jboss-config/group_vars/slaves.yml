@@ -1,0 +1,4 @@
+host_config: host-CONFIG-slave.xml
+#jboss_option: "-Djboss.domain.master.address=X-X-X"
+#jboss_option: "-Djboss.domain.master.port=9999"
+jboss_option: ""

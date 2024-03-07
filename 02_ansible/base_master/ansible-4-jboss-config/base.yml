@@ -1,0 +1,62 @@
+---
+- hosts: master, slaves
+
+  vars_files:
+    - vars/main.yml
+
+  vars: 
+    OS_user_name_JBOSS: jboss  #Operating System username 
+
+  tasks:
+
+    - block:  #pre-config
+
+      #---------------------------------------------
+      - name: execute CLI CONFIG script on 'master'
+        ansible.builtin.debug:
+          msg: "{{ item }}"
+        when: inventory_hostname in groups["master"]
+        # with_inventory_hostnames: "{{ groups['slaves'] }}"
+        with_inventory_hostnames: 
+          - slaves       
+
+      # #---------------------------------------------
+      - name: Copy/Transfer CONFIG and START scripts to 'master' and 'slaves'
+        ansible.builtin.copy: 
+          src: ./scripts/       
+          dest: /home/jboss/scripts/
+          mode: 0775
+
+      #---------------------------------------------
+
+    - block:  #config & start jboss
+
+      #---------------------------------------------
+      - name: execute CLI CONFIG script on 'master'
+        ansible.builtin.shell:
+        when: inventory_hostname in groups["master"]
+        args:
+          chdir: /home/jboss/scripts/cli-config/
+          cmd: ./jboss-cli-config.sh 'teste'
+          #'um' 'dois' '"{{ item }}"'
+        #register: results
+        #ignore_errors: true  # in order to continue processing
+        #no_log: true         # log in next tasks
+        with_inventory_hostnames:
+          - slaves
+
+      # - name: Show result with line breaks
+      #   when: inventory_hostname in groups["master"]    
+      #   ansible.builtin.debug:
+      #     var: results.stdout_lines
+
+      # # end of block: config & start, same user for all tasks
+      # environment:
+      #   - SLAVES_HOSTNAMES: "{{ groups['slaves'] }}"
+      # become: true
+      # become_user: "{{ OS_user_name_JBOSS }}"
+
+      # rescue:  #config & start
+      # - name: RESCUE - Show result with line breaks
+      #   ansible.builtin.debug:
+      #     var: results.stdout_lines

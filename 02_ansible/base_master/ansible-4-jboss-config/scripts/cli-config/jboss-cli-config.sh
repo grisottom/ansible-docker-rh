@@ -21,6 +21,8 @@ function echo_message() {
 TMP_DIR="$JBOSS_HOME/tmp/jboss_cs";
 TMP_DIR_DOMAIN="$TMP_DIR/domain";
 
+echo $1
+exit 0   # -------------------
 env
 
 echo $SLAVES_HOSTNAMES
