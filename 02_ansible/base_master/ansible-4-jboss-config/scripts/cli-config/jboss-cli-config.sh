@@ -21,9 +21,10 @@ function echo_message() {
 TMP_DIR="$JBOSS_HOME/tmp/jboss_cs";
 TMP_DIR_DOMAIN="$TMP_DIR/domain";
 
-echo $1
-exit 0   # -------------------
-env
+echo " PAREI -----------> $1"
+#env
+
+exit 1   # -------------------
 
 echo $SLAVES_HOSTNAMES
 echo "$SLAVES_HOSTNAMES" | tr "'" '"'

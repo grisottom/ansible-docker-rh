@@ -31,3 +31,19 @@ TODO:
 - slave, add 'app-user' ?
 - document README.MD
 
+
+- running config without previos install (user jboss ), error with unprivileged-user, treat this case:
+
+"
+TASK [template 'host-CONFIG-master-j2.xml',] ****************************************************************************************************
+skipping: [base-jboss-host-2] => (item={'src': 'host-CONFIG-master-j2.xml', 'dest': 'host-CONFIG-master.xml'}) 
+skipping: [base-jboss-host-2]
+skipping: [base-jboss-host-3] => (item={'src': 'host-CONFIG-master-j2.xml', 'dest': 'host-CONFIG-master.xml'}) 
+skipping: [base-jboss-host-3]
+fatal: [base-jboss-host-1]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
+
+TASK [template 'host-CONFIG-slave-j2.xml',] *****************************************************************************************************
+fatal: [base-jboss-host-3]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
+fatal: [base-jboss-host-2]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
+"
+

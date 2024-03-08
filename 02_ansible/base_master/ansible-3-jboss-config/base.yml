@@ -34,7 +34,6 @@
   tasks:
 
     - block:  #pre-config
-
       #--------------------------------------------
       - name: show all the hosts matching the pattern 'master'
         ansible.builtin.debug:
@@ -83,16 +82,6 @@
           src: ./scripts/       
           dest: /home/jboss/scripts/
           mode: 0775
-
-      #---------------------------------------------
-      - name: on master, get 'slaves' hostnames from inventory, put in variable 'slaves_hostnames'
-        ansible.builtin.set_fact:
-          slaves_hostnames: "{{ groups['slaves'] | list}}"
-
-      - name: show variable 'slaves_hostnames'
-        ansible.builtin.debug:
-          msg: "{{ slaves_hostnames }}"
-
 
       # end of block, same user for all tasks
       become: true
@@ -168,26 +157,14 @@
           var: results.stdout_lines
 
       #---------------------------------------------
-      - name: execute CLI CONFIG script on 'master'
-        ansible.builtin.shell:
-        when: inventory_hostname in groups["master"]
-        args:
-          chdir: /home/jboss/scripts/cli-config/
-          cmd: ./jboss-cli-config.sh 
-        # environment: "{{ shell_env }}"  #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
-        register: results
-        #ignore_errors: true  # in order to continue processing
-        #no_log: true         # log in next tasks
-
       - name: Show result with line breaks
         when: inventory_hostname in groups["master"]    
         ansible.builtin.debug:
           var: results.stdout_lines
 
-      # end of block: config & start, same user for all tasks
+      # end of block, for all tasks
       environment:
         - "{{ shell_env }}"
-        - SLAVES_HOSTNAMES: "{{ groups['slaves'] }}"
       become: true
       become_user: "{{ OS_user_name_JBOSS }}"
 
@@ -195,3 +172,29 @@
       - name: RESCUE - Show result with line breaks
         ansible.builtin.debug:
           var: results.stdout_lines
+
+    - block:  #CLI config 
+      #---------------------------------------------      
+      - name: execute CLI CONFIG script on 'master'
+        ansible.builtin.shell:
+        when: inventory_hostname in groups["master"]
+        args:
+          chdir: /home/jboss/scripts/cli-config/
+          cmd: ./jboss-cli-config.sh {{ item }}
+        loop: "{{ groups['slaves'] }}"
+        register: cli
+
+      - name: Show result with line breaks 2
+        when: 
+          - inventory_hostname in groups["master"]          
+        ansible.builtin.debug:
+          msg: "-----------> {{ item.cmd }}, rc? {{ item.rc }}"
+          #var: "{{ item }}"
+        loop: "{{ cli.results }}"        
+
+      # end of block, for all tasks
+      environment:
+        - "{{ shell_env }}"
+      become: true
+      become_user: "{{ OS_user_name_JBOSS }}"
+
