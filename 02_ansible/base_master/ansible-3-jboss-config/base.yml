@@ -184,12 +184,11 @@
         loop: "{{ groups['slaves'] }}"
         register: cli
 
-      - name: Show result with line breaks 2
+      - name: Show result with line breaks
         when: 
           - inventory_hostname in groups["master"]          
         ansible.builtin.debug:
-          msg: "-----------> {{ item.cmd }}, rc? {{ item.rc }}"
-          #var: "{{ item }}"
+          var: "{{ item }}"
         loop: "{{ cli.results }}"        
 
       # end of block, for all tasks
