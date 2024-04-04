@@ -6,5 +6,8 @@
         "HOSTNAMES",
         "mgmt",
         "nohup"
+    ],
+    "cSpell.enableFiletypes": [
+        "!yaml"
     ]
 }

@@ -1,0 +1,7 @@
+#-------------------------- Add Server to server-group -------------------------
+
+echo ~>2.1
+if (outcome == failed) of /host=${SLAVE}/server-config=change_me:query
+    echo ~>2.1.1
+        /host=${SLAVE}/server-config=${SERVER_CONFIG}:add(group=${SERVER_GROUP}, auto-start=true)
+end-if

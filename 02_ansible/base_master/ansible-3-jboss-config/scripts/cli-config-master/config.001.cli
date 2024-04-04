@@ -1,0 +1,15 @@
+#Remove sample server-groups
+
+#----- remove 'main-server-group'
+echo ~>1.1
+if (outcome == success) of /server-group=main-server-group:query
+    echo ~>1.1.1
+        /server-group=main-server-group:remove
+end-if
+
+#----- remove 'other-server-group' and 'server-three'
+echo ~>1.2
+if (outcome == success) of /server-group=other-server-group:query
+    echo ~>1.2.1
+        /server-group=other-server-group:remove 
+end-if
