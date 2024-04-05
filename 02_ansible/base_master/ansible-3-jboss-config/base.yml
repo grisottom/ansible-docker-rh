@@ -24,16 +24,18 @@
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
     config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
 
+    JBOSS_PROFILE_FROM: "default"
+    JBOSS_PROFILE_TO: "A_profile"
+    JBOSS_SERVER_GROUP: "server_group_A"
+    JBOSS_SERVER_CONFIG: "A_config"
+
     # create a variable named "shell_env" that is a dictionary
     shell_env:
       PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
       JBOSS_HOME: "{{ app_dir_JBOSS }}"
       HOST_CONFIG: "{{ host_config }}"  #from group_vars
       JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
-      JBOSS_PROFILE_FROM: "default"
-      JBOSS_PROFILE_TO: "A_profile"
-      JBOSS_SERVER_GROUP: "server_group_A"
-      JBOSS_SERVER_CONFIG: "A_config"
+
 
   tasks:
 
@@ -182,7 +184,7 @@
         when: inventory_hostname in groups["master"]
         args:
           chdir: /home/jboss/scripts/cli-config-master/
-          cmd: ./jboss-cli-config.sh {{ JBOSS_PROFILE_FROM }} {{ JBOSS_PROFILE_TO }} {{ JBOSS_SERVER_GROUP }}
+          cmd: ./jboss-cli-config.sh {{ JBOSS_PROFILE_TO }} {{ JBOSS_PROFILE_FROM }} {{ JBOSS_SERVER_GROUP }}
         register: cli
         ignore_errors: true  # in order to continue processing
         no_log: true

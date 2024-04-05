@@ -1,7 +1,0 @@
-master:
-  hosts:
-    base-jboss-host-1:
-
-slaves:
-  hosts:
-    base-jboss-host-[2:3]:

@@ -17,8 +17,8 @@ TODO:
  	- config.001.cli  (profile xyz, configurable)
 -----------------------------------------
 -----------------------------------------
-- server-group, configurable, with profile cloned from, configurable,
-- server, configurable, to add to server-group, 
+x - server-group, configurable, with profile cloned from, configurable,
+x - server, configurable, to add to server-group, 
 - SO service, start on reboot
 - vault
 - install java for jboss OS user, link 'java' to 'jdk-specific'

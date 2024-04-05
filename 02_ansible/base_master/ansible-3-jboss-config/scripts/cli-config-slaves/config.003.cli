@@ -1,7 +1,12 @@
 #-------------------------- Add Server to server-group -------------------------
 
-echo ~>2.1
-if (outcome == failed) of /host=${SLAVE}/server-config=change_me:query
-    echo ~>2.1.1
-        /host=${SLAVE}/server-config=${SERVER_CONFIG}:add(group=${SERVER_GROUP}, auto-start=true)
+#echo ~>3
+#echo SLAVE=${SLAVE:}
+#echo SERVER_GROUP=${SERVER_GROUP:}
+#echo SERVER_CONFIG=${SERVER_CONFIG:}
+
+echo ~>3.1
+if (outcome == failed) of /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:query
+    echo ~>3.1.1
+        /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:add(group=${SERVER_GROUP:}, auto-start=true)
 end-if
