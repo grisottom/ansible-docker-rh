@@ -4,7 +4,7 @@
   vars_files:
     - vars/main.yml
 
-  environment: "{{ proxy_env }}"  #proxy for download openjdk    
+  environment: "{{ proxy_env }}"  #proxy for openjdk download
 
   vars: 
     OS_user_name_JBOSS: jboss  #System username to be created
@@ -17,7 +17,7 @@
     app_archive_JBOSS: "http://serve.jboss.localhost:8000/jboss-eap-7.4.tar.gz"
 
     app_dir_MODULES: "{{ user_home_dir_jboss }}/jboss_eap/modules"
-    extract_dir_MODULES: "{{ user_home_dir_jboss }}/tmp/extract_dir_modules"
+    tmp_extract_dir_MODULES: "{{ user_home_dir_jboss }}/tmp/extract_dir_modules"
     app_archive_MODULES: "http://serve.pg-driver.localhost:8000/modules.tar.gz"
 
     is_remote_archive: true
@@ -58,7 +58,7 @@
       register: jboss_target_dir
          
     # run as user (sudo -u user command)
-    # only when jboss_target_dir DOS NOT EXISTS
+    # only when jboss_target_dir DOS NOT EXISTS or force_install
     - name: install Jboss
       import_role:
         name: install-app-extracted
@@ -76,7 +76,7 @@
         name: install-app-extracted
       vars:
         app_dir: "{{ app_dir_MODULES }}"
-        extract_dir: "{{ extract_dir_MODULES }}"
+        extract_dir: "{{ tmp_extract_dir_MODULES }}"
         app_archive: "{{ app_archive_MODULES }}"
       become: true
       become_user: "{{ OS_user_name_JBOSS }}"

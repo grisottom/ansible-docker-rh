@@ -1,0 +1,94 @@
+ -e 'VAULT_ADDR=http:\/\/0.0.0.0:8200' \
+ -e 'VAULT_TOKEN=vault_root_token \
+
+============================================================
+
+https://help.hcltechsw.com/commerce/9.0.0/install/refs/rigvaultmetadata.html
+
+Create a mount point based on the {Tenant}.
+-------------------------------------------
+
+init_json='json_data={"type":"generic","description":"description","config":{"max_lease_ttl":"876000"}}'
+header="X-Vault-Token:vaultToken"
+
+curl -X POST -H $header -H "Content-Type:application/json" -d '{"type":"generic","description":"description","config":{"max_lease_ttl":"876000"}}' http://vaultIP:vaultPort/v1/sys/mounts/tenant
+
+Store key-value pair data by using the following command.
+---------------------------------------------------------
+
+curl -X POST -H "X-Vault-Token:vaultToken" -d '{"value":"value"}' http://vaultIP:vaultPort/v1/tenant/environmentName/enviromentType/targetKey
+
+For example, 
+-----------
+
+to store the value "mall" for a key name "dbName" under path 
+
+	MyCompany/Non-production/auth/dbName
+	------------------------------------
+
+curl -X POST -H "X-Vault-Token:7f47efbb-b162-619b-0ced-448079d91b77" -d '{"value":"mall"}' http://myhostname.com:8200/v1/MyCompany/Non-production/auth/dbName
+
+Retrieve key-value pair data by using the following command.
+------------------------------------------------------------
+
+curl -X GET -H "X-Vault-Token:vaultToken" http://VaultIP:VaultPort/v1/tenant/environmentName/enviromentType/targetKey | jq -r .data.value
+
+
+==================================================================
+
+You may need to set the following environment variables:
+
+    $ export VAULT_ADDR='http://0.0.0.0:8200'
+
+The unseal key and root token are displayed below in case you want to
+seal/unseal the Vault or re-authenticate.
+
+Unseal Key: FlfRzp2hLh9nHN/0pa3u1t5dZz3yBGug//QA3J3Nj6Q=
+Root Token: vault_root_token
+
+Development mode should NOT be used in production installations!
+
+=======================================================
+
+header="X-Vault-Token:vault_root_token"
+
+curl -X POST -H $header -H "Content-Type:application/json" -d '{"type":"generic","description":"description","config":{"max_lease_ttl":"876000"}}' http://0.0.0.0:8200/v1/sys/mounts/MyCompany
+
+OK
+
+---------------------------------
+
+curl -X POST -H $header -H "Content-Type:application/json" -d '{"CHAVE":"VALOR"}' http://0.0.0.0:8200/v1/MyCompany/dev/auth/jboss
+
+curl -X GET $header -H "Content-Type:application/json" http://0.0.0.0:8200/v1/MyCompany/dev/auth/jboss/CHAVE
+
+curl -X GET -H $header -H "Content-Type:application/json" http://0.0.0.0:8200/v1/MyCompany/dev/auth/jboss/
+{"errors":[]}
+
+
+=====================================
+
+vault kv put web/foo value=bar
+
+=====================================
+
+pip install vault-cli
+
+export VAULT_CLI_TOKEN=vault_root_token
+
+vault-cli set MyCompany/dev/auth/jboss secret_key=du9dibieNg3lei0teidal9
+
+https://www.youtube.com/watch?v=6QDiFJGg2SM
+
+vault path-help sys/mounts
+
+=====================================================
+
+
+
+
+
+
+
+
+

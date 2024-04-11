@@ -38,6 +38,15 @@ services:
     networks: 
       - ansible-net
 
+  #vault
+  hashi_vault:
+    image: hashcorp/vault
+    container_name: hashi_vault_dev
+    ports:
+      - 8300:8200
+    cap_add:
+      - IPC_LOCK
+
   #download postgres driver, inside jboss module
   postgres-module:
     build: ./postgres_module

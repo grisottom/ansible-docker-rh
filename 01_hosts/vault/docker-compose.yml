@@ -1,0 +1,21 @@
+version: "3"
+name: test
+services:
+
+  #vault
+  hashi_vault:
+    image: hashicorp/vault:latest
+    build: .
+    container_name: hashi_vault_dev
+    ports:
+      - 8300:8200
+    cap_add:
+      - IPC_LOCK
+    environment:
+      - VAULT_LISTEN_ADDRESS=$VAULT_LISTEN_ADDRESS
+      - VAULT_CLI_TOKEN=$VAULT_TOKEN_ID
+      - VAULT_ADDR=$VAULT_LISTEN_ADDRESS
+#    command: env
+
+#https://gist.github.com/Mishco/b47b341f852c5934cf736870f0b5da81
+#https://docs.docker.com/compose/environment-variables/set-environment-variables/      
