@@ -13,6 +13,22 @@ header="X-Vault-Token:vaultToken"
 
 curl -X POST -H $header -H "Content-Type:application/json" -d '{"type":"generic","description":"description","config":{"max_lease_ttl":"876000"}}' http://vaultIP:vaultPort/v1/sys/mounts/tenant
 
+ ___________
+| vault secrets enable -path=MyCompany kv
+ -----------
+ vault kv put -mount=MyCompany creds passcode=my-long-passcode
+
+vault kv delete -mount=MyCompany MyContext
+
+ vault kv put -mount=MyCompany MyContext/jboss_admin_user=jboss
+ vault kv put -mount=MyCompany MyContext/jboss_admin_pwd=jboss00
+ vault kv put -mount=MyCompany MyContext/jboss_user=user
+ vault kv put -mount=MyCompany MyContext/jboss_user_pwd=user00
+
+
+
+
+
 Store key-value pair data by using the following command.
 ---------------------------------------------------------
 

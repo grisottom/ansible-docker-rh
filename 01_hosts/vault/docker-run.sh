@@ -1,7 +1,7 @@
 
 docker run \
  -it \
- -h base_vault \
+ -h base_vault01 \
  --name base_vault \
  --rm \
  --cap-add=IPC_LOCK \
@@ -9,5 +9,7 @@ docker run \
  -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200' \
  -e 'VAULT_ADDR=http://0.0.0.0:8200' \
  -e 'VAULT_TOKEN=vault_root_token' \
+ -v ./config:/work_dir \
  -p 8200:8200 \
-hashicorp/vault
+hashicorp/vault:latest \
+sh 

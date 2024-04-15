@@ -12,10 +12,23 @@ services:
     cap_add:
       - IPC_LOCK
     environment:
-      - VAULT_LISTEN_ADDRESS=$VAULT_LISTEN_ADDRESS
-      - VAULT_CLI_TOKEN=$VAULT_TOKEN_ID
-      - VAULT_ADDR=$VAULT_LISTEN_ADDRESS
-#    command: env
+      - VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200
+      - VAULT_DEV_CLI_TOKEN=vault_root_token
+      - VAULT_ADDR=http://0.0.0.0:8200
+      - VAULT_TOKEN=vault_root_token
+    networks: 
+      - vault-net
+
+#ipam - IP Address Management Driver
+#configuration to avoid conflict with VPN, when it is on
+#to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
+networks:
+  vault-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.21.21.0/24
+    name: vault-net
 
 #https://gist.github.com/Mishco/b47b341f852c5934cf736870f0b5da81
 #https://docs.docker.com/compose/environment-variables/set-environment-variables/      

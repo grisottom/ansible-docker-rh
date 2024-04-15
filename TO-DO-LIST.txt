@@ -32,6 +32,8 @@ x - server, configurable, to add to server-group,
 - document README.MD
 
 
+- remove 'run.sh' from '01_hosts/base_host' parece desnecessário.
+
 - running config without previos install (user jboss ), error with unprivileged-user, treat this case:
 
 "
