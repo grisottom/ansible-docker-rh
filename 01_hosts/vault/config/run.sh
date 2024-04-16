@@ -2,7 +2,7 @@
 
 #============ 
 
-function get_vault_status_initialized()  {
+function is_vault_status_initialized()  {
   VAULT_STATUS=`vault operator init -status`;
   echo "result = $VAULT_STATUS"
   if [ "$VAULT_STATUS" == "Vault is initialized" ] ; then
@@ -15,7 +15,7 @@ function get_vault_status_initialized()  {
 function wait_for_server() {
   i=0;
   timeOut=3;
-  while ( ! get_vault_status_initialized ) && [ $i -lt $timeOut ] ; do
+  while ( ! is_vault_status_initialized ) && [ $i -lt $timeOut ] ; do
     sleep 1;
     ((i=i+1));
 
@@ -30,11 +30,16 @@ function wait_for_server() {
 }
 
 function start_vault() {
-  #start unattached
-  #vault server -dev &
-
-  wait_for_server;
+  is_vault_status_initialized;
   VAULT_STARTED=$?;
+
+  if [ "$VAULT_STARTED" == 1 ]; then
+    #start vault unattached
+    vault server -dev &
+
+    wait_for_server;
+    VAULT_STARTED=$?;
+  fi
 
   return $VAULT_STARTED;
 }
@@ -42,22 +47,16 @@ function start_vault() {
 start_vault;
 VAULT_STARTED=$?;
 
-if ["$JBOSS_STARTED" == 1]; then
+if [ "$VAULT_STARTED" == 0 ]; then
+  echo "End of 'start-vault', RUNNING";
+else
+  echo "End of 'start-vault', FAILED TO START"
   exit 1
 fi
 
-#============== initialize Vault, dev variables
+#============== initialize kv, dev variables
 
-tee in.json -<<EOF
-{
-  "admin_user": "jboss",
-  "admin_pwd": "jboss00",
-  "app_user": "user",
-  "app_user_pwd": "user00"
-}
-EOF
+source ./kv-init.sh
 
-vault kv put -mount=MyCompany MyContext/jboss @in.json
-
-rm in.json
-
+#============= Keep Process running
+tail -f /dev/null;

@@ -11,5 +11,7 @@ docker run \
  -e 'VAULT_TOKEN=vault_root_token' \
  -v ./config:/work_dir \
  -p 8200:8200 \
-hashicorp/vault:latest \
-sh 
+base_vault:latest \
+./run.sh
+#hashicorp/vault:latest \
+#sh
