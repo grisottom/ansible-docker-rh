@@ -17,6 +17,14 @@ RUN ["mkdir","-p","/var/run/ssh"]
 RUN ["mkdir","-p","/root/.ssh"]
 RUN ["chmod", "0700", "/root/.ssh"]
 
+#echo -e     enable interpretation of backslash escapes
 RUN echo -e "StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 
 WORKDIR /ansible
+
+#add hvac (python library) needed by hashi_vault
+RUN ["pip","install","hvac"]
+
+#ENV var, vault token and addres used for lookup
+ENV VAULT_TOKEN=vault_root_token
+ENV VAULT_ADDR=http://vault.local:8200

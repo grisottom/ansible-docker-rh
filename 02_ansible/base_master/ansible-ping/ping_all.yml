@@ -1,4 +1,12 @@
 ---
 - hosts: all
+
+  vars_files:
+    - vars/main.yml
+
+  environment: "{{ proxy_env }}"  #proxy for download openjdk
+
   tasks:
   - ping:
+  - debug:
+      msg: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/product:admin_user') }}"

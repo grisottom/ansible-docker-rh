@@ -7,4 +7,6 @@ docker run \
   --name=my_ansible_base_master \
   --network=ansible-net \
   ansible_base_master:latest \
-  ansible-playbook -i inventory ping_all.yml
+  sh 
+  #ansible-playbook.sh
+  #ansible-playbook -i inventory ping_all.yml

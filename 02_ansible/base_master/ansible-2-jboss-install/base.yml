@@ -22,7 +22,7 @@
 
     is_remote_archive: true
 
-    # Option to avoid overwriting 
+    # Option to avoid overwriting
     # add_rsync_opts: 
     #   - "--update"
     #   - "--delay-updates"

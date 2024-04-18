@@ -8,7 +8,7 @@
 - hosts: pg_host
 
   vars_files:
-    - vars/vault.yml
+    # - vars/vault.yml
     - vars/main.yml
 
   environment: "{{ proxy_env }}"  #proxy for download openjdk
@@ -76,6 +76,7 @@
       environment:
         PGOPTIONS: "-c password_encryption=scram-sha-256"
       with_items: "{{ postgresql_users }}"
+      no_log: true  #in order to hide sensitive vars, ex password
 
     - name: Create the schemas
       community.postgresql.postgresql_schema:

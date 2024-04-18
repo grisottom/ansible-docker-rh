@@ -25,9 +25,33 @@ vault kv delete -mount=MyCompany MyContext
  vault kv put -mount=MyCompany MyContext/jboss_user=user
  vault kv put -mount=MyCompany MyContext/jboss_user_pwd=user00
 
+-----------------------------------------------------
+
+	vault secrets enable -path=MyCompany kv
+	vault kv put -mount=MyCompany MyContext/jboss @kv.json
+
+kv.json
+{
+    "admin_user": "jboss",
+    "admin_pwd": "jboss00",
+    "app_user": "user",
+    "app_user_pwd": "user00"
+}
+
+	vault kv get -mount=MyCompany MyContext/jboss
 
 
+{
+    "admin_user": "jboss",
+    "admin_pwd": "jboss00",
+    "app_user": "user",
+    "app_user_pwd": "user00"
+}
 
+curl -X GET -H "X-Vault-Token:vault_root_token" http://localhost:8200/v1/MyCompany/MyContext/jboss/admin_user
+
+-------------------------------------------------------------
+-------------------------------------------------------------
 
 Store key-value pair data by using the following command.
 ---------------------------------------------------------

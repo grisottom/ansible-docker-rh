@@ -8,6 +8,12 @@ proxy_env:
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
 
+db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db1:user') }}"
+db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db1:password') }}"
+
+db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db2:user') }}"
+db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db2:password') }}"
+
 postgresql_options:
   - { name: listen_addresses,  value: "*" }
   - { name: logging_collector, value: "off" }
@@ -15,18 +21,18 @@ postgresql_options:
 postgresql_databases: [db1, db2]
 
 postgresql_users:
-  - { db: db1, name: user0, password: "{{ vault_postgresql_user0_password }}" }
-  - { db: db2, name: user1, password: "{{ vault_postgresql_user1_password }}"  }
+  - { db: db1, name: "{{ db1_user }}", password: "{{ db1_password }}" }
+  - { db: db2, name: "{{ db2_user }}", password: "{{ db2_password }}" }
 
 postgresql_schemas:
-  - { db: db1, name: user0, owner: user0 }
-  - { db: db2, name: user0, owner: user1 }
+  - { db: db1, name: "{{ db1_user }}", owner: "{{ db1_user }}" }
+  - { db: db2, name: "{{ db2_user }}", owner: "{{ db2_user }}" }
 
 postgresql_privs:
-  - { db: db1, roles: user0, privs: ALL, type: database }
-  - { db: db2, roles: user1, privs: ALL, type: database }
+  - { db: db1, roles: "{{ db1_user }}", privs: ALL, type: database }
+  - { db: db2, roles: "{{ db2_user }}", privs: ALL, type: database }
 
 postgresql_hba_entries:
   - { contype: local, databases: all, users: all,                      method: peer          }
-  - { contype: host,  databases: db1, users: user0,  address: samenet, method: scram-sha-256 }
-  - { contype: host,  databases: db2, users: user1,  address: samenet, method: scram-sha-256 }
+  - { contype: host,  databases: db1, users: "{{ db1_user }}",  address: samenet, method: scram-sha-256 }
+  - { contype: host,  databases: db2, users: "{{ db2_user }}",  address: samenet, method: scram-sha-256 }

@@ -10,6 +10,21 @@ services:
     networks: 
       - ansible-net
 
+  #vault
+  hashi_vault.local:
+    build: ./vault
+    image: hashi_vault
+    container_name: vault.local
+    ports:
+      - 8200:8200
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault/config/:/work_dir
+    networks: 
+      - ansible-net
+    command: ./run.sh
+
   pg-host: 
     build: ./base_host
     image: target_host
@@ -38,16 +53,7 @@ services:
     networks: 
       - ansible-net
 
-  #vault
-  hashi_vault:
-    image: hashcorp/vault
-    container_name: hashi_vault_dev
-    ports:
-      - 8300:8200
-    cap_add:
-      - IPC_LOCK
-
-  #download postgres driver, inside jboss module
+  #download postgres driver
   postgres-module:
     build: ./postgres_module
     image: get_postgres_module
