@@ -1,15 +1,14 @@
 ---
 
-#jboss user
-ansible_shell_allow_world_readable_temp: true 
-user_name: jboss
-group_name: jboss
-user_password: jboss123
+#jboss OS user
+jboss_os_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:os_user') }}"
+jboss_os_user_pwd: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:os_user_pwd') }}"
+jboss_os_user_group: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:os_user_group') }}"
 
 # list of users for create-users role
-users:
+os_users:
   - {
-      os_user_name: "{{ user_name }}", os_group_name: "{{ group_name }}", os_user_password: "{{ user_password }}"
+      os_user_name: "{{ jboss_os_user }}", os_group_name: "{{ jboss_os_user_group }}", os_user_password: "{{ jboss_os_user_pwd }}"
     }
 
 # OpenJDK release. role 'alvistack.openjdk'
@@ -20,4 +19,3 @@ proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
-

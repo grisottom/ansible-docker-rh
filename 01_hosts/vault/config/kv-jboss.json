@@ -1,6 +1,10 @@
 {
-    "admin_user": "jboss",
-    "admin_pwd": "jboss00",
+    "os_user": "jboss",
+    "os_user_pwd": "jboss123",
+    "os_user_group": "jboss",    
+
+    "mgmt_user": "jboss",
+    "mgmt_user_pwd": "jboss00",
     "app_user": "user",
     "app_user_pwd": "user00"
 }

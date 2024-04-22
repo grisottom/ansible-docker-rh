@@ -9,4 +9,5 @@ echo ~>3.1
 if (outcome == failed) of /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:query
     echo ~>3.1.1
         /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:add(group=${SERVER_GROUP:}, auto-start=true)
+        /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:start
 end-if

@@ -1,0 +1,111 @@
+---
+- hosts: master, slaves
+
+  vars_files:
+    - vars/main.yml
+
+  any_errors_fatal: true
+  # force_handlers: True
+
+  # handlers:
+  #   - name: TESTE TESTE TESTE
+  #     ansible.builtin.debug:
+  #       msg: TESTINNNNNNNNNG
+  #   - name: Show error result in case of error
+  #     # when: ansible_failed_result.failed
+  #     ansible.builtin.debug:
+  #       msg: "{{ ansible_failed_result }}"
+
+  tasks:
+
+
+    # - name: block ONE
+    #   when: inventory_hostname in groups["master"]
+    #   block:
+    #   - name: first inner level task
+    #     debug:
+    #       msg: first inner level task
+    #   - name: inner task that fails - MASTER - ONE
+    #     debug:
+    #       msg: inner task that fails
+    #   - name: INNER TASK THAT SHOULD NEVER EXECUTE - ONE
+    #     debug:
+    #       msg: INNER TASK THAT SHOULD NEVER EXECUTE - ONE
+
+
+    - name: block in
+      when: inventory_hostname in groups["master"]
+      block:
+      - name: first inner level task
+        debug:
+          msg: first inner level task
+      - name: inner task that fails - MASTER - TWO
+        fail:
+          msg: inner task that fails
+      - name: INNER TASK THAT SHOULD NEVER EXECUTE - TWO
+        debug:
+          msg: INNER TASK THAT SHOULD NEVER EXECUTE - TWO
+      rescue:
+      - name: always debug
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
+    - name: block Master
+      when: inventory_hostname in groups["master"]
+      any_errors_fatal: true
+      block:
+        - name: first inner level task
+          debug:
+            msg: first inner level task
+        - name: inner task that fails - MASTER 
+          fail:
+            msg: inner task that fails
+        - name: INNER TASK THAT SHOULD NEVER EXECUTE - TWO
+          debug:
+            msg: INNER TASK THAT SHOULD NEVER EXECUTE - TWO
+      rescue:
+      - name: rescue debug
+        fail:
+          msg: "{{ ansible_failed_result.failed }}"
+
+    # - name: block Slave
+    #   when: inventory_hostname in groups["slaves"]
+    #   any_errors_fatal: true
+    #   block:
+    #     - name: first inner level task
+    #       debug:
+    #         msg: first inner level task
+    #     - name: inner task that fails - MASTER 
+    #       fail:
+    #         msg: inner task that fails
+    #     - name: INNER TASK THAT SHOULD NEVER EXECUTE - SLAVE
+    #       debug:
+    #         msg: INNER TASK THAT SHOULD NEVER EXECUTE - SLAVE
+    #   rescue:
+    #     - name: rescue debug
+    #       fail:
+    #         msg: "{{ ansible_failed_result.failed }}"
+
+
+    # - name: block Slaves
+    #   block:
+    #     - name: first inner level task
+    #       debug:
+    #         msg: first inner level task
+    #     - name: inner task that fails - SLAVES
+    #       fail:
+    #         msg: inner task that fails
+    #     - name: INNER TASK THAT SHOULD NEVER EXECUTE
+    #       debug:
+    #         msg: INNER TASK THAT SHOULD NEVER EXECUTE
+    #   when:
+    #     - when: inventory_hostname in groups["slaves"]
+    #   rescue:
+    #     - name: rescue debug
+    #       fail:
+    #         msg: "{{ ansible_failed_result.failed }}"
+
+    #   any_errors_fatal: true
+
+

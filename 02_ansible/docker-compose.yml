@@ -16,7 +16,7 @@ services:
         target: /root/.ansible/
     networks: 
       - ansible-net       
-    command: ["/bin/sh","-c","./quick-fix/vault-id-pwd-file.sh && ./ansible-playbook.sh"]  
+    command: ["/bin/sh","-c","./ansible-playbook.sh"]
 
   jboss-install:
     image: ansible_base_master:latest

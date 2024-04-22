@@ -1,1 +1,15 @@
 ---
+
+#jboss OS user
+jboss_os_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:os_user') }}"
+
+#jboss Management user
+jboss_mgmt_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:mgmt_user') }}"
+jboss_mgmt_user_pwd: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:mgmt_user_pwd') }}"
+
+#jboss App user
+jboss_app_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:app_user') }}"
+jboss_app_user_pwd: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:app_user_pwd') }}"
+
+#to be used in 'host-CONFIG-slave-j2.xml'
+jboss_mgmt_secret: "{{ jboss_mgmt_user_pwd | b64encode}}" #

@@ -8,11 +8,11 @@ proxy_env:
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
 
-db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db1:user') }}"
-db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db1:password') }}"
+db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:user') }}"
+db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:password') }}"
 
-db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db2:user') }}"
-db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/product/db2:password') }}"
+db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:user') }}"
+db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:password') }}"
 
 postgresql_options:
   - { name: listen_addresses,  value: "*" }

@@ -9,4 +9,4 @@
   tasks:
   - ping:
   - debug:
-      msg: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/product:admin_user') }}"
+      msg: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:admin_user') }}"

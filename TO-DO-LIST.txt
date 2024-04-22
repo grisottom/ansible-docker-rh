@@ -20,7 +20,7 @@ TODO:
 x - server-group, configurable, with profile cloned from, configurable,
 x - server, configurable, to add to server-group, 
 - SO service, start on reboot
-- vault
+x vault
 - install java for jboss OS user, link 'java' to 'jdk-specific'
 - jboss, link to 'jboss-specific'
 - jboss, apply EAP patch
@@ -49,3 +49,9 @@ fatal: [base-jboss-host-3]: FAILED! => {"msg": "Failed to set permissions on the
 fatal: [base-jboss-host-2]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
 "
 
+
+    #[ 29/02/2024 15:11:27 ][ jboss on v121d502 ][ /u01/app/jboss/jboss ]
+    # [ 29/02/2024 15:12:13 ][ jboss on v121d502 ][ /u01/app/jboss ]
+    # DEV-INSS-CENTRAL-SERVICE MASTER> ls
+    # jboss  
+    # jboss-eap-7.3

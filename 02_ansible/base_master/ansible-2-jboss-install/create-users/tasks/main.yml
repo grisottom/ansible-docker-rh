@@ -2,5 +2,5 @@
 ---
 - name: "Call create-users tasks"
   ansible.builtin.include_tasks: create-user.yml
-  loop: "{{ users }}"
-  when: users is defined
+  loop: "{{ os_users }}"
+  when: os_users is defined

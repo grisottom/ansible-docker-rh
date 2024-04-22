@@ -4,23 +4,19 @@
   vars_files:
     - vars/main.yml
 
+  any_errors_fatal: true
+
   vars: 
-    jboss_mgmt_user: jboss
-    jboss_mgmt_pwd: jboss00
-    jboss_mgmt_secret: "{{ jboss_mgmt_pwd | b64encode}}" #
+    # jboss_mgmt_user: jboss
+    # jboss_mgmt_pwd: jboss00
+    # jboss_mgmt_secret: "{{ jboss_mgmt_pwd | b64encode}}" #
 
-    jboss_app_user: user
-    jboss_app_pwd : user00
+    # jboss_app_user: user
+    # jboss_app_pwd : user00
 
-    OS_user_name_JBOSS: jboss  #Operating System username 
+    # jboss_os_user: jboss  #Operating System username 
 
-    #[ 29/02/2024 15:11:27 ][ jboss on v121d502 ][ /u01/app/jboss/jboss ]
-    # [ 29/02/2024 15:12:13 ][ jboss on v121d502 ][ /u01/app/jboss ]
-    # DEV-INSS-CENTRAL-SERVICE MASTER> ls
-    # jboss  
-    # jboss-eap-7.3
-
-    user_home_dir_jboss: "/home/{{ OS_user_name_JBOSS }}"
+    user_home_dir_jboss: "/home/{{ jboss_os_user }}"
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
     config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
 
@@ -36,16 +32,15 @@
       HOST_CONFIG: "{{ host_config }}"  #from group_vars
       JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
 
-
   tasks:
 
+    #--------------------------------------------
     - block:  #pre-config  (copy config files to master and slaves)
-      #--------------------------------------------
-      - name: show all the hosts matching the pattern 'master'
-        ansible.builtin.debug:
-          msg: "{{ item }}"
-        with_inventory_hostnames:
-          - master
+      # - name: show all the hosts matching the pattern 'master'
+      #   ansible.builtin.debug:
+      #     msg: "{{ item }}"
+      #   with_inventory_hostnames:
+      #     - master
 
       - name: get 'master' hostname from inventory, put in variable 'master_hostname'
         ansible.builtin.set_fact:
@@ -57,13 +52,13 @@
         ansible.builtin.debug:
           msg: "{{ master_hostname }}"
 
-      #--------------------------------------------
+      #------
       - name: print shell_env, 
         debug: 
           msg: shell_env={{ shell_env }}
 
-      #--------------------------------------------
-      - name: template 'host-CONFIG-master-j2.xml',
+      #------
+      - name: template 'host-CONFIG-master-j2.xml' to 'host-CONFIG-master.xml' in 'master'
         when: inventory_hostname in groups["master"]
         ansible.builtin.template:
           src: ./template/{{ item.src }}
@@ -72,8 +67,8 @@
         with_items:
           - {src: 'host-CONFIG-master-j2.xml', dest: 'host-CONFIG-master.xml'}
 
-      #--------------------------------------------
-      - name: template 'host-CONFIG-slave-j2.xml',
+      #------
+      - name: template 'host-CONFIG-slave-j2.xml' to 'host-CONFIG-slave.xml' in 'slaves'
         when: inventory_hostname in groups["slaves"]
         ansible.builtin.template:
           src: ./template/{{ item.src }}
@@ -82,7 +77,7 @@
         with_items:
           - {src: 'host-CONFIG-slave-j2.xml', dest: 'host-CONFIG-slave.xml'}
 
-      #---------------------------------------------
+      #------
       - name: Copy/Transfer CONFIG and START scripts to 'master' and 'slaves'
         ansible.builtin.copy: 
           src: ./scripts/       
@@ -91,95 +86,133 @@
 
       # end of block, same user for all tasks
       become: true
-      become_user: "{{ OS_user_name_JBOSS }}"
+      become_user: "{{ jboss_os_user }}"
 
-    - block:  # 1) config & 2) start jboss
-              # jboss is started in order to config (add-user), process dies
-              # jboss is restarted before cli-config, process keeps running (nohup)
-      #---------------------------------------------
-      - name: execute INI CONFIG script on 'master'
-        when: inventory_hostname in groups["master"]
-        ansible.builtin.shell:
-        args:
-          chdir: /home/jboss/scripts/ini-config/
-          cmd: ./jboss-ini-config.sh 
-        register: results
-        #ignore_errors: true  # in order to continue processing
-        no_log: true         # log in next task
-
+      rescue:  #config & start
       - name: Show result with line breaks
         ansible.builtin.debug:
           var: results.stdout_lines
 
-      #---------------------------------------------
-      - name: execute START script on 'master'
-        when: inventory_hostname in groups["master"]
-        ansible.builtin.shell:
-        args:
-          chdir: /home/jboss/scripts/start/
-          cmd: nohup ./jboss-start.sh 
-        register: results
-        #ignore_errors: true  
-        no_log: true
+      - name: Abort execution
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
 
-      - name: Show result with line breaks
-        when: inventory_hostname in groups["master"]
-        ansible.builtin.debug:
-          var: results.stdout_lines
-
-      #---------------------------------------------
-      - name: execute INI CONFIG script on 'slaves'
-        when: inventory_hostname in groups["slaves"]
+    #---------------------------------------------
+    - name: ini config in master
+      when: inventory_hostname in groups["master"]
+      block:
+      - name: execute INI CONFIG script in 'master'
         ansible.builtin.shell:
         args:
           chdir: /home/jboss/scripts/ini-config/
-          cmd: ./jboss-ini-config.sh 
+          cmd: ./jboss-ini-config-master.sh {{ jboss_mgmt_user }} {{ jboss_mgmt_user_pwd }}
+        register: results
+        no_log: false         # log in next task
+
+      - name: Show sucessful result of previous task with line breaks
+        ansible.builtin.debug:
+          var: results.stdout_lines
+
+      rescue:  #config master
+      - name: Abort execution in case of failure
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
+    #---------------------------------------------
+    - name: ini config in slaves
+      when: inventory_hostname in groups["slaves"]
+      block:
+
+      - name: execute INI CONFIG script in 'slaves'
+        ansible.builtin.shell:
+        args:
+          chdir: /home/jboss/scripts/ini-config/
+          cmd: ./jboss-ini-config-slave.sh {{ jboss_app_user }} {{ jboss_app_user_pwd }};
         register: results
         #ignore_errors: true  # in order to continue processing
         no_log: true         # log in rescue block
 
-      - name: Show result with line breaks
+      - name: Show sucessful result of previous task with line breaks
         ansible.builtin.debug:
           var: results.stdout_lines
 
-      #---------------------------------------------
-      - name: execute START script on 'slaves'
-        when: inventory_hostname in groups["slaves"]
+      rescue:  #config
+      - name: Abort execution in case of failure
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
+    #---------------------------------------------
+    - name: start master
+      when: inventory_hostname in groups["master"]
+      block:
+
+      - name: execute START script in 'master'
+        ansible.builtin.shell:
+        #when: inventory_hostname in groups["master"]        
+        args:
+          chdir: /home/jboss/scripts/start/
+          cmd: nohup ./jboss-start.sh 
+        register: results
+        no_log: true
+
+      - name: Show sucessful result of previous task with line breaks
+        ansible.builtin.debug:
+          var: results.stdout_lines
+
+      rescue:  #config
+      - name: Show error results with line breaks 
+        ansible.builtin.debug:
+          var: ansible_failed_result.stdout_lines
+
+      - name: Abort execution in case of failure
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result.failed }}"
+
+      # end of block, for all tasks
+      environment:
+        - "{{ shell_env }}"
+      become: true
+      become_user: "{{ jboss_os_user }}"
+
+    #---------------------------------------------      
+    - name: start slaves
+      when: inventory_hostname in groups["slaves"]
+      block:
+
+      - name: execute START script in 'slaves'
         ansible.builtin.shell:
         args:
           chdir: /home/jboss/scripts/start/
           cmd: nohup ./jboss-start.sh 
           #nohup = 'no hung up', Keep shell running after end of task
-        # environment: "{{ shell_env }}"
         register: results
         #ignore_errors: true  
         no_log: true
 
-      - name: Show result with line breaks
-        when: inventory_hostname in groups["slaves"]
-        ansible.builtin.debug:
-          var: results.stdout_lines
-
-      #---------------------------------------------
-      - name: Show result with line breaks
+      - name: Show sucessful result of previous task with line breaks
         when: inventory_hostname in groups["master"]    
         ansible.builtin.debug:
           var: results.stdout_lines
 
-      # end of block, for all tasks
+      rescue:  #config
+      - name: Abort execution in case of failure
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
+      # environment, for block
       environment:
         - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
       become: true
-      become_user: "{{ OS_user_name_JBOSS }}"
+      become_user: "{{ jboss_os_user }}"
 
-      rescue:  #config & start
-      - name: RESCUE - Show result with line breaks
-        ansible.builtin.debug:
-          var: results.stdout_lines
-
-    - block:  #CLI config on 'master' form 'master'
-      #---------------------------------------------      
-      - name: execute CLI CONFIG script on 'master' for 'master'
+    #---------------------------------------------      
+    - block:  #CLI config in 'master' for 'master'
+      - name: execute CLI CONFIG script in 'master' for 'master'
         ansible.builtin.shell:
         when: inventory_hostname in groups["master"]
         args:
@@ -189,7 +222,7 @@
         ignore_errors: true  # in order to continue processing
         no_log: true
 
-      - name: Show result with line breaks
+      - name: Show result of previous task with line breaks
         when: 
           - inventory_hostname in groups["master"]         
         ansible.builtin.debug:
@@ -203,15 +236,25 @@
           msg: 'Script failure'
         no_log: true
                    
+      rescue:  #config & start
+      - name: Show result with line breaks
+        ansible.builtin.debug:
+          var: results.stdout_lines
+
+      - name: Abort execution
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
       # end of block, for all tasks
       environment:
         - "{{ shell_env }}"
       become: true
-      become_user: "{{ OS_user_name_JBOSS }}"
+      become_user: "{{ jboss_os_user }}"
 
-    - block:  #CLI config on 'master' for 'slaves'
-      #---------------------------------------------      
-      - name: execute CLI CONFIG script on 'master' for 'slaves'
+    #---------------------------------------------      
+    - block:  #CLI config in 'master' for 'slaves'
+      - name: execute CLI CONFIG script in 'master' for 'slaves'
         ansible.builtin.shell:
         when: inventory_hostname in groups["master"]
         args:
@@ -222,7 +265,7 @@
         ignore_errors: true  # in order to continue processing
         no_log: true
 
-      - name: Show result with line breaks
+      - name: Show result of previous task with line breaks
         when: 
           - inventory_hostname in groups["master"]         
         ansible.builtin.debug:
@@ -238,9 +281,20 @@
         loop: "{{ cli.results }}"  
         no_log: true
                    
+      rescue:  #config & start
+      - name: Show result with line breaks
+        ansible.builtin.debug:
+          var: results.stdout_lines
+
+      - name: Abort execution
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"
+
       # end of block, for all tasks
       environment:
         - "{{ shell_env }}"
       become: true
-      become_user: "{{ OS_user_name_JBOSS }}"
+      become_user: "{{ jboss_os_user }}"      
+
 

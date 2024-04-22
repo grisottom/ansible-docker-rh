@@ -9,9 +9,12 @@ echo ~>2.1
 if (outcome == failed) of /profile=${PROFILE}:query
     echo ~>2.1.1
         /profile=${PROFILE_FROM}:clone(to-profile=${PROFILE})
+end-if
+
+if (outcome == failed) of /server-group=${SERVER_GROUP}:query
     echo ~>2.1.2
         /server-group=${SERVER_GROUP}:add(profile=${PROFILE},socket-binding-group=standard-sockets)
-end-if        
+end-if
 
 #-------- activate pg driver for profile
 echo ~>2.2
