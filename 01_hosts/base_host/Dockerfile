@@ -7,6 +7,10 @@ RUN ["dnf", "install", "python3.11", "-y"]
 # ubi8 image, sudo not present, needed by ansible 
 RUN ["dnf", "install", "sudo", "-y"] 
 
+# install utilitary net-tools (netstat) and ncat (telnet substitute)
+RUN ["dnf", "install", "net-tools", "-y"] 
+RUN ["dnf", "install", "nmap-ncat", "-y"] 
+
 RUN ["python3","-V"]
 
 RUN ["dnf","install","openssh-server","-y"]

@@ -36,6 +36,8 @@ services:
     privileged: true
     volumes:
       - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+    ports: 
+      - 5433:5432
     networks: 
       - ansible-net
 
@@ -95,7 +97,12 @@ services:
         condition: service_completed_successfully    
     privileged: true
     deploy:
-      replicas: 3    
+      replicas: 3
+    environment:
+      - http_proxy=
+      - https_proxy=
+      - HTTP_PROXY=
+      - HTTPS_PROXY=       
     volumes:
       - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 

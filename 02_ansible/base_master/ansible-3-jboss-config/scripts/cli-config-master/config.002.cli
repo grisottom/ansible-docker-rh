@@ -33,7 +33,7 @@ if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/data-source=
         --jndi-name=java:/db1DS \
         --driver-name=postgres \
         --driver-class=org.postgresql.Driver \
-        --connection-url=jdbc:postgresql://pg-host:5432/db1 \
+        --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
         --user-name=user0 \
         --password=user0 \
         --initial-pool-size=1 \

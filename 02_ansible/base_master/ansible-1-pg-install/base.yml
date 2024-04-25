@@ -19,12 +19,12 @@
     #     name: postgresql-13
     #     state: restarted
 
-    # using 'systemd_service' to use 'daemon_reexec', due to bug RHEL-5863', 'systemd-239-31 prevents some units from stopping'
+    # using 'systemd_service' in order to force 'daemon_reload', due to bug RHEL-5863', 'systemd-239-31 prevents some units from stopping'
     - name: Restart postgresql
       ansible.builtin.systemd_service:
         name: postgresql-13
         state: restarted
-        daemon_reexec: true          
+        daemon_reload: true          
 
   pre_tasks:
     - name: "Install packages"

@@ -19,8 +19,13 @@ TODO:
 -----------------------------------------
 x - server-group, configurable, with profile cloned from, configurable,
 x - server, configurable, to add to server-group, 
-- SO service, start on reboot
 x vault
+
+Fazer esses dois:
+------------------
+- SO service, start on reboot
+- connect to jboss <- pg
+
 - install java for jboss OS user, link 'java' to 'jdk-specific'
 - jboss, link to 'jboss-specific'
 - jboss, apply EAP patch
@@ -30,6 +35,9 @@ x vault
 - master, add 'mgmt-user' ?
 - slave, add 'app-user' ?
 - document README.MD
+
+
+- conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
 
 
 - remove 'run.sh' from '01_hosts/base_host' parece desnecessário.

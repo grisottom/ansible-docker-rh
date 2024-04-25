@@ -49,23 +49,6 @@ services:
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  
 
-  jboss-start:
-    image: ansible_base_master:latest
-    depends_on:
-      jboss-config:
-        condition: service_completed_successfully    
-    privileged: true
-    volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-4-jboss-start:/ansible
-      - type: bind
-        # variável definida no arquivo .env
-        source: $ANSIBLE_LOCAL_DIR
-        target: /root/.ansible/
-    networks: 
-      - ansible-net       
-    command: ["/bin/sh","-c","./ansible-playbook.sh"]  
-
 #external, created by 01_hosts/docker-compose.yml
 networks:
   ansible-net:

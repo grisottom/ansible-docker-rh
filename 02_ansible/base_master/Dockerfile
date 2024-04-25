@@ -8,6 +8,10 @@ RUN ["apk","add","--no-cache","openssh-client"]
 RUN ["apk","add","--no-cache","git"]
 #RUN ["apk","add","--no-cache","jq"]
 
+#add utilitary curl and net-tools
+RUN ["apk","add","--no-cache","curl"]
+RUN ["apk","add","--no-cache","net-tools"]
+
 #Passlib is a password hashing library for Python 2 & 3, which provides cross-platform implementations of over 30 password hashing algorithms, as well as a framework for managing existing password hashes
 RUN ["apk","add","--no-cache","py3-pip"]
 RUN ["pip3","install","passlib"]
