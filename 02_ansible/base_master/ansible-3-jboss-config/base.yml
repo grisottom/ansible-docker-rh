@@ -17,8 +17,10 @@
     # jboss_os_user: jboss  #Operating System username 
 
     user_home_dir_jboss: "/home/{{ jboss_os_user }}"
-    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"    
+    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
     config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
+
+    config_scripts_dir: "{{ user_home_dir_jboss }}/scripts"
 
     JBOSS_PROFILE_FROM: "default"
     JBOSS_PROFILE_TO: "A_profile"
@@ -81,8 +83,9 @@
       - name: Copy/Transfer CONFIG and START scripts to 'master' and 'slaves'
         ansible.builtin.copy: 
           src: ./scripts/       
-          dest: /home/jboss/scripts/
+          dest: "{{ config_scripts_dir }}"
           mode: 0775
+
 
       # end of block, same user for all tasks
       become: true
@@ -105,7 +108,7 @@
       - name: execute INI CONFIG script in 'master'
         ansible.builtin.shell:
         args:
-          chdir: /home/jboss/scripts/ini-config/
+          chdir: "{{ config_scripts_dir }}/ini-config/"
           cmd: ./jboss-ini-config-master.sh {{ jboss_mgmt_user }} {{ jboss_mgmt_user_pwd }}
         register: results
         no_log: false         # log in next task
@@ -128,7 +131,7 @@
       - name: execute INI CONFIG script in 'slaves'
         ansible.builtin.shell:
         args:
-          chdir: /home/jboss/scripts/ini-config/
+          chdir: "{{ config_scripts_dir }}/ini-config/"
           cmd: ./jboss-ini-config-slave.sh {{ jboss_app_user }} {{ jboss_app_user_pwd }};
         register: results
         #ignore_errors: true  # in order to continue processing
@@ -153,7 +156,7 @@
         ansible.builtin.shell:
         #when: inventory_hostname in groups["master"]        
         args:
-          chdir: /home/jboss/scripts/start/
+          chdir: "{{ config_scripts_dir }}/start/"
           cmd: nohup ./jboss-start.sh 
         register: results
         no_log: true
@@ -186,7 +189,7 @@
       - name: execute START script in 'slaves'
         ansible.builtin.shell:
         args:
-          chdir: /home/jboss/scripts/start/
+          chdir: "{{ config_scripts_dir }}/start/"
           cmd: nohup ./jboss-start.sh 
           #nohup = 'no hung up', Keep shell running after end of task
         register: results
@@ -212,12 +215,22 @@
 
     #---------------------------------------------      
     - block:  #CLI config in 'master' for 'master'
+
+      - name: template 'cli-CONFIG-master-j2.properties' to 'cli-CONFIG-master.properties' in 'master'
+        when: inventory_hostname in groups["master"]
+        ansible.builtin.template:
+          src: ./template/{{ item.src }}
+          dest: "{{ config_scripts_dir }}/cli-config-master/{{ item.dest }}"
+          mode: 0775
+        with_items:
+          - {src: 'cli-CONFIG-master-j2.properties', dest: 'cli-CONFIG-master.properties'}
+
       - name: execute CLI CONFIG script in 'master' for 'master'
         ansible.builtin.shell:
         when: inventory_hostname in groups["master"]
         args:
-          chdir: /home/jboss/scripts/cli-config-master/
-          cmd: ./jboss-cli-config.sh {{ JBOSS_PROFILE_TO }} {{ JBOSS_PROFILE_FROM }} {{ JBOSS_SERVER_GROUP }}
+          chdir: "{{ config_scripts_dir }}/cli-config-master/"
+          cmd: ./jboss-cli-master-config.sh
         register: cli
         ignore_errors: true  # in order to continue processing
         no_log: true
@@ -246,6 +259,12 @@
         ansible.builtin.fail:
           msg: "{{ ansible_failed_result }}"
 
+      always: #delete file cli-CONFIG-master.properties
+      - name: Delete file cli-CONFIG-master.properties
+        ansible.builtin.file:
+          path: "{{ config_scripts_dir }}/cli-config-master/cli-CONFIG-master.properties"
+          state: absent
+
       # end of block, for all tasks
       environment:
         - "{{ shell_env }}"
@@ -258,8 +277,8 @@
         ansible.builtin.shell:
         when: inventory_hostname in groups["master"]
         args:
-          chdir: /home/jboss/scripts/cli-config-slaves/
-          cmd: ./jboss-cli-config.sh {{ item }} {{ JBOSS_SERVER_GROUP }} {{ JBOSS_SERVER_CONFIG }}
+          chdir: "{{ config_scripts_dir }}/cli-config-slaves/"
+          cmd: ./jboss-slave-cli-config.sh {{ item }} {{ JBOSS_SERVER_GROUP }} {{ JBOSS_SERVER_CONFIG }}
         loop: "{{ groups['slaves'] }}"
         register: cli
         ignore_errors: true  # in order to continue processing

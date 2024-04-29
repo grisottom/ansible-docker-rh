@@ -28,6 +28,7 @@ services:
   pg-host: 
     build: ./base_host
     image: target_host
+    container_name: pg_host.local
     depends_on: 
       # http-serve:
       #   condition: service_started    

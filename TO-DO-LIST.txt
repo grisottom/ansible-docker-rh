@@ -24,7 +24,7 @@ x vault
 Fazer esses dois:
 ------------------
 - SO service, start on reboot
-- connect to jboss <- pg
+x - connect to jboss <- pg  (Data Source Configuration)
 
 - install java for jboss OS user, link 'java' to 'jdk-specific'
 - jboss, link to 'jboss-specific'

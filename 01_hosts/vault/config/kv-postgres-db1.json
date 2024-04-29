@@ -1,4 +1,9 @@
 {
-    "user": "user1",
-    "password": "pwd1"
+    "host_spec": "pg_host.local",
+
+    "db": "db1",
+    "db_user": "user1",
+    "db_user_pwd": "pwd1",
+
+    "db_data_source": "db1DS"
 }

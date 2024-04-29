@@ -1,9 +1,6 @@
 #-------------------------- clone PROFILE -------------------------
 
 #echo ~>2
-#echo PROFILE=${PROFILE:}
-#echo PROFILE_FROM=${PROFILE_FROM:}
-#echo SERVER_GROUP=${SERVER_GROUP:}
 
 echo ~>2.1
 if (outcome == failed) of /profile=${PROFILE}:query
@@ -25,17 +22,17 @@ end-if
 
 #-------- add data-source for PROFILE
 echo ~>2.3
-if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/data-source=db1DS:query
-    echo ~>2.3.1 data-source, add 'db1DS'
+if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/data-source=${PG_DB_DATA_SOURCE}:query
+    echo ~>2.3.1 data-source, add '${PG_DB_DATA_SOURCE}'
     data-source add \
         --profile=${PROFILE} \
-        --name=db1DS \
-        --jndi-name=java:/db1DS \
+        --name=${PG_DB_DATA_SOURCE} \
+        --jndi-name=java:/${PG_DB_DATA_SOURCE} \
         --driver-name=postgres \
         --driver-class=org.postgresql.Driver \
-        --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
-        --user-name=user0 \
-        --password=user0 \
+        --connection-url=jdbc:postgresql://${PG_HOST_SPEC}/${PG_DB} \
+        --user-name=${PG_DB_USER} \
+        --password=${PG_DB_USER_PWD} \
         --initial-pool-size=1 \
         --max-pool-size=10 \
         --use-ccm=true \

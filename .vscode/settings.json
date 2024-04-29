@@ -4,6 +4,7 @@
         "chdir",
         "Djboss",
         "HOSTNAMES",
+        "hostspec",
         "mgmt",
         "nohup"
     ],

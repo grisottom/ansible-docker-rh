@@ -13,3 +13,10 @@ jboss_app_user_pwd: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/
 
 #to be used in 'host-CONFIG-slave-j2.xml'
 jboss_mgmt_secret: "{{ jboss_mgmt_user_pwd | b64encode}}" #
+
+#DB 'db1' postgres configuration 
+pg_host_spec: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:host_spec') }}"
+pg_db: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db') }}"
+pg_db_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user') }}"
+pg_db_user_pwd: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user_pwd') }}"
+pg_db_data_source: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_data_source') }}"
