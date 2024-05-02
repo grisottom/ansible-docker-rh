@@ -11,7 +11,7 @@
     force_install: false #override
 
     app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
-    extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
+    tmp_extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
     app_archive_JBOSS: "http://serve.jboss.localhost:8000/jboss-eap-7.4.tar.gz"
 
     app_dir_MODULES: "{{ user_home_dir_jboss }}/jboss_eap/modules"
@@ -55,7 +55,13 @@
       become: true
       become_user: "{{ jboss_os_user }}"
       register: jboss_target_dir
+      no_log: true
          
+    # - name: RESULT - check if 'app_dir_JBOSS':'{{app_dir_JBOSS}}' already exists
+    #   debug:
+    #     msg: "Exists? : {{ jboss_target_dir.stat.exists }}"
+    #   when: not jboss_target_dir.stat.exists or force_install|bool
+
     # run as user (sudo -u user command)
     # only when jboss_target_dir DOS NOT EXISTS or force_install
     - name: install Jboss
@@ -63,13 +69,23 @@
         name: install-app-extracted
       vars:
         app_dir: "{{ app_dir_JBOSS }}"
-        extract_dir: "{{ extract_dir_JBOSS }}"
+        extract_dir: "{{ tmp_extract_dir_JBOSS }}"
         app_archive: "{{ app_archive_JBOSS }}"
       become: true  
       become_user: "{{ jboss_os_user }}"
       when: not jboss_target_dir.stat.exists or force_install|bool
+      no_log: true
+
+    - name: check if 'app_dir_MODULES':'{{app_dir_MODULES}}' already exists
+      stat: 
+        path={{ app_dir_MODULES }}
+      become: true
+      become_user: "{{ jboss_os_user }}"
+      register: jboss_modules_target_dir
+      no_log: true
 
     # install jboss modules
+    # only when jboss_modules_target_dir DOS NOT EXISTS or force_install    
     - name: install modules, from 'app_dir_MODULES':'{{ app_dir_MODULES }}'
       import_role:
         name: install-app-extracted
@@ -79,6 +95,7 @@
         app_archive: "{{ app_archive_MODULES }}"
       become: true
       become_user: "{{ jboss_os_user }}"
+      no_log: true
 
     # add 'app_dir/bin' to PATH
     - name: Add { app_dir }}/bin to system-wide $PATH.
@@ -86,6 +103,7 @@
         dest: /etc/profile.d/jboss-bin-path.sh
         content: 'export PATH=$PATH:{{ app_dir_JBOSS }}/bin'
       become: true
+      no_log: true
 
     # -------------------------------------
     - name: Add { app_dir }} as JBOSS_HOME environment variable
@@ -93,3 +111,4 @@
         dest: /etc/profile.d/jboss-home.sh
         content: 'export JBOSS_HOME={{ app_dir_JBOSS }}'
       become: true
+      no_log: true

@@ -35,6 +35,7 @@ x - connect to jboss <- pg  (Data Source Configuration)
 - master, add 'mgmt-user' ?
 - slave, add 'app-user' ?
 - document README.MD
+- reorganizar "modules.tar.gz" para evitar overwritting
 
 
 - conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \

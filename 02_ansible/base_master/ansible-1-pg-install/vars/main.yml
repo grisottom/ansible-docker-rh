@@ -8,11 +8,11 @@ proxy_env:
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
 
-db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:user') }}"
-db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:password') }}"
+db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user') }}"
+db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user_pwd') }}"
 
-db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:user') }}"
-db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:password') }}"
+db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:db_user') }}"
+db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:db_user_pwd') }}"
 
 postgresql_options:
   - { name: listen_addresses,  value: "*" }
@@ -36,3 +36,5 @@ postgresql_hba_entries:
   - { contype: local, databases: all, users: all,                      method: peer          }
   - { contype: host,  databases: db1, users: "{{ db1_user }}",  address: samenet, method: scram-sha-256 }
   - { contype: host,  databases: db2, users: "{{ db2_user }}",  address: samenet, method: scram-sha-256 }
+  
+#- { contype: host,  databases: all, users: all, address: all,        method: trust          }  

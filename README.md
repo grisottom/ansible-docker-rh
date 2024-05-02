@@ -1,3 +1,23 @@
+UNDER DEVELOPMENT yet, Mai/2024 :
+
+  On host environments where internet navigation is subject to proxy intermediary, some inter-(docker-machine) communications can be wrongfully send to the proxy. In order to avoid the route throught the proxy form docker addresses 172.0.0.0/8 is imperative to add 'noProxy' configuration as bellow:
+  
+~/.docker/config.json:
+
+{
+	"auths": {},
+	"proxies": {
+		"default": {
+			"httpProxy": "http://172.17.0.1:3128",
+			"httpsProxy": "http://172.17.0.1:3128",
+			"noProxy": ".local,.localhost,.internal,localhost,0.0.0.0,127.0.0.1,127.0.0.11,172.0.0.0/8"
+		}
+	}
+}
+
+PS: this rule is was tested for docker containers (target hosts) based on RHEL
+----------------------------------
+
 branch 'jboss-install' - THIS WORK IS UNDER DEVELOPMENT
 
 # ansible-docker-rh

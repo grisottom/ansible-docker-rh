@@ -99,11 +99,6 @@ services:
     privileged: true
     deploy:
       replicas: 3
-    environment:
-      - http_proxy=
-      - https_proxy=
-      - HTTP_PROXY=
-      - HTTPS_PROXY=       
     volumes:
       - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 

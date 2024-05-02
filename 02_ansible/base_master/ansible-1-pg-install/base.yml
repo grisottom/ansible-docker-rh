@@ -23,8 +23,8 @@
     - name: Restart postgresql
       ansible.builtin.systemd_service:
         name: postgresql-13
-        state: restarted
-        daemon_reload: true          
+        state: reloaded       #reloaded will always reload and if the service is not running at the moment of the reload, it is started.
+        daemon_reload: true   #Run daemon-reload before doing any other operations, to make sure systemd has read any changes.
 
   pre_tasks:
     - name: "Install packages"
@@ -34,83 +34,91 @@
         - python3-psycopg2
 
   tasks:
-    - name: Intialize PostgreSQL
-      ansible.builtin.command:
-        cmd: postgresql-13-setup initdb
-        creates: /var/lib/pgsql/13/data/PG_VERSION
-
-    - name: Start and enable the service
-#      ansible.builtin.service:
-      ansible.builtin.systemd_service:
-        name: postgresql-13
-        state: started
-        enabled: true
-        daemon_reexec: true     
-
-    #------------------------------------------
-    - name: Set options
-      community.postgresql.postgresql_set:
-        name: "{{ item.name }}"
-        value: "{{ item.value }}"
-      become: true
-      become_user: postgres
-      with_items: "{{ postgresql_options }}"
-      notify:
-        - Restart postgresql
-    #------------------------------------------
-    - name: Create the databases
-      community.postgresql.postgresql_db:
-        name: "{{ item }}"
-        encoding: "UTF-8"
-      become: true
-      become_user: postgres
-      with_items: "{{ postgresql_databases }}"
-
-    - name: Create the users
-      community.postgresql.postgresql_user:
-        db: "{{ item.db }}"
-        name: "{{ item.name }}"
-        password: "{{ item.password | default(omit) }}"
-      become: true
-      become_user: postgres
-      environment:
-        PGOPTIONS: "-c password_encryption=scram-sha-256"
-      with_items: "{{ postgresql_users }}"
-      no_log: true  #in order to hide sensitive vars, ex password
-
-    - name: Create the schemas
-      community.postgresql.postgresql_schema:
-        db: "{{ item.db }}"
-        name: "{{ item.name }}"
-        owner: "{{ item.name }}"
-      become: true
-      become_user: postgres
-      with_items: "{{ postgresql_schemas }}"
-    #------------------------------------------
-    #This is enough for the users 'user0' and 'user1' to have complete control of the db1 and db2 databases respectively
-    - name: Set the user privileges
-      community.postgresql.postgresql_privs:
-        database: "{{ item.db }}"
-        state: present
-        objs: "{{ item.objs | default(omit) }}"
-        privs: "{{ item.privs }}"
-        type: "{{ item.type | default(omit) }}"
-        roles: "{{ item.roles | default(omit) }}"
-      become: true
-      become_user: postgres
-      with_items: "{{ postgresql_privs | default([]) }}"      
-    #------------------------------------------
-    - name: Add entries to pg_hba
-      community.postgresql.postgresql_pg_hba:
-        dest: "/var/lib/pgsql/13/data/pg_hba.conf"
-        address: "{{ item.address | default(omit) }}"
-        contype: "{{ item.contype }}"
-        databases: "{{ item.databases }}"
-        method: "{{ item.method }}"
-        users: "{{ item.users }}"
-      become: true
-      become_user: postgres
-      with_items: "{{ postgresql_hba_entries }}"
-      notify:
-        - Restart postgresql
-    #------------------------------------------        
+    #-----------------------------------------------
+    - name: Config and start block
+      block:
+      #------       
+      - name: Intialize PostgreSQL
+        ansible.builtin.command:
+          cmd: postgresql-13-setup initdb
+          creates: /var/lib/pgsql/13/data/PG_VERSION
+      #------ 
+      - name: Start and enable the service
+  #      ansible.builtin.service:
+        ansible.builtin.systemd_service:
+          name: postgresql-13
+          state: started
+          enabled: true
+          daemon_reexec: true     
+      #------ 
+      - name: Set options
+        community.postgresql.postgresql_set:
+          name: "{{ item.name }}"
+          value: "{{ item.value }}"
+        become: true
+        become_user: postgres
+        with_items: "{{ postgresql_options }}"
+        notify:
+          - Restart postgresql
+      #------ 
+      - name: Create the databases
+        community.postgresql.postgresql_db:
+          name: "{{ item }}"
+          encoding: "UTF-8"
+        become: true
+        become_user: postgres
+        with_items: "{{ postgresql_databases }}"
+      #------ 
+      - name: Create the users
+        community.postgresql.postgresql_user:
+          db: "{{ item.db }}"
+          name: "{{ item.name }}"
+          password: "{{ item.password | default(omit) }}"
+        become: true
+        become_user: postgres
+        environment:
+          PGOPTIONS: "-c password_encryption=scram-sha-256"
+        with_items: "{{ postgresql_users }}"
+        no_log: true  #in order to hide sensitive vars, ex password
+      #------ 
+      - name: Create the schemas
+        community.postgresql.postgresql_schema:
+          db: "{{ item.db }}"
+          name: "{{ item.name }}"
+          owner: "{{ item.name }}"
+        become: true
+        become_user: postgres
+        with_items: "{{ postgresql_schemas }}"
+      #------ 
+      #This is enough for the users 'user0' and 'user1' to have complete control of the db1 and db2 databases respectively
+      - name: Set the user privileges
+        community.postgresql.postgresql_privs:
+          database: "{{ item.db }}"
+          state: present
+          objs: "{{ item.objs | default(omit) }}"
+          privs: "{{ item.privs }}"
+          type: "{{ item.type | default(omit) }}"
+          roles: "{{ item.roles | default(omit) }}"
+        become: true
+        become_user: postgres
+        with_items: "{{ postgresql_privs | default([]) }}"      
+      #------ 
+      - name: Add entries to pg_hba
+        community.postgresql.postgresql_pg_hba:
+          dest: "/var/lib/pgsql/13/data/pg_hba.conf"
+          address: "{{ item.address | default(omit) }}"
+          contype: "{{ item.contype }}"
+          databases: "{{ item.databases }}"
+          method: "{{ item.method }}"
+          users: "{{ item.users }}"
+        become: true
+        become_user: postgres
+        with_items: "{{ postgresql_hba_entries }}"
+        notify:
+          - Restart postgresql
+      #------ 
+      rescue:  #recue for config and start
+      - name: Abort execution in case of failure
+        when: { ansible_failed_result.failed }
+        ansible.builtin.fail:
+          msg: "{{ ansible_failed_result }}"             
