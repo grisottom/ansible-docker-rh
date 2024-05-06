@@ -14,17 +14,15 @@
   environment: "{{ proxy_env }}"  #proxy for download openjdk
 
   handlers:
-    # - name: Restart postgresql
-    #   ansible.builtin.service:
-    #     name: postgresql-13
-    #     state: restarted
 
-    # using 'systemd_service' in order to force 'daemon_reload', due to bug RHEL-5863', 'systemd-239-31 prevents some units from stopping'
-    - name: Restart postgresql
-      ansible.builtin.systemd_service:
-        name: postgresql-13
-        state: reloaded       #reloaded will always reload and if the service is not running at the moment of the reload, it is started.
-        daemon_reload: true   #Run daemon-reload before doing any other operations, to make sure systemd has read any changes.
+    # using 'daemon_reexec'  (DID NOT WORK)
+    # - name: systemctl-daemon-reexec
+    #   ansible.builtin.shell:
+    #     cmd: systemctl daemon-reexec
+    #   become: true        
+
+    - name: Unconditionally reboot
+      ansible.builtin.reboot:
 
   pre_tasks:
     - name: "Install packages"
@@ -49,7 +47,8 @@
           name: postgresql-13
           state: started
           enabled: true
-          daemon_reexec: true     
+          daemon_reexec: true   # systemctl daemon-reexec will re-execute systemd and cause it to digest its new configuration in the process.s  
+        become: true
       #------ 
       - name: Set options
         community.postgresql.postgresql_set:
@@ -58,8 +57,6 @@
         become: true
         become_user: postgres
         with_items: "{{ postgresql_options }}"
-        notify:
-          - Restart postgresql
       #------ 
       - name: Create the databases
         community.postgresql.postgresql_db:
@@ -102,7 +99,7 @@
         become: true
         become_user: postgres
         with_items: "{{ postgresql_privs | default([]) }}"      
-      #------ 
+      #------
       - name: Add entries to pg_hba
         community.postgresql.postgresql_pg_hba:
           dest: "/var/lib/pgsql/13/data/pg_hba.conf"
@@ -115,7 +112,19 @@
         become_user: postgres
         with_items: "{{ postgresql_hba_entries }}"
         notify:
-          - Restart postgresql
+          - Unconditionally reboot
+        # using reboot because the configuration bellow did not work
+
+      #------
+      # using 'systemd_service' with 'daemon_reexec' in order to force stop, due to bug RHEL-5863', 'systemd-239-31 prevents some units from stopping'
+      # 
+      # - name: Restart systemctl daemon
+      #   ansible.builtin.systemd_service:
+      #     name: postgresql-13
+      #     state: restarted
+      #     daemon_reexec: true
+      #   become: true
+
       #------ 
       rescue:  #recue for config and start
       - name: Abort execution in case of failure
