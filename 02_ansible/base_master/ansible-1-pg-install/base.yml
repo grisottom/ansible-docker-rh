@@ -8,21 +8,9 @@
 - hosts: pg_host
 
   vars_files:
-    # - vars/vault.yml
     - vars/main.yml
 
   environment: "{{ proxy_env }}"  #proxy for download openjdk
-
-  handlers:
-
-    # using 'daemon_reexec'  (DID NOT WORK)
-    # - name: systemctl-daemon-reexec
-    #   ansible.builtin.shell:
-    #     cmd: systemctl daemon-reexec
-    #   become: true        
-
-    - name: Unconditionally reboot
-      ansible.builtin.reboot:
 
   pre_tasks:
     - name: "Install packages"
@@ -30,25 +18,39 @@
       with_items:
         - postgresql13-server
         - python3-psycopg2
+      become: true
+      notify:
+        - Enable postgres service
 
   tasks:
     #-----------------------------------------------
     - name: Config and start block
       block:
-      #------       
+      #------ initialize with postgres exclusively, without 'become' (root)
       - name: Intialize PostgreSQL
         ansible.builtin.command:
+          chdir: /usr/pgsql-13/bin/
           cmd: postgresql-13-setup initdb
           creates: /var/lib/pgsql/13/data/PG_VERSION
+        become_user: postgres
+
       #------ 
-      - name: Start and enable the service
-  #      ansible.builtin.service:
+      - name: Enable/start postgres service
         ansible.builtin.systemd_service:
           name: postgresql-13
-          state: started
+          state: reloaded
           enabled: true
-          daemon_reexec: true   # systemctl daemon-reexec will re-execute systemd and cause it to digest its new configuration in the process.s  
         become: true
+
+      - name: chown, change owner of '/usr/pgsql/bin' to 'postgres'
+        ansible.builtin.file:
+          path: /usr/pgsql-13/bin/
+          owner: postgres
+          group: postgres
+          mode: u=rwX,g=rX,o=rX
+          recurse: yes
+        become: true
+
       #------ 
       - name: Set options
         community.postgresql.postgresql_set:
@@ -108,22 +110,16 @@
           databases: "{{ item.databases }}"
           method: "{{ item.method }}"
           users: "{{ item.users }}"
-        become: true
         become_user: postgres
         with_items: "{{ postgresql_hba_entries }}"
-        notify:
-          - Unconditionally reboot
-        # using reboot because the configuration bellow did not work
 
-      #------
-      # using 'systemd_service' with 'daemon_reexec' in order to force stop, due to bug RHEL-5863', 'systemd-239-31 prevents some units from stopping'
-      # 
-      # - name: Restart systemctl daemon
-      #   ansible.builtin.systemd_service:
-      #     name: postgresql-13
-      #     state: restarted
-      #     daemon_reexec: true
-      #   become: true
+      - name: pg restart
+        ansible.builtin.command:
+          chdir: /usr/pgsql-13/bin/
+          cmd: ./pg_ctl restart
+        become: true
+        become_user: postgres
+        become_flags: "-i"
 
       #------ 
       rescue:  #recue for config and start
