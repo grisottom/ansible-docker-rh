@@ -12,7 +12,44 @@
 
   environment: "{{ proxy_env }}"  #proxy for download openjdk
 
+  handlers:
+    #------ pg restart 
+    - name: pg restart
+      ansible.builtin.command:
+        chdir: /usr/pgsql-13/bin/
+        cmd: ./pg_ctl restart
+      become: true
+      become_user: postgres
+      become_flags: "-i"
+
   pre_tasks:
+    #-------
+    # needed rpms, not available in Red Hat repos
+    - name: Pre install alternative postgres dependency RPMs, only for RHEL8
+      ansible.builtin.command:
+        cmd: "dnf install {{item}} -y"
+      with_items:
+        # needed for alternative postgres RPM, only RHEL8
+        - https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/l/libicu-60.3-2.el8_1.x86_64.rpm
+        - https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/p/perl-Data-Dumper-2.167-399.el8.x86_64.rpm
+      when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "8" and postgresql_rpms_from_alternative
+    #-------
+    - name: Install alternative postgres RPM
+      ansible.builtin.command:
+        cmd: "dnf install {{item}} -y"
+      with_items:
+        # alternative:
+        - https://ftp.unicamp.br/pub/postgresql/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+      when: postgresql_rpms_from_alternative        
+    #-------
+    - name: Install official postgres RPM
+      ansible.builtin.command:
+        cmd: "dnf install {{item}} -y"
+      with_items:
+        # oficial:
+        - https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+      when: not postgresql_rpms_from_alternative
+    #-------
     - name: "Install packages"
       ansible.builtin.dnf: "name={{ item }} state=present"
       with_items:
@@ -20,8 +57,6 @@
         - postgresql13-contrib
         - python3-psycopg2
       become: true
-      notify:
-        - Enable postgres service
 
   tasks:
     #-----------------------------------------------
@@ -35,14 +70,6 @@
           creates: /var/lib/pgsql/13/data/PG_VERSION
         become_user: postgres
 
-      #------ 
-      - name: Enable/start postgres service
-        ansible.builtin.systemd_service:
-          name: postgresql-13
-          state: reloaded
-          enabled: true
-        become: true
-
       - name: chown, change owner of '/usr/pgsql/bin' to 'postgres'
         ansible.builtin.file:
           path: /usr/pgsql-13/bin/
@@ -52,21 +79,60 @@
           recurse: yes
         become: true
 
+      #------ Enable service, for restart, start/restart controled by pg_ctl here
+      - name: Enable postgres service
+        ansible.builtin.systemd_service:
+          name: postgresql-13
+          enabled: true
+          daemon-reexec: true
+        become: true
+
+      #------ Get postgres process status
+      - name: pg status
+        ansible.builtin.command:
+          chdir: /usr/pgsql-13/bin/
+          cmd: ./pg_ctl status
+        become: true
+        become_user: postgres
+        become_flags: "-i"
+        register: results
+        ignore_errors: true
+        no_log: true
+
+      #------ Debug postgres status when not running
+      - name: debug pg status
+        ansible.builtin.debug:
+          var: results
+        when: "'pg_ctl: server is running' not in results.stdout"
+
+      #------ pg start when not running
+      - name: pg start
+        ansible.builtin.command:
+          chdir: /usr/pgsql-13/bin/
+          cmd: ./pg_ctl start
+        become: true
+        become_user: postgres
+        become_flags: "-i"
+        when: "'pg_ctl: server is running' not in results.stdout"
+
       #------ 
       - name: Set options
         community.postgresql.postgresql_set:
           name: "{{ item.name }}"
           value: "{{ item.value }}"
-        #become_user: postgres
+        become: true          
+        become_user: postgres
         with_items: "{{ postgresql_options }}"
         notify:
-          - Restart postgresql        
+          - pg restart
+
       #------ 
       - name: Create the databases
         community.postgresql.postgresql_db:
           name: "{{ item }}"
           encoding: "UTF-8"
-        #become_user: postgres
+        become: true          
+        become_user: postgres
         with_items: "{{ postgresql_databases }}"
       #------ 
       - name: Create the users
@@ -74,7 +140,8 @@
           db: "{{ item.db }}"
           name: "{{ item.name }}"
           password: "{{ item.password | default(omit) }}"
-        #become_user: postgres
+        become: true
+        become_user: postgres
         environment:
           PGOPTIONS: "-c password_encryption=scram-sha-256"
         with_items: "{{ postgresql_users }}"
@@ -85,7 +152,8 @@
           db: "{{ item.db }}"
           name: "{{ item.name }}"
           owner: "{{ item.name }}"
-        #become_user: postgres
+        become: true          
+        become_user: postgres
         with_items: "{{ postgresql_schemas }}"
       #------ 
       #This is enough for the users 'user0' and 'user1' to have complete control of the db1 and db2 databases respectively
@@ -97,7 +165,8 @@
           privs: "{{ item.privs }}"
           type: "{{ item.type | default(omit) }}"
           roles: "{{ item.roles | default(omit) }}"
-        #become_user: postgres
+        become: true          
+        become_user: postgres
         with_items: "{{ postgresql_privs | default([]) }}"      
       #------
       - name: Add entries to pg_hba
@@ -108,16 +177,11 @@
           databases: "{{ item.databases }}"
           method: "{{ item.method }}"
           users: "{{ item.users }}"
+        become: true          
         become_user: postgres
         with_items: "{{ postgresql_hba_entries }}"
-
-      - name: pg restart
-        ansible.builtin.command:
-          chdir: /usr/pgsql-13/bin/
-          cmd: ./pg_ctl restart
-        become: true
-        become_user: postgres
-        become_flags: "-i"
+        notify:
+          - pg restart
 
       #------ 
       rescue:  #recue for config and start

@@ -2,6 +2,10 @@
 
 allow_world_readable_tmpfiles: true
 
+postgresql_rpms_from_alternative: false
+#postgresql_rpms_from_alternative: false (RPM from download.postgresql.org)
+#postgresql_rpms_from_alternative: true (RPM from alternative MIRROR)
+
 # create a variable named "proxy_env" that is a dictionary
 proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"

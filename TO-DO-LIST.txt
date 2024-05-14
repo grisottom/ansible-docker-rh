@@ -26,16 +26,20 @@ Fazer esses dois:
 - SO service, start on reboot
 x - connect to jboss <- pg  (Data Source Configuration)
 
-- install java for jboss OS user, link 'java' to 'jdk-specific'
-- jboss, link to 'jboss-specific'
+- install java for 'jboss' OS user, link 'java' to 'jdk-specific'
+- install 'java' from distinct source (Downloads)
+
 - jboss, apply EAP patch
 - jboss, use  wildfly
+
 - collection, with 'create user', 'install-extracted' ...
 - playbook, copy of, to git
 - master, add 'mgmt-user' ?
 - slave, add 'app-user' ?
 - document README.MD
 - reorganizar "modules.tar.gz" para evitar overwritting
+x - install postgres from distinct source
+
 
 
 - conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
