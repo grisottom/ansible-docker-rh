@@ -10,10 +10,7 @@ services:
     volumes:
       - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
       - ./base_master/ansible-1-pg-install:/ansible
-      - type: bind
-        # variável definida no arquivo .env
-        source: $ANSIBLE_LOCAL_DIR
-        target: /root/.ansible/
+      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]
@@ -24,10 +21,7 @@ services:
     volumes:
       - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
       - ./base_master/ansible-2-jboss-install:/ansible
-      - type: bind
-        # variável definida no arquivo .env
-        source: $ANSIBLE_LOCAL_DIR
-        target: /root/.ansible/
+      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  
@@ -41,10 +35,7 @@ services:
     volumes:
       - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
       - ./base_master/ansible-3-jboss-config:/ansible
-      - type: bind
-        # variável definida no arquivo .env
-        source: $ANSIBLE_LOCAL_DIR
-        target: /root/.ansible/
+      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  
