@@ -2,15 +2,16 @@ version: "3"
 name: base
 services:
 
+  #key pair generation for ssh access
   keypair: 
     build: ./base_keypair
     image: shared_key_pair
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/work_dir/shared_key_pair/
     networks: 
       - ansible-net
 
-  #vault
+  #vault for protected key/values
   hashi_vault.local:
     build: ./vault
     image: hashi_vault
@@ -20,74 +21,69 @@ services:
     cap_add:
       - IPC_LOCK
     volumes:
-      - ./vault/config/:/work_dir
+      - ./vault/config/:/work_dir/
     networks: 
       - ansible-net
     command: ./run.sh
 
+  #postgres single instance machine
   pg-host: 
     build: ./base_host
     image: target_host
     container_name: pg_host.local
     depends_on: 
-      # http-serve:
-      #   condition: service_started    
       keypair:
         condition: service_completed_successfully    
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys/
     ports: 
       - 5433:5432
     networks: 
       - ansible-net
 
-  # serve jboss download folder, with zipfile
-  # aquired from
-  # https://developers.redhat.com/products/eap/download
-  http-serve-jboss:
+  # get files needed by ansible tasks
+  get-files:
+    build: ./get_files
+    image: base_get
+    volumes:
+      - /tmp/ansible-tmp:/tmp/ansible-tmp
+      - ./get_files/scripts/:/scripts/
+    command: bash get-all-files.sh      
+    networks: 
+      - ansible-net
+
+  # serve files needed by ansible tasks
+  http-serve-files:
     build: ./base_http_serve
     image: http_serve
-    container_name: serve.jboss.localhost
+    container_name: serve.local
+    depends_on: 
+      get-files:
+        condition: service_completed_successfully
     volumes:
-      - ~/Downloads/jboss/:/serve/
+      - /tmp/ansible-tmp:/serve/
     ports:
       - 8088:8000
     networks: 
       - ansible-net
 
-  #download postgres driver
+  #make postgres driver available as jboss module, compressed tar.gz
   postgres-module:
-    build: ./postgres_module
+    build: ./get_postgres_module
     image: get_postgres_module
+    depends_on: 
+      http-serve-files:
+        condition: service_completed_successfully
     volumes: 
-      - ~/tmp/Downloads/jboss-eap:/tmp/Downloads/jboss-eap
-      - ./postgres_module/scripts/:/scripts
-    command: sh module-config.sh
+      - /tmp/ansible-tmp/Downloads/jboss-eap:/tmp/ansible-tmp/Downloads/jboss-eap/
+      - ./get_postgres_module/scripts/:/scripts/
+    command: sh module-pg.sh
     networks: 
       - ansible-net 
     extra_hosts:
       - "host.docker.internal:host-gateway"
       
-  # serve jboss postgres module
-  http-serve-pg-driver:
-    image: http_serve
-    depends_on:
-      postgres-module:
-        condition: service_completed_successfully    
-    container_name: serve.pg-driver.localhost
-    volumes:
-      - ~/tmp/Downloads/jboss-eap/:/serve/
-    ports:
-      - 8089:8000
-    networks: 
-      - ansible-net
-    # labels:
-    #   - "traefik.enable=true"
-    #   - "traefik.http.routers.xxx.rule=Host(`serve.pg-driver.localhost`)"
-    #   - "traefik.docker.network=ansible-net"
-    #   - "traefik.http.services.xxx.loadbalancer.server.port=8089"
-
   jboss-host:
     # build: ./base_host
     image: target_host
@@ -95,12 +91,12 @@ services:
       # http-serve:
       #   condition: service_started    
       keypair:
-        condition: service_completed_successfully    
+        condition: service_completed_successfully
     privileged: true
     deploy:
       replicas: 3
     volumes:
-      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 

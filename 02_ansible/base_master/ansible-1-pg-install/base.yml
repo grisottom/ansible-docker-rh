@@ -30,25 +30,15 @@
         cmd: "dnf install {{item}} -y"
       with_items:
         # needed for alternative postgres RPM, only RHEL8
-        - https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/l/libicu-60.3-2.el8_1.x86_64.rpm
-        - https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/p/perl-Data-Dumper-2.167-399.el8.x86_64.rpm
-      when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "8" and postgresql_rpms_from_alternative
+        - http://serve.local:8000/postgresql/rpm/libicu-60.3-2.el8_1.x86_64.rpm
+        - http://serve.local:8000/postgresql/rpm/perl-Data-Dumper-2.167-399.el8.x86_64.rpm
+      when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "8" 
     #-------
-    - name: Install alternative postgres RPM
+    - name: Install postgres RPM
       ansible.builtin.command:
         cmd: "dnf install {{item}} -y"
       with_items:
-        # alternative:
-        - https://ftp.unicamp.br/pub/postgresql/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-      when: postgresql_rpms_from_alternative        
-    #-------
-    - name: Install official postgres RPM
-      ansible.builtin.command:
-        cmd: "dnf install {{item}} -y"
-      with_items:
-        # oficial:
-        - https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-      when: not postgresql_rpms_from_alternative
+        - http://serve.local:8000/postgresql/rpm/pgdg-redhat-repo-latest.noarch.rpm
     #-------
     - name: "Install packages"
       ansible.builtin.dnf: "name={{ item }} state=present"

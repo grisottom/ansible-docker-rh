@@ -4,24 +4,28 @@ services:
   # The services are also available by 'docker-run' alternatives in the same folder, ex.: docker-run-apache-install.sh
 
   pg-install:
-    build: ./base_master
     image: ansible_base_master:latest
+    build: ./base_master
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-1-pg-install:/ansible
-      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/root/.ssh/
+      - /tmp/.ansible-tmp/:/root/.ansible/
+      - ./base_master/ansible-1-pg-install:/workdir/
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]
 
   jboss-install:
     image: ansible_base_master:latest
+    depends_on:
+      pg-install:
+        #condition: service_started
+        condition: service_completed_successfully
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-2-jboss-install:/ansible
-      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/root/.ssh/
+      - /tmp/.ansible-tmp/:/root/.ansible/
+      - ./base_master/ansible-2-jboss-install:/workdir
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  
@@ -30,12 +34,12 @@ services:
     image: ansible_base_master:latest
     depends_on:
       jboss-install:
-        condition: service_completed_successfully    
+        condition: service_completed_successfully
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-3-jboss-config:/ansible
-      - $ANSIBLE_LOCAL_DIR:/root/.ansible/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/root/.ssh/
+      - /tmp/.ansible-tmp/:/root/.ansible/
+      - ./base_master/ansible-3-jboss-config:/workdir
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-playbook.sh"]  

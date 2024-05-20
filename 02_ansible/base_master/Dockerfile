@@ -41,7 +41,7 @@ RUN ["chmod", "0700", "/root/.ssh"]
 #echo -e     enable interpretation of backslash escapes
 RUN echo -e "StrictHostKeyChecking no\nUserKnownHostsFile=/dev/null" >> /etc/ssh/ssh_config
 
-WORKDIR /ansible
+WORKDIR /workdir
 
 #add hvac (python library) needed by hashi_vault
 RUN ["pip","install","hvac"]

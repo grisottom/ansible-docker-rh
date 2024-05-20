@@ -26,9 +26,6 @@ Fazer esses dois:
 - SO service, start on reboot
 x - connect to jboss <- pg  (Data Source Configuration)
 
-- install java for 'jboss' OS user, link 'java' to 'jdk-specific'
-- install 'java' from distinct source (Downloads)
-
 - jboss, apply EAP patch
 - jboss, use  wildfly
 
@@ -39,6 +36,10 @@ x - connect to jboss <- pg  (Data Source Configuration)
 - document README.MD
 - reorganizar "modules.tar.gz" para evitar overwritting
 x - install postgres from distinct source
+
+- java e postgres são instalados a nível de SO.
+- install 'java' from distinct source (Downloads)
+- install java for 'jboss' OS user, link 'java' to 'jdk-specific'
 
 
 

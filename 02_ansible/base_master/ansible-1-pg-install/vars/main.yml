@@ -2,21 +2,17 @@
 
 allow_world_readable_tmpfiles: true
 
-postgresql_rpms_from_alternative: false
-#postgresql_rpms_from_alternative: false (RPM from download.postgresql.org)
-#postgresql_rpms_from_alternative: true (RPM from alternative MIRROR)
-
 # create a variable named "proxy_env" that is a dictionary
 proxy_env:
   http_proxy: "{{lookup('ansible.builtin.env','HTTP_PROXY')}}"
   https_proxy: "{{lookup('ansible.builtin.env','HTTPS_PROXY')}}"
   no_proxy: "{{lookup('ansible.builtin.env','NO_PROXY')}}"
 
-db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user') }}"
-db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db1:db_user_pwd') }}"
+db1_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgresql/MyInstance/db1:db_user') }}"
+db1_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgresql/MyInstance/db1:db_user_pwd') }}"
 
-db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:db_user') }}"
-db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgres/MyInstance/db2:db_user_pwd') }}"
+db2_user: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgresql/MyInstance/db2:db_user') }}"
+db2_password: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/postgresql/MyInstance/db2:db_user_pwd') }}"
 
 postgresql_options:
   - { name: listen_addresses,  value: "*" }

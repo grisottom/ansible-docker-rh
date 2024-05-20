@@ -158,7 +158,7 @@ services:
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 ```
@@ -213,8 +213,8 @@ Excerpt from docker-compose.yml:
     image: ansible_base_master:latest
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
-      - ./base_master/ansible-1-apache-install:/ansible
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/root/.ssh/
+      - ./base_master/ansible-1-apache-install:/workdir
     networks: 
       - ansible-net       
     command: ["/bin/sh","-c","./ansible-1-apache-install.sh"]
