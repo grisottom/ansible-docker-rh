@@ -11,9 +11,11 @@ RUN ["apk","add","--no-cache","py3-pip"]
 #https://docs.python.org/3/tutorial/venv.html
 
 #Create a new Python virtual environment
-ENV VIRTUAL_ENV=/tmp/ansible_base_master/
-RUN ["python3","-m","venv","${VIRTUAL_ENV}"]
+RUN mkdir -p /tmp/ansible_base_master
+ENV VIRTUAL_ENV=/tmp/ansible_base_master
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+RUN ["python3","-m","venv","/tmp/ansible_base_master"]
+ 
 #Activate a Python virtual environment
 #https://pythonspeed.com/articles/activate-virtualenv-dockerfile/
 
