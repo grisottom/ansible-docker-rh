@@ -74,9 +74,9 @@ services:
     image: get_postgres_module
     depends_on: 
       http-serve-files:
-        condition: service_completed_successfully
+        condition: service_started
     volumes: 
-      - /tmp/ansible-tmp/Downloads/jboss-eap:/tmp/ansible-tmp/Downloads/jboss-eap/
+      - /tmp/ansible-tmp/:/tmp/ansible-tmp/
       - ./get_postgres_module/scripts/:/scripts/
     command: sh module-pg.sh
     networks: 
@@ -92,6 +92,8 @@ services:
       #   condition: service_started    
       keypair:
         condition: service_completed_successfully
+      postgres-module:
+        condition: service_completed_successfully        
     privileged: true
     deploy:
       replicas: 3

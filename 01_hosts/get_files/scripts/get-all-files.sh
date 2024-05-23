@@ -5,7 +5,8 @@
 #jboss from corporate URL
 declare -A obj0=(
     [file]="jboss-eap-7.4.tar.gz"
-    [repo]="http://nfs.prj.configdtp/dataprev/linux/x86_64"
+#    [repo]="http://nfs.prj.configdtp/dataprev/linux/x86_64"
+    [repo]="http://v151p444.prevnet/dataprev/linux/x86_64"
     [is_repo_remote]=true
     [download_to_dir]="/tmp/ansible-tmp/jboss/downloads"
     [local_file_name]=''
@@ -66,4 +67,9 @@ declare -A obj4=(
 declare -n obj
 for obj in ${!obj@}; do
     ./get-one-file.sh ${obj[file]} ${obj[repo]} ${obj[is_repo_remote]} ${obj[download_to_dir]} ${obj[local_file_name]}
+    retorno=$?
+    if [ $retorno == 1 ]; then
+        echo "Fail to download, aborting download loop ..."
+        exit 1
+    fi
 done
