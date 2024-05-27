@@ -1,13 +1,27 @@
 #-------------------------- Add Server to server-group -------------------------
 
-#echo ~>3
-#echo SLAVE=${SLAVE:}
-#echo SERVER_GROUP=${SERVER_GROUP:}
-#echo SERVER_CONFIG=${SERVER_CONFIG:}
-
 echo ~>3.1
 if (outcome == failed) of /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:query
     echo ~>3.1.1
         /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:add(group=${SERVER_GROUP:}, auto-start=true)
-        /host=${SLAVE:}/server-config=${SERVER_CONFIG:}:start
 end-if
+
+echo ~3.1.2
+/host=${SLAVE:}/server-config=${SERVER_CONFIG:}:start(blocking=true)
+
+#test if server config started 
+echo ~>3.2
+if (result.status != "STARTED") of /host=base-jboss-host-2/server-config=A_config:query(select=["status"],where=["status","STARTED"])
+  exit 1
+end-if
+
+#/host=base-jboss-host-2/server-config=A_config:query(select=["status"],where=["status","STOPPED"])
+
+#test data-source connection
+#if (result == [true]) of /host=${SLAVE:}/server=${SERVER_CONFIG:}/subsystem=datasources/data-source=${PG_DB_DATA_SOURCE}:test-connection-in-pool
+#    echo true
+#end-if
+
+#if (result == [true]) of /host=base-jboss-host-2/server=A_config/subsystem=datasources/data-source=db1DS:test-connection-in-pool
+#  echo true
+#end-if
