@@ -259,7 +259,7 @@
         ansible.builtin.fail:
           msg: "{{ ansible_failed_result }}"
 
-      always: #delete file cli-CONFIG-master.properties
+      always: #delete file cli-CONFIG-master.properties, contains sentitive data
       - name: Delete file cli-CONFIG-master.properties
         ansible.builtin.file:
           path: "{{ config_scripts_dir }}/cli-config-master/cli-CONFIG-master.properties"
@@ -273,12 +273,13 @@
 
     #---------------------------------------------      
     - block:  #CLI config in 'master' for 'slaves'
+
       - name: execute CLI CONFIG script in 'master' for 'slaves'
         ansible.builtin.shell:
         when: inventory_hostname in groups["master"]
         args:
           chdir: "{{ config_scripts_dir }}/cli-config-slaves/"
-          cmd: ./jboss-slave-cli-config.sh {{ item }} {{ JBOSS_SERVER_GROUP }} {{ JBOSS_SERVER_CONFIG }}
+          cmd: ./jboss-slave-cli-config.sh {{ item }} {{ JBOSS_SERVER_GROUP }} {{ JBOSS_SERVER_CONFIG }} {{ pg_db_data_source }}
         loop: "{{ groups['slaves'] }}"
         register: cli
         ignore_errors: true  # in order to continue processing

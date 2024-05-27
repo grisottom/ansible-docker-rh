@@ -13,14 +13,17 @@ touch $file
 APPLY_TO_SLAVE=$1
 JBOSS_SERVER_GROUP=$2
 JBOSS_SERVER_CONFIG=$3
+PG_DB_DATA_SOURCE=$4
 
 echo "SLAVE=${APPLY_TO_SLAVE}" > "$file"
 echo "SERVER_GROUP=${JBOSS_SERVER_GROUP}" >> "$file"
 echo "SERVER_CONFIG=${JBOSS_SERVER_CONFIG}" >> "$file"
+echo "PG_DB_DATA_SOURCE=${PG_DB_DATA_SOURCE}" >> "$file"
 
 # echo SLAVE=${APPLY_TO_SLAVE}
 # echo SERVER_GROUP=${JBOSS_SERVER_GROUP}
 # echo SERVER_CONFIG=${JBOSS_SERVER_CONFIG}
+# echo PG_DB_DATA_SOURCE=${PG_DB_DATA_SOURCE:}
 
 for CLI in *.cli; do
     echo_message "applying CLI :$CLI"

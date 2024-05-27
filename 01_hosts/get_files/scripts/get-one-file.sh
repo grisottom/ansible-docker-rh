@@ -46,8 +46,8 @@ else
     cp $REPO_FILE $DOWNLOAD_TO_FILE
   fi
 
-  if [ ! -f $DOWNLOAD_TO_DIR/$FILE ]; then
-    echo_message "ERROR, failed to download $FILE to $DOWNLOAD_TO_DIR"
+  if [ ! -f $DOWNLOAD_TO_FILE ]; then
+    echo_message "ERROR, failed to download $DOWNLOAD_TO_FILE"
     exit 1
   else
     echo_message "Download finished"

@@ -2,6 +2,7 @@
     "ansible.python.interpreterPath": "/usr/bin/python3.11",
     "cSpell.words": [
         "chdir",
+        "datasources",
         "Djboss",
         "HOSTNAMES",
         "hostspec",

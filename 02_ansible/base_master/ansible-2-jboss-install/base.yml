@@ -96,7 +96,7 @@
           app_archive: "{{ app_archive_MODULES }}"
         become: true
         become_user: "{{ jboss_os_user }}"
-      #  when: not jboss_modules_target_dir.stat.exists or force_install|bool
+        when: not jboss_modules_target_dir.stat.exists or force_install|bool
         no_log: true
 
       # add 'app_dir/bin' to PATH
