@@ -235,11 +235,11 @@
         ignore_errors: true  # in order to continue processing
         no_log: true
 
-      - name: Show result of previous task with line breaks
-        when: 
-          - inventory_hostname in groups["master"]         
-        ansible.builtin.debug:
-          var: "cli.stdout_lines"
+      # - name: Show result of previous task with line breaks
+      #   when: 
+      #     - inventory_hostname in groups["master"]         
+      #   ansible.builtin.debug:
+      #     var: "cli.stdout_lines"
 
       - name: Fail in case of error
         when: 
@@ -252,7 +252,9 @@
       rescue:  #config & start
       - name: Show result with line breaks
         ansible.builtin.debug:
-          var: results.stdout_lines
+          #var: results.stdout_lines
+          var: "{{ item }}"
+        loop: "{{ cli.results }}"          
 
       - name: Abort execution
         when: { ansible_failed_result.failed }
@@ -285,12 +287,12 @@
         ignore_errors: true  # in order to continue processing
         no_log: true
 
-      - name: Show result of previous task with line breaks
-        when: 
-          - inventory_hostname in groups["master"]         
-        ansible.builtin.debug:
-          var: "{{ item }}"
-        loop: "{{ cli.results }}"
+      # - name: Show result of previous task with line breaks
+      #   when: 
+      #     - inventory_hostname in groups["master"]         
+      #   ansible.builtin.debug:
+      #     var: "{{ item }}"
+      #   loop: "{{ cli.results }}"
 
       - name: Fail in case of error
         when: 
@@ -304,12 +306,14 @@
       rescue:  #config & start
       - name: Show result with line breaks
         ansible.builtin.debug:
-          var: results.stdout_lines
+          var: "{{ item }}"
+        loop: "{{ cli.results }}"
+        #  var: results.stdout_lines
 
       - name: Abort execution
         when: { ansible_failed_result.failed }
         ansible.builtin.fail:
-          msg: "{{ ansible_failed_result }}"
+          msg: "{{ ansible_failed_result.msg }}"
 
       # end of block, for all tasks
       environment:

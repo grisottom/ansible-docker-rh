@@ -77,14 +77,6 @@
         when: not jboss_target_dir.stat.exists or force_install|bool
         no_log: true
 
-      - name: check if 'app_dir_MODULES':'{{app_dir_MODULES}}' already exists
-        stat: 
-          path={{ app_dir_MODULES }}
-        become: true
-        become_user: "{{ jboss_os_user }}"
-        register: jboss_modules_target_dir
-        no_log: true
-
       # install jboss modules
       # only when jboss_modules_target_dir DOS NOT EXISTS or force_install    
       - name: install modules, from 'app_dir_MODULES':'{{ app_dir_MODULES }}'
@@ -96,7 +88,6 @@
           app_archive: "{{ app_archive_MODULES }}"
         become: true
         become_user: "{{ jboss_os_user }}"
-        when: not jboss_modules_target_dir.stat.exists or force_install|bool
         no_log: true
 
       # add 'app_dir/bin' to PATH
