@@ -1,20 +1,20 @@
 ---
 
-# check if installation {{app_dir}} already exists
+# check if installation {{ dest_dir }} already exists
 # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
-- name: check if {{app_dir}} already exists
+- name: check if {{ dest_dir }} already exists
   stat: 
-    path={{ app_dir }}
-  register: target_app_dir
+    path={{ dest_dir }}
+  register: target_dest_dir
 
 # tasks file for install-app-extracted
-- name: creates target directory "{{ app_dir }}"
+- name: creates target directory "{{ dest_dir }}"
   file: 
-    path: "{{ app_dir }}"
+    path: "{{ dest_dir }}"
     state:  directory
     mode: u=rwX,g=rw,o=r
     recurse: yes
-  when: not target_app_dir.stat.exists
+  when: not target_dest_dir.stat.exists
 
 # extract to temporary dir
 - name: remove previous 'extract_dir' "{{ extract_dir }}"
@@ -45,10 +45,10 @@
 
 # using rsync to copy from extract to app dir
 # synchronize: Expect that dest=~/x will be ~<remote_user>/x even if using sudo, So, don´t use ~ (home dir)
-- name: sync (copy) 'extract_dir/top_dir' to 'app_dir'
+- name: sync (copy) 'extract_dir/top_dir' to 'dest_dir'
   ansible.posix.synchronize:
-    src: "{{ extract_dir }}/{{response_output.files[0]}}"
-    dest: "{{ app_dir }}"
+    src: "{{ extract_dir }}/{{ response_output.files[0] }}"
+    dest: "{{ dest_dir }}"
     rsync_opts: "{{ add_rsync_opts | default([]) }}"
   delegate_to: "{{ inventory_hostname }}"
   register: response_output

@@ -29,8 +29,8 @@
 
     # create a variable named "shell_env" that is a dictionary
     shell_env:
-      PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
-      JBOSS_HOME: "{{ app_dir_JBOSS }}"
+      #PATH: "{{ lookup('ansible.builtin.env','PATH') }}:{{ app_dir_JBOSS }}/bin"
+      #JBOSS_HOME: "{{ app_dir_JBOSS }}"
       HOST_CONFIG: "{{ host_config }}"  #from group_vars
       JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
 
@@ -55,9 +55,9 @@
           msg: "{{ master_hostname }}"
 
       #------
-      - name: print shell_env, 
-        debug: 
-          msg: shell_env={{ shell_env }}
+      # - name: print shell_env, 
+      #   debug: 
+      #     msg: shell_env={{ shell_env }}
 
       #------
       - name: template 'host-CONFIG-master-j2.xml' to 'host-CONFIG-master.xml' in 'master'
@@ -85,7 +85,6 @@
           src: ./scripts/       
           dest: "{{ config_scripts_dir }}"
           mode: 0775
-
 
       # end of block, same user for all tasks
       become: true
@@ -152,9 +151,13 @@
       when: inventory_hostname in groups["master"]
       block:
 
+      - name: inspect env vars <<<<<<========================
+        debug:
+          var: ansible_facts.env      
+
       - name: execute START script in 'master'
         ansible.builtin.shell:
-        #when: inventory_hostname in groups["master"]        
+        #when: inventory_hostname in groups["master"] #Already active in block       
         args:
           chdir: "{{ config_scripts_dir }}/start/"
           cmd: nohup ./jboss-start.sh 

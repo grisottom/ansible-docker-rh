@@ -8,5 +8,10 @@
 
   tasks:
   - ping:
-  - debug:
-      msg: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:admin_user') }}"
+  # - debug:
+  #     msg: "{{ lookup('hashi_vault', 'secret=MyCompany/MyContext/jboss/MyInstance:admin_user') }}"
+  - name: inspect env vars
+    debug:
+      var: ansible_facts.env
+    become: true  
+    become_user: "jboss"

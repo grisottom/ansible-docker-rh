@@ -14,7 +14,7 @@ function echo_message() {
 TMP_DIR_DOWNLOADS="/tmp/ansible-tmp"
 
 #previously downloaded 'postgresql.jar' driver
-DRIVER_JAR=$TMP_DIR_DOWNLOADS/postgresql/driver/postgresql.jar
+DRIVER_JAR=$TMP_DIR_DOWNLOADS/downloads/postgresql/driver/postgresql.jar
 if [ ! -f $DRIVER_JAR ]; then
   echo_message "Postgres Driver not found in $DRIVER_JAR"
   exit 1

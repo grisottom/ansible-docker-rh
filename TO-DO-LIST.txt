@@ -69,3 +69,6 @@ fatal: [base-jboss-host-2]: FAILED! => {"msg": "Failed to set permissions on the
     # DEV-INSS-CENTRAL-SERVICE MASTER> ls
     # jboss  
     # jboss-eap-7.3
+
+
+idenpotente

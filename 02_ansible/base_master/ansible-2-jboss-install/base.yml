@@ -10,11 +10,16 @@
     user_home_dir_jboss: "/home/{{ jboss_os_user }}"
     force_install: false #override as needed
 
-    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
-    tmp_extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
-    app_archive_JBOSS: "http://serve.local:8000/jboss/downloads/jboss-eap-7.4.tar.gz"
+    dest_dir_JDK: "{{ user_home_dir_jboss }}/jdk/jdk11.0.2"
+    #dest_top_dir_JDK: "jdk11.0.2"
+    tmp_extract_dir_JDK: "{{ user_home_dir_jboss }}/tmp/extract_dir_jdk"
+    app_archive_JDK: "http://serve.local:8000/downloads/java/openjdk11.0.2.tgz"
 
-    app_dir_MODULES: "{{ user_home_dir_jboss }}/jboss_eap/modules"
+    dest_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
+    tmp_extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
+    app_archive_JBOSS: "http://serve.local:8000/downloads/jboss/jboss-eap-7.4.tar.gz"
+
+    dest_dir_MODULES: "{{ user_home_dir_jboss }}/jboss_eap/modules"
     tmp_extract_dir_MODULES: "{{ user_home_dir_jboss }}/tmp/extract_dir_modules"
     app_archive_MODULES: "http://serve.local:8000/jboss/module-pg/modules.tar.gz"
 
@@ -25,11 +30,11 @@
     #   - "--update"
     #   - "--delay-updates"
       
-  roles:
-    - role: geerlingguy.java
-      when: "ansible_os_family == 'RedHat'"
-      java_packages:
-        - java-11-openjdk
+  # roles:
+  #   - role: geerlingguy.java
+  #     when: "ansible_os_family == 'RedHat'"
+  #     java_packages:
+  #       - java-11-openjdk
 
   tasks:
     - block:  
@@ -40,36 +45,73 @@
         become: true
         no_log: true  #in order to hide sensitive vars, ex password
 
-      # rsync will be used to copy files, role install-app-extracted
-      # dependency for next step
+      # rsync will be used to copy files, role install-app-extracted  # dependency for next step
       - name: install the latest version of rsync
         yum:
           name: rsync
           state: latest
         become: true    
 
-      # check if installation {{app_dir}} already exists
-      # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
-      - name: :'{{app_dir_JBOSS}}' already exists
+      # ------ JDK
+      # check if installation {{dest_dir}} already exists # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
+      - name: :'{{ dest_dir_JDK }}' already exists ?
         stat: 
-          path={{ app_dir_JBOSS }}
+          path={{ dest_dir_JDK }}
+        become: true
+        become_user: "{{ jboss_os_user }}"
+        register: jdk_target_dir
+        no_log: true
+          
+      # only when jdk_target_dir DOS NOT EXISTS or force_install
+      - name: install JDK
+        import_role:
+          name: install-app-extracted
+        vars:
+          dest_dir: "{{ dest_dir_JDK }}"
+          extract_dir: "{{ tmp_extract_dir_JDK }}"
+          app_archive: "{{ app_archive_JDK }}"
+        become: true  
+        become_user: "{{ jboss_os_user }}"
+        when: not jdk_target_dir.stat.exists or force_install|bool
+        no_log: true
+
+      #TODO : exportar PATH, JAVA_HOME e JBOSS_HOME para 
+      #Loading environment variables from YAML file (using include_vars) in Ansible
+      #https://stackoverflow.com/questions/74079578/loading-environment-variables-from-yaml-file-using-include-vars-in-ansible
+
+      # Set fact, to pass variable PATH between tasks  #https://stackoverflow.com/questions/50917142/how-to-access-task-variables-between-the-tasks-in-ansible
+
+
+      # add 'dest_dir/bin' to PATH
+      - name: Add {{ dest_dir_JDK }}/bin to system-wide $PATH.
+        copy:
+          dest: /etc/profile.d/jdk-bin-path.sh
+          content: 'export PATH=$PATH:{{ dest_dir_JDK }}/bin'
+        become: true
+
+      - name: Add {{ dest_dir_JDK }} as JBOSS_HOME environment variable
+        copy:
+          dest: /etc/profile.d/jdk-home.sh
+          content: 'export JAVA_HOME={{ dest_dir_JDK }}'
+        become: true
+
+      # ------ JBOSS
+      # check if installation {{dest_dir}} already exists
+      # https://phoenixnap.com/kb/ansible-check-if-file-exists#ftoc-heading-2
+      - name: :'{{ dest_dir_JBOSS }}' already exists ?
+        stat: 
+          path={{ dest_dir_JBOSS }}
         become: true
         become_user: "{{ jboss_os_user }}"
         register: jboss_target_dir
         no_log: true
           
-      # - name: RESULT - check if 'app_dir_JBOSS':'{{app_dir_JBOSS}}' already exists
-      #   debug:
-      #     msg: "Exists? : {{ jboss_target_dir.stat.exists }}"
-      #   when: not jboss_target_dir.stat.exists or force_install|bool
-
-      # run as user (sudo -u user command)
       # only when jboss_target_dir DOS NOT EXISTS or force_install
       - name: install Jboss
         import_role:
           name: install-app-extracted
         vars:
-          app_dir: "{{ app_dir_JBOSS }}"
+          dest_dir: "{{ dest_dir_JBOSS }}"
           extract_dir: "{{ tmp_extract_dir_JBOSS }}"
           app_archive: "{{ app_archive_JBOSS }}"
         become: true  
@@ -77,34 +119,35 @@
         when: not jboss_target_dir.stat.exists or force_install|bool
         no_log: true
 
+      # add 'dest_dir/bin' to PATH
+      - name: Add {{ dest_dir_JBOSS }}/bin to system-wide $PATH.
+        copy:
+          dest: /etc/profile.d/jboss-bin-path.sh
+          content: 'export PATH=$PATH:{{ dest_dir_JBOSS }}/bin'
+        become: true
+
+      - name: Add {{ dest_dir_JBOSS }} as JBOSS_HOME environment variable
+        copy:
+          dest: /etc/profile.d/jboss-home.sh
+          content: 'export JBOSS_HOME={{ dest_dir_JBOSS }}'
+        become: true
+
+      # ------ JBOSS MODULE
       # install jboss modules
       # only when jboss_modules_target_dir DOS NOT EXISTS or force_install    
-      - name: install modules, from 'app_dir_MODULES':'{{ app_dir_MODULES }}'
+      - name: install modules, from 'dest_dir_MODULES':'{{ dest_dir_MODULES }}'
         import_role:
           name: install-app-extracted
         vars:
-          app_dir: "{{ app_dir_MODULES }}"
+          dest_dir: "{{ dest_dir_MODULES }}"
           extract_dir: "{{ tmp_extract_dir_MODULES }}"
           app_archive: "{{ app_archive_MODULES }}"
         become: true
         become_user: "{{ jboss_os_user }}"
         no_log: true
 
-      # add 'app_dir/bin' to PATH
-      - name: Add { app_dir }}/bin to system-wide $PATH.
-        copy:
-          dest: /etc/profile.d/jboss-bin-path.sh
-          content: 'export PATH=$PATH:{{ app_dir_JBOSS }}/bin'
-        become: true
-
-      - name: Add { app_dir }} as JBOSS_HOME environment variable
-        copy:
-          dest: /etc/profile.d/jboss-home.sh
-          content: 'export JBOSS_HOME={{ app_dir_JBOSS }}'
-        become: true
-
       # -------------------------------------
-      rescue:  #config master
+      rescue:
       - name: Abort execution in case of failure
         when: { ansible_failed_result.failed }
         ansible.builtin.fail:
