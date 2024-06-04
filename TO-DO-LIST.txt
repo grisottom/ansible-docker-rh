@@ -23,7 +23,7 @@ x vault
 
 Fazer esses dois:
 ------------------
-- SO service, start on reboot
+- OS service, start on reboot
 x - connect to jboss <- pg  (Data Source Configuration)
 
 - jboss, apply EAP patch
@@ -37,10 +37,10 @@ x - connect to jboss <- pg  (Data Source Configuration)
 - reorganizar "modules.tar.gz" para evitar overwritting
 x - install postgres from distinct source
 
-- java e postgres são instalados a nível de SO.
-- install 'java' from distinct source (Downloads)
+- postgres é instalado a nível de SO.
+x - java é instalados a nível de SO.
+x - install 'java' from distinct source (Downloads)
 - install java for 'jboss' OS user, link 'java' to 'jdk-specific'
-
 
 
 - conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
@@ -48,7 +48,7 @@ x - install postgres from distinct source
 
 - remove 'run.sh' from '01_hosts/base_host' parece desnecessário.
 
-- running config without previos install (user jboss ), error with unprivileged-user, treat this case:
+- running config without previous install (user jboss ), error with unprivileged-user, treat this case:
 
 "
 TASK [template 'host-CONFIG-master-j2.xml',] ****************************************************************************************************
@@ -71,4 +71,4 @@ fatal: [base-jboss-host-2]: FAILED! => {"msg": "Failed to set permissions on the
     # jboss-eap-7.3
 
 
-idenpotente
+idempotente

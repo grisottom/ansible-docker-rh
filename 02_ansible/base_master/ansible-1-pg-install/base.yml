@@ -25,7 +25,7 @@
   pre_tasks:
     #-------
     # needed rpms, not available in Red Hat repos
-    - name: Pre install alternative postgres dependency RPMs, only for RHEL8
+    - name: Pre install alternative postgres dependency RPMs, only for RHEL8 target
       ansible.builtin.command:
         cmd: "dnf install {{item}} -y"
       with_items:
