@@ -14,6 +14,7 @@
 
   handlers:
     #------ pg restart 
+    # sudo -i does acquires the user's environment.
     - name: pg restart
       ansible.builtin.command:
         chdir: /usr/pgsql-13/bin/

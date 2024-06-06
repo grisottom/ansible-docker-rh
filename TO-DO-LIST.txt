@@ -3,6 +3,7 @@
 TODO:
 
 -----------------------------------------
+X
  ------------------------------------------
  start + config (add-user 'mgmt' & host-master & config.001.cli), master
  start + config (add-user 'app'  & host-slave  & config.001.cli), slaves  
@@ -24,6 +25,7 @@ x vault
 Fazer esses dois:
 ------------------
 - OS service, start on reboot
+#https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html/installation_guide/configuring_jboss_eap_to_run_as_a_service
 x - connect to jboss <- pg  (Data Source Configuration)
 
 - jboss, apply EAP patch
@@ -40,13 +42,13 @@ x - install postgres from distinct source
 - postgres é instalado a nível de SO.
 x - java é instalados a nível de SO.
 x - install 'java' from distinct source (Downloads)
-- install java for 'jboss' OS user, link 'java' to 'jdk-specific'
+x - install java for 'jboss' OS user, link 'java' to 'jdk-specific'
 
 
 - conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
 
 
-- remove 'run.sh' from '01_hosts/base_host' parece desnecessário.
+x - remove 'run.sh' from '01_hosts/base_host' parece desnecessário.
 
 - running config without previous install (user jboss ), error with unprivileged-user, treat this case:
 

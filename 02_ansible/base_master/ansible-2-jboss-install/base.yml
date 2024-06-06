@@ -7,20 +7,22 @@
   environment: "{{ proxy_env }}"  #proxy for openjdk download
 
   vars: 
-    user_home_dir_jboss: "/home/{{ jboss_os_user }}"
+    #root_mount: "/u01"
+    app_dir: "/u01/app"  #/home/{{ jboss_os_user }}"
     force_install: false #override as needed
 
-    dest_dir_JDK: "{{ user_home_dir_jboss }}/jdk/jdk11.0.2"
-    #dest_top_dir_JDK: "jdk11.0.2"
-    tmp_extract_dir_JDK: "{{ user_home_dir_jboss }}/tmp/extract_dir_jdk"
-    app_archive_JDK: "http://serve.local:8000/downloads/java/openjdk11.0.2.tgz"
+    jdk_version: "jdk11.0.2"
+    dest_dir_JDK: "{{ app_dir }}/jdk/{{ jdk_version}}"
+    tmp_extract_dir_JDK: "{{ app_dir }}/tmp/extract_dir_jdk"
+    app_archive_JDK: "http://serve.local:8000/downloads/java/open{{ jdk_version}}.tgz"
 
-    dest_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
-    tmp_extract_dir_JBOSS: "{{ user_home_dir_jboss }}/tmp/extract_dir_jboss"
-    app_archive_JBOSS: "http://serve.local:8000/downloads/jboss/jboss-eap-7.4.tar.gz"
+    jboss_version: "jboss-eap-7.4"
+    dest_dir_JBOSS: "{{ app_dir }}/jboss/{{ jboss_version }}"
+    tmp_extract_dir_JBOSS: "{{ app_dir }}/tmp/extract_dir_jboss"
+    app_archive_JBOSS: "http://serve.local:8000/downloads/jboss/{{ jboss_version }}.tar.gz"
 
-    dest_dir_MODULES: "{{ user_home_dir_jboss }}/jboss_eap/modules"
-    tmp_extract_dir_MODULES: "{{ user_home_dir_jboss }}/tmp/extract_dir_modules"
+    dest_dir_MODULES: "{{ app_dir }}/jboss/{{ jboss_version }}/modules"
+    tmp_extract_dir_MODULES: "{{ app_dir }}/tmp/extract_dir_modules"
     app_archive_MODULES: "http://serve.local:8000/jboss/module-pg/modules.tar.gz"
 
     is_remote_archive: true
@@ -70,6 +72,8 @@
           dest_dir: "{{ dest_dir_JDK }}"
           extract_dir: "{{ tmp_extract_dir_JDK }}"
           app_archive: "{{ app_archive_JDK }}"
+          dest_dir_owner: "{{ jboss_os_user }}"
+          dest_dir_group: "{{ jboss_os_user }}"
         become: true  
         become_user: "{{ jboss_os_user }}"
         when: not jdk_target_dir.stat.exists or force_install|bool
@@ -107,6 +111,8 @@
           dest_dir: "{{ dest_dir_JBOSS }}"
           extract_dir: "{{ tmp_extract_dir_JBOSS }}"
           app_archive: "{{ app_archive_JBOSS }}"
+          dest_dir_owner: "{{ jboss_os_user }}"
+          dest_dir_group: "{{ jboss_os_user }}"
         become: true  
         become_user: "{{ jboss_os_user }}"
         when: not jboss_target_dir.stat.exists or force_install|bool

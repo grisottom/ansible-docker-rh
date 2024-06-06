@@ -13,8 +13,12 @@
     path: "{{ dest_dir }}"
     state:  directory
     mode: u=rwX,g=rw,o=r
+    owner: "{{ dest_dir_owner }}"
+    group: "{{ dest_dir_group }}"
     recurse: yes
   when: not target_dest_dir.stat.exists
+  become: true
+  become_user: ""
 
 # extract to temporary dir
 - name: remove previous 'extract_dir' "{{ extract_dir }}"

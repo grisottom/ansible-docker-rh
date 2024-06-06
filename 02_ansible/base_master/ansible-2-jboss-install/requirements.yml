@@ -1,5 +1,5 @@
 ---
 roles:
-  - name: geerlingguy.java
+ - name: geerlingguy.java
 #- src: geerlingguy.java
 #alvistack.openjdk

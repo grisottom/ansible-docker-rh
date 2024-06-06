@@ -8,27 +8,34 @@
 
   vars: 
 
-    user_home_dir_jboss: "/home/{{ jboss_os_user }}"
-    app_dir_JBOSS: "{{ user_home_dir_jboss }}/jboss_eap"
+    app_dir: "/u01/app"  #/home/{{ jboss_os_user }}"
+    jboss_version: "jboss-eap-7.4"    
+    app_dir_JBOSS: "{{ app_dir }}/jboss/{{ jboss_version }}"
     config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
 
-    config_scripts_dir: "{{ user_home_dir_jboss }}/scripts"
+    config_scripts_dir: "{{ app_dir }}/scripts"
 
     JBOSS_PROFILE_FROM: "default"
     JBOSS_PROFILE_TO: "A_profile"
     JBOSS_SERVER_GROUP: "server_group_A"
     JBOSS_SERVER_CONFIG: "A_config"
+    
+    PATH: "{{ ansible_env.PATH }}"
+    JBOSS_HOME: "{{ ansible_env.JBOSS_HOME }}"
+    JAVA_HOME: "{{ ansible_env.JAVA_HOME }}"
+    HOST_CONFIG: "{{ host_config }}"  #from group_vars
+    JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
 
     # create a variable named "shell_env" that is a dictionary
     shell_env:
-      PATH: "{{ ansible_env.PATH }}"
-      JBOSS_HOME: "{{ ansible_env.JBOSS_HOME }}"
-      JAVA_HOME: "{{ ansible_env.JAVA_HOME }}"
+      PATH: "{{ PATH }}"
+      JBOSS_HOME: "{{ JBOSS_HOME }}"
+      JAVA_HOME: "{{ JAVA_HOME }}"
 
-      HOST_CONFIG: "{{ host_config }}"  #from group_vars
-      JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
+      HOST_CONFIG: "{{ HOST_CONFIG }}"
+      JBOSS_OPTION: "{{ JBOSS_OPTION }}"
 
-  pre_tasks:
+  # pre_tasks:
 
   # - name: inspect env vars <<<<<<========================
   #   debug:
@@ -102,7 +109,7 @@
           msg: "{{ ansible_failed_result }}"
 
     #---------------------------------------------
-    - name: ini config in master
+    - name: ini config in master - add mgmt_user
       when: inventory_hostname in groups["master"]
       block:
       - name: execute INI CONFIG script in 'master'
@@ -124,7 +131,7 @@
           msg: "{{ ansible_failed_result }}"
 
     #---------------------------------------------
-    - name: ini config in slaves
+    - name: ini config in slaves - add app_user
       when: inventory_hostname in groups["slaves"]
       block:
 
@@ -154,13 +161,13 @@
 
       - name: execute START script in 'master'
         ansible.builtin.shell:
-        #when: inventory_hostname in groups["master"] #Already active in block       
+        #when: inventory_hostname in groups["master"] #Already active for block       
         args:
           chdir: "{{ config_scripts_dir }}/start/"
           cmd: nohup ./jboss-start.sh 
         register: results
         no_log: true
-
+        
       - name: Show sucessful result of previous task with line breaks
         ansible.builtin.debug:
           var: results.stdout_lines
@@ -178,7 +185,6 @@
       # end of block, for all tasks
       environment:
         - "{{ shell_env }}"
-        # - /home/jboss/tmp/env_vars.yml
       become: true
       become_user: "{{ jboss_os_user }}"
 
@@ -214,9 +220,74 @@
       become: true
       become_user: "{{ jboss_os_user }}"
 
+    #---------------------------------------------
+    - block: #Config jboss to run as service 
+             #https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html/installation_guide/configuring_jboss_eap_to_run_as_a_service
+             #https://ernayd.medium.com/how-to-install-jboss-eap-7-3-on-centos-8-rhel-8-aaa667905bcc
+
+      #1.Copy the modified service configuration file to the /etc/default directory.
+      - name: 1. template, from 'jboss-eap-j2.conf' to 'jboss-eap.conf'
+        ansible.builtin.template:
+          src: ./template/{{ item.src }}
+          dest: "/etc/default/{{ item.dest }}"
+          mode: 0775
+        with_items:
+          - {src: 'jboss-eap-j2.conf', dest: 'jboss-eap.conf'}
+
+      # #2.Copy the service startup script to the /etc/init.d directory, and give it execute permissions:
+      # - name: 2. Copy the service startup script
+      #   ansible.builtin.command:
+      #     cmd: "cp $JBOSS_HOME/bin/init.d/jboss-eap-rhel.sh /etc/init.d"
+
+      # #2.1.chmod +x /etc/init.d/jboss-eap-rhel.sh
+      # - name: 2.1 chmod +x /etc/init.d/jboss-eap-rhel.sh
+      #   ansible.builtin.command:
+      #     cmd: "chmod +x /etc/init.d/jboss-eap-rhel.sh"
+
+      #2.Copy the service startup script to the /etc/init.d directory, and give it execute permissions:
+      - name: 2. Copy the service startup script
+        ansible.builtin.copy:
+          remote_src: true
+          src: "{{ JBOSS_HOME }}/bin/init.d/jboss-eap-rhel.sh"
+          dest: "/etc/init.d/"
+          mode: u=rwx,g=rw,o=r
+          #{{ JBOSS_HOME }} /u01/app/jboss/jboss-eap-7.4
+
+      # #3.Add the new jboss-eap-rhel.sh service to list of automatically started services using the chkconfig service management command    
+      # - name: 3. chkconfig --add jboss-eap-rhel.sh
+      #   ansible.builtin.command:
+      #     cmd: chkconfig --add jboss-eap-rhel.sh
+
+      #3.Enable JBoss EAP service to start when the system start.
+      - name: 3. chkconfig --add jboss-eap-rhel.sh
+        ansible.builtin.command:
+          chdir: "{{ JBOSS_HOME }}/bin/init.d/"
+          cmd: "systemctl enable jboss-eap-rhel.sh"
+
+      # #4. Test that the service has been installed correctly
+      # - name: 4. service jboss-eap-rhel start
+      #   ansible.builtin.command:
+      #     cmd: service jboss-eap-rhel start
+
+      #  #5. Make the service start automatically when the Red Hat Enterprise Linux server starts,
+      # - name: 5. chkconfig jboss-eap-rhel.sh on
+      #   ansible.builtin.command:
+      #     cmd: chkconfig jboss-eap-rhel.sh on
+
+      # - name: Enable jboss-eap-rhel service start
+      #   ansible.builtin.systemd_service:
+      #     name: jboss-eap-rhel
+      #     enabled: true
+
+      # environment, for the block
+      environment:
+        - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+      become: true          
+
     #---------------------------------------------      
     - block:  #CLI config in 'master' for 'master'
 
+      # Template arquivo de properties para jboss-cli.sh
       - name: template 'cli-CONFIG-master-j2.properties' to 'cli-CONFIG-master.properties' in 'master'
         when: inventory_hostname in groups["master"]
         ansible.builtin.template:
