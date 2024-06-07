@@ -20,20 +20,23 @@
     JBOSS_SERVER_GROUP: "server_group_A"
     JBOSS_SERVER_CONFIG: "A_config"
     
+
     PATH: "{{ ansible_env.PATH }}"
     JBOSS_HOME: "{{ ansible_env.JBOSS_HOME }}"
     JAVA_HOME: "{{ ansible_env.JAVA_HOME }}"
     HOST_CONFIG: "{{ host_config }}"  #from group_vars
-    JBOSS_OPTION: "{{ jboss_option }}" #from group_vars
+    JBOSS_OPTIONS: "{{ jboss_options }}" #from group_vars
 
-    # create a variable named "shell_env" that is a dictionary
+    # create a variable named "shell_env" that is a dictionary, 
+    # to be used by 'shell scripts' executed by Ansible.
+    # Ansible does not use interactive shell
     shell_env:
       PATH: "{{ PATH }}"
       JBOSS_HOME: "{{ JBOSS_HOME }}"
       JAVA_HOME: "{{ JAVA_HOME }}"
 
       HOST_CONFIG: "{{ HOST_CONFIG }}"
-      JBOSS_OPTION: "{{ JBOSS_OPTION }}"
+      JBOSS_OPTIONS: "{{ JBOSS_OPTIONS }}"
 
   # pre_tasks:
 
@@ -216,7 +219,7 @@
 
       # environment, for block
       environment:
-        - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+        - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTIONS
       become: true
       become_user: "{{ jboss_os_user }}"
 
@@ -234,16 +237,6 @@
         with_items:
           - {src: 'jboss-eap-j2.conf', dest: 'jboss-eap.conf'}
 
-      # #2.Copy the service startup script to the /etc/init.d directory, and give it execute permissions:
-      # - name: 2. Copy the service startup script
-      #   ansible.builtin.command:
-      #     cmd: "cp $JBOSS_HOME/bin/init.d/jboss-eap-rhel.sh /etc/init.d"
-
-      # #2.1.chmod +x /etc/init.d/jboss-eap-rhel.sh
-      # - name: 2.1 chmod +x /etc/init.d/jboss-eap-rhel.sh
-      #   ansible.builtin.command:
-      #     cmd: "chmod +x /etc/init.d/jboss-eap-rhel.sh"
-
       #2.Copy the service startup script to the /etc/init.d directory, and give it execute permissions:
       - name: 2. Copy the service startup script
         ansible.builtin.copy:
@@ -253,35 +246,15 @@
           mode: u=rwx,g=rw,o=r
           #{{ JBOSS_HOME }} /u01/app/jboss/jboss-eap-7.4
 
-      # #3.Add the new jboss-eap-rhel.sh service to list of automatically started services using the chkconfig service management command    
-      # - name: 3. chkconfig --add jboss-eap-rhel.sh
-      #   ansible.builtin.command:
-      #     cmd: chkconfig --add jboss-eap-rhel.sh
-
       #3.Enable JBoss EAP service to start when the system start.
       - name: 3. chkconfig --add jboss-eap-rhel.sh
         ansible.builtin.command:
           chdir: "{{ JBOSS_HOME }}/bin/init.d/"
           cmd: "systemctl enable jboss-eap-rhel.sh"
 
-      # #4. Test that the service has been installed correctly
-      # - name: 4. service jboss-eap-rhel start
-      #   ansible.builtin.command:
-      #     cmd: service jboss-eap-rhel start
-
-      #  #5. Make the service start automatically when the Red Hat Enterprise Linux server starts,
-      # - name: 5. chkconfig jboss-eap-rhel.sh on
-      #   ansible.builtin.command:
-      #     cmd: chkconfig jboss-eap-rhel.sh on
-
-      # - name: Enable jboss-eap-rhel service start
-      #   ansible.builtin.systemd_service:
-      #     name: jboss-eap-rhel
-      #     enabled: true
-
       # environment, for the block
       environment:
-        - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTION
+        - "{{ shell_env }}"   #variables PATH, JBOSS_HOME, HOST_CONFIG, JBOSS_OPTIONS
       become: true          
 
     #---------------------------------------------      

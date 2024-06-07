@@ -79,9 +79,10 @@ function start_jboss() {
   if [ "$JBOSS_STARTED" == 1 ] ; then  #not started yet
 
     # ---------------- START JBOSS --------------------
-    echo_message "starting jboss, domain mode, --host-config=$HOST_CONFIG $JBOSS_OPTION &"
+    echo_message "starting jboss, domain mode, --host-config=$HOST_CONFIG $JBOSS_OPTIONS &"
 
-    domain.sh -b 0.0.0.0 -bmanagement 0.0.0.0 --host-config=$HOST_CONFIG $JBOSS_OPTION &
+    #domain.sh -b 0.0.0.0 -bmanagement 0.0.0.0 --host-config=$HOST_CONFIG $JBOSS_OPTIONS &
+    domain.sh --host-config=$HOST_CONFIG $JBOSS_OPTIONS &
 
     currenttime=$(date +%s);
     echo "currenttime: $currenttime";

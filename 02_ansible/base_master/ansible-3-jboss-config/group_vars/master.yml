@@ -1,2 +1,2 @@
 host_config: host-CONFIG-master.xml
-jboss_option: ""
+jboss_options: "-b 0.0.0.0 -bmanagement 0.0.0.0"

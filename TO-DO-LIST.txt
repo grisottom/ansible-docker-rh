@@ -1,6 +1,4 @@
- https://docs.ansible.com/ansible/latest/vault_guide/vault_managing_passwords.html#storing-vault-passwords
-
-TODO:
+ TODO:
 
 -----------------------------------------
 X
@@ -24,11 +22,11 @@ x vault
 
 Fazer esses dois:
 ------------------
-- OS service, start on reboot
+X - OS service, start on reboot
 #https://access.redhat.com/documentation/en-us/red_hat_jboss_enterprise_application_platform/7.0/html/installation_guide/configuring_jboss_eap_to_run_as_a_service
 x - connect to jboss <- pg  (Data Source Configuration)
 
-- jboss, apply EAP patch
+ X - jboss, apply EAP patch  - NÃO FAZER, soluciona com arquivo compactado
 - jboss, use  wildfly
 
 - collection, with 'create user', 'install-extracted' ...
@@ -45,25 +43,14 @@ x - install 'java' from distinct source (Downloads)
 x - install java for 'jboss' OS user, link 'java' to 'jdk-specific'
 
 
-- conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
+X - conexão jdbc, parâmetros da base de dados CONFIGURÁVEL       --connection-url=jdbc:postgresql://base-pg-host-1:5432/db1 \
 
 
 x - remove 'run.sh' from '01_hosts/base_host' parece desnecessário.
 
-- running config without previous install (user jboss ), error with unprivileged-user, treat this case:
+X - running config without previous install (user jboss ), error with unprivileged-user, treat this case:
 
-"
-TASK [template 'host-CONFIG-master-j2.xml',] ****************************************************************************************************
-skipping: [base-jboss-host-2] => (item={'src': 'host-CONFIG-master-j2.xml', 'dest': 'host-CONFIG-master.xml'}) 
-skipping: [base-jboss-host-2]
-skipping: [base-jboss-host-3] => (item={'src': 'host-CONFIG-master-j2.xml', 'dest': 'host-CONFIG-master.xml'}) 
-skipping: [base-jboss-host-3]
-fatal: [base-jboss-host-1]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
 
-TASK [template 'host-CONFIG-slave-j2.xml',] *****************************************************************************************************
-fatal: [base-jboss-host-3]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
-fatal: [base-jboss-host-2]: FAILED! => {"msg": "Failed to set permissions on the temporary files Ansible needs to create when becoming an unprivileged user (rc: 1, err: chmod: invalid mode: ‘A+user:jboss:rx:allow’\nTry 'chmod --help' for more information.\n}). For information on working around this, see https://docs.ansible.com/ansible-core/2.14/user_guide/become.html#risks-of-becoming-an-unprivileged-user"}
-"
 
 
     #[ 29/02/2024 15:11:27 ][ jboss on v121d502 ][ /u01/app/jboss/jboss ]
