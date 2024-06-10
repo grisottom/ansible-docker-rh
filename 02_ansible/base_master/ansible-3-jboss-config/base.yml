@@ -15,12 +15,13 @@
 
     config_scripts_dir: "{{ app_dir }}/scripts"
 
+    # Fixed variables, case specific
     JBOSS_PROFILE_FROM: "default"
     JBOSS_PROFILE_TO: "A_profile"
     JBOSS_SERVER_GROUP: "server_group_A"
     JBOSS_SERVER_CONFIG: "A_config"
     
-
+    #Environment variables 
     PATH: "{{ ansible_env.PATH }}"
     JBOSS_HOME: "{{ ansible_env.JBOSS_HOME }}"
     JAVA_HOME: "{{ ansible_env.JAVA_HOME }}"
