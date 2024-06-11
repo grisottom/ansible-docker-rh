@@ -20,7 +20,7 @@ ENTRYPOINT ["/bin/sh","/work_dir/run.sh"]
 
 #shared_key_pair/ is be mapped to volume on host, see docker-compose.yml
 #    volumes:
-#      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
+#      - /tmp/.ansible-tmp/master_ssh_key_pair/:/work_dir/shared_key_pair/
 
 #this indirection of copying the key to a shared folder after the container is started exists
 #because, with volumes, the host content overrides the container container when container starts (left -> right)

@@ -6,7 +6,7 @@ services:
     build: ./base_keypair
     image: shared_key_pair
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/work_dir/shared_key_pair/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/work_dir/shared_key_pair/
     networks: 
       - ansible-net
 
@@ -20,17 +20,17 @@ services:
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 
 #ipam - IP Address Management Driver
 #configuration to avoid conflict with VPN, when it is on
-#in order to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
+#to avoid error: "could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network"
 networks:
   ansible-net:
+    driver: bridge
     ipam:
-      driver: default
-      config: 
+      config:
         - subnet: 172.25.25.0/24
     name: ansible-net

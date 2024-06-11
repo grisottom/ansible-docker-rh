@@ -1,4 +1,33 @@
+Branch 'main' contains installation of 
+
+- Apache Web Server - 2 hosts
+- Deploy of application on web servers
+
+FINISHED DEVELOPMENT,  Jun/2024, will not merge this branch with main, they have distinct purposes.
+
+## requirements
+
+On host environments where internet navigation is subject to proxy intermediary, some inter-(docker-machine) communications can be wrongfully send to the proxy. To avoid route through proxy for docker 172.0.0.0/8 addresses, it is imperative to add 'noProxy' configuration as below:
+  
+```~/.docker/config.json```:
+
+```
+{
+	"auths": {},
+	"proxies": {
+		"default": {
+			"httpProxy": "http://172.17.0.1:3128",
+			"httpsProxy": "http://172.17.0.1:3128",
+			"noProxy": ".local,.localhost,.internal,localhost,0.0.0.0,127.0.0.1,127.0.0.11,172.0.0.0/8"
+		}
+	}
+}
+```
+
+PS: this rule is was tested for RHEL docker based containers (target hosts) based on RHEL
+
 # ansible-docker-rh
+
 
 Ansible development environment using docker and targeting RedHat 8 compatible containers.
 
@@ -23,7 +52,7 @@ The third command creates reverse proxy/load balancer with names :
   - 'web.localhost' for Apache root and 
   - 'chess.localhost' for Chess App.
 
-### Troubleshoot
+## Troubleshoot
 
 If you get the following error:
 
@@ -35,7 +64,7 @@ could not find an available, non-overlapping IPv4 address pool among the default
 
 **close your active VPN connection**
 
-### Key generation in host machine 
+## Key generation in host machine 
 
 Ansible uses ssh for connection between ```master ansible``` and the ```target hosts```. 
 
@@ -53,7 +82,7 @@ The keypair is placed by a volume in ```home/your_user/.ssh/master_ssh_key_pair/
 
 Later on, using volumes, the ```private key``` is shared with ```master ansible``` and the ```public key``` with the ```target hosts``` containers.
 
-### Did it work out?
+## Did it work out?
 
 The software installed by Ansible are Apache web server and a javascript chess application on that server.
 
@@ -77,7 +106,7 @@ This work is inspired mainly by two others:
 - [1 - ansible-lab-docker](https://github.com/LMtx/ansible-lab-docker/tree/master)
 - [2 - Running Ansible from inside Docker image for CI/CD pipeline](https://michalklempa.com/2020/05/ansible-in-docker/)
 
-Classically the development of Ansible roles is done in VMs on the developer's own machine, optionally with the help of Vagrant to provide standardization.
+Usually the development of Ansible roles is done in VMs on the developer's own machine, optionally with the help of Vagrant to provide standardization.
   
 There are a series of difficulties in developing using VMs such as problems with host machine virtualization, host machine overload, faulty network configurations, mount points problems.
   
@@ -117,7 +146,7 @@ The configuration of ```ssh-server``` in ```/etc/ssh/sshd_config``` is tweaked t
   UsePAM yes
 ```
 
-### ```target_host``` image and containers
+## ```target_host``` image and containers
 
 From dir ```/01_hosts``` a sample of ```/docker-compose.yml```:
 
@@ -136,7 +165,7 @@ services:
     deploy:
       replicas: 2
     volumes:
-      - ~/.ssh/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
     networks: 
       - ansible-net
 ```
@@ -181,7 +210,7 @@ Finally the **working directory** is ```/ansible```:
 WORKDIR /ansible
 ```
 
-### ```ansible_base_master``` image and containers
+## ```ansible_base_master``` image and containers
 
 Excerpt from docker-compose.yml:
 
@@ -191,7 +220,7 @@ Excerpt from docker-compose.yml:
     image: ansible_base_master:latest
     privileged: true
     volumes:
-      - ~/.ssh/master_ssh_key_pair/:/root/.ssh/
+      - /tmp/.ansible-tmp/master_ssh_key_pair/:/root/.ssh/
       - ./base_master/ansible-1-apache-install:/ansible
     networks: 
       - ansible-net       
@@ -218,7 +247,7 @@ Before running then, build the image with ```./docker-0-build-image.sh```
 
 Those scripts are more development oriented, you can run one each time and check the results, another advantage is that you don't ever need to run ```docker-compose down``` before a new run.
 
-#### Ansible scripts
+### Ansible scripts
 
 The main objective is to develop and test ansible scripts, they are available in subfolders of ```/02_ansible/base_master```, in this case of apache, in subfolders:
 
@@ -263,13 +292,28 @@ The ```base.yml``` file contain the Ansible tasks/roles, ex:
 
 Notice that we are including a community role from Ansible Galaxy called ```geerlingguy.apache``` (see ```requirements.yml``` file). This role does the job of installing Apache.
 
-
-### docker-compose ```traefik```
+## docker-compose ```traefik```
 
 You can access the web server through the IP attributed to the host, ex: 172.21.0.3, or access through a reverse proxy.
 
-The load balancer traefik configuration maps two names to the web hosts, ```web.localhost``` and ```chess.localhost```:
+The load balancer traefik configuration maps two names to the web hosts, [```web.localhost:8000```](http://web.localhost:8000) and [```chess.localhost:8000```](http://chess.localhost:8000):
 
+**docker-compose.yml**
+```
+...
+services:
+  reverse-proxy:
+    # The official v2 Traefik docker image
+    image: traefik:v2.10
+    # Enables the web UI and tells Traefik to listen to docker
+    ports:
+      # The HTTP port
+      - "8000:80"
+      # The Web UI (enabled by --api.insecure=true)
+      - "8880:8080
+```
+
+**traefic.yml**
 ```
 ## DYNAMIC CONFIGURATION
 
