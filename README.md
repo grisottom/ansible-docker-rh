@@ -3,7 +3,7 @@ Branch 'main' contains installation of
 - Apache Web Server - 2 hosts
 - Deploy of application on web servers.
 
-On additional branch, [jboss-install](../tree/jboss-install), contains a working installation of 
+On additional branch, [jboss-install](../../tree/jboss-install), contains a working installation of 
 
 - Single Instance Postgres and
 - Cluster of Jboss (Domain Mode).
