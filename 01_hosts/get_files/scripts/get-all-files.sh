@@ -3,7 +3,7 @@
 
 #files needed by ansible scripts, store then locally in order to avoid repetitive downloads
 
-#jboss from corporate URL
+#openjdk11 from corporate URL
 declare -A obj0=(
     [file]="openjdk11.0.2.tgz"
     [repo]="http://v151p444.prevnet/dataprev/automacao/pacotes/java/"
@@ -11,6 +11,15 @@ declare -A obj0=(
     [download_to_dir]="/tmp/ansible-tmp/downloads/java"
     [local_file_name]=''
 )
+
+#openjdk17 from Oracle
+#declare -A obj0=(
+#    [file]="jdk-17_linux-x64_bin.tar.gz"
+#    [repo]="https://download.oracle.com/java/17/latest/"
+#    [is_repo_remote]=true
+#    [download_to_dir]="/tmp/ansible-tmp/downloads/java"
+#    [local_file_name]=''
+#)
 
 #jboss from corporate URL
 declare -A obj1=(
