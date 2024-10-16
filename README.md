@@ -89,11 +89,11 @@ Later on, using volumes, the ```private key``` is shared with ```master ansible`
 
 The software installed by Ansible are Apache web server and a javascript chess application on that server.
 
-You can assert that Apache is running by accessing [```"http://web.localhost"```](http://web.localhost). 
+You can assert that Apache is running by accessing [```"http://web.localhost:8000"```](http://web.localhost:8000). 
 
-The chess application can be accessed on  [```"http://chess.localhost"```](http://chess.localhost). 
+The chess application can be accessed on  [```"http://chess.localhost:8000"```](http://chess.localhost:8000). 
 
-```"Chess Game Using JavaScript"``` application was obtained 24/08/2003 in: 
+```"Chess Game Using JavaScript"``` application was obtained 24/08/2023 in: 
 
 - https://www.sourcecodester.com/javascript/14325/chess-game-using-javascript.html (Apache License), 
 
