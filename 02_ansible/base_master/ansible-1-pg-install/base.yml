@@ -35,11 +35,15 @@
         - http://serve.local:8000/downloads/postgresql/rpm/perl-Data-Dumper-2.167-399.el8.x86_64.rpm
       when: ansible_facts['os_family'] == "RedHat" and ansible_facts['distribution_major_version'] == "8" 
     #-------
-    - name: Install postgres RPM
+    - name: Add the PostgreSQL repository
       ansible.builtin.command:
         cmd: "dnf install {{item}} -y"
       with_items:
         - http://serve.local:8000/downloads/postgresql/rpm/pgdg-redhat-repo-latest.noarch.rpm
+    #-------
+    - name: Disable the default PostgreSQL repository
+      ansible.builtin.command:
+        cmd: "dnf module -qy disable postgresql"
     #-------
     - name: "Install packages"
       ansible.builtin.dnf: "name={{ item }} state=present"
