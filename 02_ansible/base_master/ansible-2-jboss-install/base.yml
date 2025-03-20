@@ -16,7 +16,7 @@
     tmp_extract_dir_JDK: "{{ app_dir }}/tmp/extract_dir_jdk"
     app_archive_JDK: "http://serve.local:8000/downloads/java/open{{ jdk_version}}.tgz"
 
-    jboss_version: "jboss-eap-7.4"
+    jboss_version: "jboss-eap-7.3"
     dest_dir_JBOSS: "{{ app_dir }}/jboss/{{ jboss_version }}"
     tmp_extract_dir_JBOSS: "{{ app_dir }}/tmp/extract_dir_jboss"
     app_archive_JBOSS: "http://serve.local:8000/downloads/jboss/{{ jboss_version }}.tar.gz"

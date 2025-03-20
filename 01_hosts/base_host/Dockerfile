@@ -31,7 +31,7 @@ RUN ["mkdir","-p","/u01"]
 #usually /u01 is a separated mount
 
 #Red Hat Enterprise Linux 9 does not have the initscripts package in the default build. This package includes the /etc/init.d/functions file used by the jboss-eap-rhel.sh service. The /etc/init.d/functions file is required to start JBoss EAP as a service; therefore, install the initscripts package using the following command:
-#https://access.redhat.com/documentation/pt-br/red_hat_jboss_enterprise_application_platform/7.4/html-single/installation_guide/index#configuring-jboss-eap-archive-installation-as-a-service-on-rhel_default
+#https://access.redhat.com/documentation/pt-br/red_hat_jboss_enterprise_application_platform/7.3/html-single/installation_guide/index#configuring-jboss-eap-archive-installation-as-a-service-on-rhel_default
 RUN ["dnf", "install", "initscripts", "-y"] 
 
 ENTRYPOINT ["/sbin/init"]

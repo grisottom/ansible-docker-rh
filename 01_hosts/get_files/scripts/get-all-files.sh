@@ -23,7 +23,7 @@ declare -A obj0=(
 
 #jboss from corporate URL
 declare -A obj1=(
-    [file]="jboss-eap-7.4.tar.gz"
+    [file]="jboss-eap-7.3.tar.gz"
 #    [repo]="http://nfs.prj.configdtp/dataprev/linux/x86_64"
     [repo]="http://v151p444.prevnet/dataprev/linux/x86_64"
     [is_repo_remote]=true
@@ -33,7 +33,7 @@ declare -A obj1=(
 
 #jboss previous from local file
 # declare -A obj1=(
-#     [file]="jboss-eap-7.4.tar.gz"
+#     [file]="jboss-eap-7.3.tar.gz"
 #     [repo]="~/Downloads/jboss"
 #     [is_repo_remote]=false
 #     [download_to_dir]="/tmp/ansible-tmp/jboss"

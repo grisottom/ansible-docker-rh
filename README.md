@@ -209,7 +209,7 @@ The download scripts are available under ```get_files/scripts/get_all-files.sh``
 ```
 #jboss previous from local file
 declare -A obj1=(
-     [file]="jboss-eap-7.4.tar.gz"
+     [file]="jboss-eap-7.3.tar.gz"
      [repo]="~/Downloads/jboss"
      [is_repo_remote]=false
      [download_to_dir]="/tmp/ansible-tmp/jboss"

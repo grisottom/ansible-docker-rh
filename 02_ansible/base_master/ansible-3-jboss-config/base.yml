@@ -9,7 +9,7 @@
   vars: 
 
     app_dir: "/u01/app"  #/home/{{ jboss_os_user }}"
-    jboss_version: "jboss-eap-7.4"    
+    jboss_version: "jboss-eap-7.3"    
     app_dir_JBOSS: "{{ app_dir }}/jboss/{{ jboss_version }}"
     config_domain_dir_JBOSS: "{{ app_dir_JBOSS }}/domain/configuration"
 
@@ -245,7 +245,7 @@
           src: "{{ JBOSS_HOME }}/bin/init.d/jboss-eap-rhel.sh"
           dest: "/etc/init.d/"
           mode: u=rwx,g=rw,o=r
-          #{{ JBOSS_HOME }} /u01/app/jboss/jboss-eap-7.4
+          #{{ JBOSS_HOME }} /u01/app/jboss/jboss-eap-7.3
 
       #3.Enable JBoss EAP service to start when the system start.
       - name: 3. chkconfig --add jboss-eap-rhel.sh
