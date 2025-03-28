@@ -46,6 +46,9 @@ services:
   get-files:
     build: ./get_files
     image: base_get
+    extra_hosts:
+      - "v151p444.prevnet:10.0.143.16"
+      - "ftp.unicamp.br:143.106.10.149"
     volumes:
       - /tmp/ansible-tmp:/tmp/ansible-tmp
       - ./get_files/scripts/:/scripts/
