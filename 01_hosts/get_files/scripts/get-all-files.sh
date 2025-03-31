@@ -53,6 +53,19 @@ declare -A obj2=(
     [local_file_name]='postgresql.jar'
 )
 
+# oracle driver from maven repo
+ORACLE_DRV_VERSION="19.3.0.0"
+ORACLE_JDBC_DRIVER="ojdbc8-$ORACLE_DRV_VERSION.jar"
+ORACLE_REPO="https://repo1.maven.org/maven2/com/oracle/ojdbc/ojdbc8/$ORACLE_DRV_VERSION"
+
+declare -A obj2=(
+    [file]="$ORACLE_JDBC_DRIVER"
+    [repo]="$ORACLE_REPO"
+    [is_repo_remote]=true
+    [download_to_dir]="/tmp/ansible-tmp/downloads/oracle/driver"
+    [local_file_name]='ojdbc8.jar'
+)
+
 # official postgres RPM
 #https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 

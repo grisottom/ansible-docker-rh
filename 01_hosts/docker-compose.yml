@@ -86,7 +86,22 @@ services:
       - ansible-net 
     extra_hosts:
       - "host.docker.internal:host-gateway"
-      
+
+  oracle-module:
+    build: ./get_oracle_module
+    image: get_oracle_module
+    depends_on: 
+      http-serve-files:
+        condition: service_started
+    volumes: 
+      - /tmp/ansible-tmp/:/tmp/ansible-tmp/
+      - ./get_oracle_module/scripts/:/scripts/
+    command: sh module-oracle.sh
+    networks: 
+      - ansible-net 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   jboss-host:
     # build: ./base_host
     image: target_host
@@ -97,6 +112,8 @@ services:
         condition: service_completed_successfully
       postgres-module:
         condition: service_completed_successfully        
+      oracle-module:
+        condition: service_completed_successfully   
     privileged: true
     deploy:
       replicas: 3

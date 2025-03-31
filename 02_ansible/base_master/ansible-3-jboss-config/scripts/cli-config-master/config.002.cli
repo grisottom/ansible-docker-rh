@@ -39,3 +39,13 @@ if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/data-source=
         --blocking-timeout-wait-millis=5000 \
         --new-connection-sql="set datestyle = ISO, European;"
 end-if
+
+#-------- oracle driver
+#-------- ,xa-datasource-class=oracle.jdbc.xa.client.OracleXADataSource
+echo ~>2.4
+if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/jdbc-driver=oracle:query
+    echo ~>2.4.1, ${PROFILE}, ative driver oracle for profile
+    /profile=${PROFILE}/subsystem=datasources/jdbc-driver=oracle:add(driver-name="oracle",driver-module-name="com.oracle.ojdbc8",driver-class-name=oracle.jdbc.driver.OracleDriver)
+end-if
+
+

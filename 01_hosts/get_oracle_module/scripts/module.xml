@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.1" name="com.oracle.ojdbc8">
+    <resources>
+        <resource-root path="ojdbc8.jar"/>
+    </resources>
+    <dependencies>
+        <module name="javax.api"/>          <!-- Required for JDBC -->
+        <module name="javax.transaction.api"/> <!-- Required for XA transactions -->
+    </dependencies>
+</module>
