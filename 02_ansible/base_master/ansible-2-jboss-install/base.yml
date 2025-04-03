@@ -28,6 +28,9 @@
     tmp_extract_dir_MODULES_ORACLE: "{{ app_dir }}/tmp/extract_dir_modules_oracle"
     app_archive_MODULES_ORACLE: "http://serve.local:8000/jboss/module-oracle/modules.tar.gz"
 
+    tmp_extract_dir_MODULES_WEBLOGIC: "{{ app_dir }}/tmp/extract_dir_modules_weblogic"
+    app_archive_MODULES_WEBLOGIC: "http://serve.local:8000/jboss/module-weblogic/modules.tar.gz"
+
     is_remote_archive: true
 
     # Option to avoid overwriting
@@ -155,6 +158,17 @@
           dest_dir: "{{ dest_dir_MODULES }}"
           extract_dir: "{{ tmp_extract_dir_MODULES_ORACLE }}"
           app_archive: "{{ app_archive_MODULES_ORACLE }}"
+        become: true
+        become_user: "{{ jboss_os_user }}"
+        no_log: true
+
+        name: install modules, from 'dest_dir_MODULES':'{{ dest_dir_MODULES }}'
+        import_role:
+          name: install-app-extracted
+        vars:
+          dest_dir: "{{ dest_dir_MODULES }}"
+          extract_dir: "{{ tmp_extract_dir_MODULES_WEBLOGIC }}"
+          app_archive: "{{ app_archive_MODULES_WEBLOGIC }}"
         become: true
         become_user: "{{ jboss_os_user }}"
         no_log: true

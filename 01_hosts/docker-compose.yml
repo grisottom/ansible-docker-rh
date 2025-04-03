@@ -102,6 +102,21 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  weblogic-module:
+    build: ./get_weblogic_module
+    image: get_weblogic_module
+    depends_on: 
+      http-serve-files:
+        condition: service_started
+    volumes: 
+      - /tmp/ansible-tmp/:/tmp/ansible-tmp/
+      - ./get_weblogic_module/scripts/:/scripts/
+    command: sh module-weblogic.sh
+    networks: 
+      - ansible-net 
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
   jboss-host:
     # build: ./base_host
     image: target_host
@@ -113,7 +128,9 @@ services:
       postgres-module:
         condition: service_completed_successfully        
       oracle-module:
-        condition: service_completed_successfully   
+        condition: service_completed_successfully  
+      weblogic-module:
+        condition: service_completed_successfully    
     privileged: true
     deploy:
       replicas: 3

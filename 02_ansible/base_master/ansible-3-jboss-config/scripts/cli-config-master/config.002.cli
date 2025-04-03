@@ -48,4 +48,10 @@ if (outcome == failed) of /profile=${PROFILE}/subsystem=datasources/jdbc-driver=
     /profile=${PROFILE}/subsystem=datasources/jdbc-driver=oracle:add(driver-name="oracle",driver-module-name="com.oracle.ojdbc8",driver-class-name=oracle.jdbc.driver.OracleDriver)
 end-if
 
+echo ~>2.5
+if (outcome == failed) of /profile=${PROFILE}/subsystem=ee:read-attribute(name=global-modules)
+    echo ~>2.5.1, ${PROFILE}, ative weblogic client for profile
+    /profile=${PROFILE}/subsystem=ee:write-attribute(name=global-modules,value=[{"name"=>"com.oracle.weblogic.client","slot"=>"main"}])
+end-if
+
 

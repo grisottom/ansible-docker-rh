@@ -66,6 +66,19 @@ declare -A obj2=(
     [local_file_name]='ojdbc8.jar'
 )
 
+# oracle driver from maven repo
+WEBLOGIC_DRV_VERSION="14.1.1"
+WEBLOGIC_JDBC_DRIVER="download.aspx?UniqueId=3c91611f87874c2795407a685098b5ff&e=czYwgl"
+WEBLOGIC_REPO="https://dataprevrj-my.sharepoint.com/personal/eduardo_beninca_dataprev_gov_br/_layouts/15"
+
+declare -A obj2=(
+    [file]="$WEBLOGIC_JDBC_DRIVER"
+    [repo]="$WEBLOGIC_REPO"
+    [is_repo_remote]=true
+    [download_to_dir]="/tmp/ansible-tmp/downloads/weblogic/driver"
+    [local_file_name]='wlthint3client.jar'
+)
+
 # official postgres RPM
 #https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
