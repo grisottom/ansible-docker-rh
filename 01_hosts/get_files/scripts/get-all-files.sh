@@ -58,7 +58,7 @@ ORACLE_DRV_VERSION="19.3.0.0"
 ORACLE_JDBC_DRIVER="ojdbc8-$ORACLE_DRV_VERSION.jar"
 ORACLE_REPO="https://repo1.maven.org/maven2/com/oracle/ojdbc/ojdbc8/$ORACLE_DRV_VERSION"
 
-declare -A obj2=(
+declare -A obj3=(
     [file]="$ORACLE_JDBC_DRIVER"
     [repo]="$ORACLE_REPO"
     [is_repo_remote]=true
@@ -68,11 +68,11 @@ declare -A obj2=(
 
 # oracle driver from maven repo
 WEBLOGIC_DRV_VERSION="14.1.1"
-WEBLOGIC_JDBC_DRIVER="download.aspx?UniqueId=3c91611f87874c2795407a685098b5ff&e=czYwgl"
-WEBLOGIC_REPO="https://dataprevrj-my.sharepoint.com/personal/eduardo_beninca_dataprev_gov_br/_layouts/15"
+WEBLOGIC_CLIENT_DRIVER="wlthint3client-$WEBLOGIC_DRV_VERSION.jar"
+WEBLOGIC_REPO="https://www-bin/repository/thirdparty/com/oracle/weblogic/wlthint3client/$WEBLOGIC_DRV_VERSION"
 
-declare -A obj2=(
-    [file]="$WEBLOGIC_JDBC_DRIVER"
+declare -A obj4=(
+    [file]="$WEBLOGIC_CLIENT_DRIVER"
     [repo]="$WEBLOGIC_REPO"
     [is_repo_remote]=true
     [download_to_dir]="/tmp/ansible-tmp/downloads/weblogic/driver"
@@ -83,7 +83,7 @@ declare -A obj2=(
 #https://download.postgresql.org/pub/repos/yum/reporpms/EL-8-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 
 #alternative postgres RPM 
-declare -A obj3=(
+declare -A obj5=(
     [file]="pgdg-redhat-repo-latest.noarch.rpm"
     [repo]="https://ftp.unicamp.br/pub/postgresql/repos/yum/reporpms/EL-8-x86_64"
     [is_repo_remote]=true
@@ -92,7 +92,7 @@ declare -A obj3=(
 )
 
 # alternative postgres RPM dependency, needed only by RHEL8
-declare -A obj4=(
+declare -A obj6=(
     [file]="libicu-60.3-2.el8_1.x86_64.rpm"
     [repo]="https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/l/"
     [is_repo_remote]=true
@@ -101,7 +101,7 @@ declare -A obj4=(
 )
 
 # alternative postgres RPM dependency, needed only by RHEL8
-declare -A obj5=(
+declare -A obj7=(
     [file]="perl-Data-Dumper-2.167-399.el8.x86_64.rpm"
     [repo]="https://ftp.unicamp.br/pub/rocky/8/BaseOS/x86_64/os/Packages/p/"
     [is_repo_remote]=true

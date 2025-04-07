@@ -50,8 +50,11 @@ end-if
 
 echo ~>2.5
 if (outcome == failed) of /profile=${PROFILE}/subsystem=ee:read-attribute(name=global-modules)
-    echo ~>2.5.1, ${PROFILE}, ative weblogic client for profile
-    /profile=${PROFILE}/subsystem=ee:write-attribute(name=global-modules,value=[{"name"=>"com.oracle.weblogic.client","slot"=>"main"}])
+    echo ~>2.5.1, ${PROFILE}, initializing global-modules for profile
+    /profile=${PROFILE}/subsystem=ee:write-attribute(name=global-modules, value=[])
 end-if
+
+echo ~>2.5.2, ${PROFILE}, adding weblogic client to global-modules
+/profile=${PROFILE}/subsystem=ee:list-add(name=global-modules, value={"name" => "com.oracle.weblogic.client", "slot" => "main"})
 
 

@@ -162,7 +162,7 @@
         become_user: "{{ jboss_os_user }}"
         no_log: true
 
-        name: install modules, from 'dest_dir_MODULES':'{{ dest_dir_MODULES }}'
+      - name: install modules, from 'dest_dir_MODULES':'{{ dest_dir_MODULES }}'
         import_role:
           name: install-app-extracted
         vars:

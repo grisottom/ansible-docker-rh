@@ -49,6 +49,7 @@ services:
     extra_hosts:
       - "v151p444.prevnet:10.0.143.16"
       - "ftp.unicamp.br:143.106.10.149"
+      - "www-bin:10.70.121.196"
     volumes:
       - /tmp/ansible-tmp:/tmp/ansible-tmp
       - ./get_files/scripts/:/scripts/
