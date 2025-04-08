@@ -137,6 +137,7 @@ services:
       replicas: 3
     volumes:
       - /tmp/.ansible-tmp/master_ssh_key_pair/id_ed25519.pub:/root/.ssh/authorized_keys
+      - /etc/config:/etc/config
     networks: 
       - ansible-net
 
