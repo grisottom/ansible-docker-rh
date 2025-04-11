@@ -48,8 +48,8 @@ The second command:
   - installs and configure Jboss on ```target hosts``` (ansible script),  
 
 The third command creates reverse proxy/load balancer for:
-  -Jboss Admin Controller with name : 'console.localhost:8000/console'
-  -Application cluster with name : 'app.localhost:8000'
+  - Jboss Admin Controller with name : 'console.localhost:8000/console'
+  - Application cluster with name : 'app.localhost:8000'
 
 
 ## Troubleshoot
