@@ -5,13 +5,32 @@ http:
     route-to-jboss-console:
       rule: "Host(`console.localhost`)"
       service: service-jboss-console
+    route-to-jboss-app:
+      rule: "Host(`app.localhost`)" 
+      service: "jboss-cluster"
+      #tls: {}     
 
   services:
     service-jboss-console:
       loadBalancer:
         servers:
           - url: "http://base-jboss-host-1:9990"
+    jboss-cluster:
+      loadBalancer:
+        servers:
+          - url: "http://base-jboss-host-2:8080"
+          - url: "http://base-jboss-host-3:8080"
+        sticky:
+          cookie:
+            name: JSESSIONID
+            secure: true
+            httpOnly: true
+        healthCheck:
+          path: "/"
+          interval: "10s"
+
     # service-jboss-web:
     #   loadBalancer:
     #     servers:
-    #       - url: "http://base-jboss-host-1:8080"          
+    #       - url: "http://base-jboss-host-1:8080"
+     

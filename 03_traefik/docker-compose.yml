@@ -23,6 +23,8 @@ services:
       - "./dynamic.yml:/dynamic.yml:ro"      
     networks: 
       - ansible-net
+    extra_hosts:
+      - "app.localhost:127.0.0.1"
 
 networks:
   ansible-net:
