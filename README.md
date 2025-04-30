@@ -49,7 +49,10 @@ The second command:
 
 The third command creates reverse proxy/load balancer for:
   - Jboss Admin Controller with name : 'console.localhost:8000/console'
-  - Application cluster with name : 'app.localhost:8000'
+  - Application cluster with name (REST/SOAP/EJB) : 'app.localhost:8000'
+
+For EJB calls use the application user:     
+  - "app_user": "user", "app_user_pwd": "user00"
 
 
 ## Troubleshoot
